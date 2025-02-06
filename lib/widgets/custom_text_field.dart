@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 class CustomFormTextField extends StatelessWidget {
   //give it default value false , عشان متروحش لكل واحد و تديله قيمة و انا دكدا كدا مش عاوزة تتعمل غير ف الباسورد بس و دا بسبب اني لازم تبتصي قيمة تحت و تكون مش ب null
-  CustomFormTextField({this.hintText, this.onChanged, this.obscureText = false, this.icon});
+  CustomFormTextField({this.hintText, this.controller,this.obscureText = false, this.icon});
 
-  Function(String)?
-      onChanged; //cannot use voidcallback func here bec voidcallback func doesnot take any arguments and we need our func to take arguments
+  // Function(String)?
+  //     onChanged; //cannot use voidcallback func here bec voidcallback func doesnot take any arguments and we need our func to take arguments
+  TextEditingController ? controller;
   String? hintText;
   IconData? icon;
   bool? obscureText;//nullable
@@ -21,7 +22,8 @@ class CustomFormTextField extends StatelessWidget {
         if (data!.isEmpty) //not null , so ypu must تاكد عليه انها مش ب null
           return 'field is required';
       },
-      onChanged: onChanged, //باصيه not to call it
+      // onChanged: onChanged, //باصيه not to call it
+      controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(

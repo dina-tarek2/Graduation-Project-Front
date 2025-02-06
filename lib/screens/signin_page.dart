@@ -75,9 +75,9 @@ class _SigninPageState extends State<SigninPage> {
                           //   ),
                           // ),
                           CustomFormTextField(
-                            onChanged: (data) {
-                              email = data;
-                            },
+                            // onChanged: (data) {
+                            //   email = data;
+                            // },
                             hintText: 'Enter your email',
                             icon: Icons.email,
                           ),
@@ -88,9 +88,9 @@ class _SigninPageState extends State<SigninPage> {
                       ),
                       CustomFormTextField(
                           obscureText: true, //to hide password
-                          onChanged: (data) {
-                            password = data;
-                          },
+                          // onChanged: (data) {
+                          //   password = data;
+                          // },
                           hintText: 'Enter your password',
                           icon: Icons.lock),
                       const SizedBox(
