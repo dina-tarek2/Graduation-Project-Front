@@ -1,119 +1,122 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/api_services/api_consumer.dart';
+import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/cubit/register_state.dart';
+import 'package:graduation_project_frontend/models/otp_model.dart';
+import 'package:graduation_project_frontend/models/signup_model.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
-  RegisterCubit() : super(RegisterInitial());
+  RegisterCubit(this.api) : super(RegisterInitial());
 
-  final Dio dio = Dio();
-  //final String baseUrl = "https://graduation-project-mmih.vercel.app/api/auth/";
+  final ApiConsumer api;
+  final GlobalKey<FormState> loginKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController contactNumberController = TextEditingController();
 
-  Future<String?> registerUser(String email, String password, String role,
-      String address, String contactNumber, String centerName) async {
-    print("1");
-    emit(RegisterLoading());
-    print("2");
-    print("here in api");
-    print(email);
-    print(password);
-    print(centerName);
-    print(contactNumber);
-    try {
-      final response = await dio.post(
-        // "${baseUrl}registerRadiologyCenter",
-        //"https://graduation-project-mmih.vercel.app/api/auth/registerRadiologyCenter",
-        "https://graduation-project-mmih.vercel.app/api/auth/registerRadiologyCenter",
-        data: {
-          "centerName": centerName,  
-          "address": address,
-          "contactNumber": contactNumber,
-          "email": email,
-          "password": password,
-        },
-      );
-      print("3");
-      print(response);
-      print("dinatarekkkkkkkkkkkkk${response.data}");
+  final TextEditingController centerNameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
-      if (response.statusCode == 201) {
-        final data = response.data;
-        final String token = data["token"];
-        final String userId = data["radiologyCenter"]["_id"];
-        // print("dinaaaatarekkk");
-        // print("Dataaaaaaaaaa${data}");
-        // print("idddddd${userId}");
+  final TextEditingController specializationController =
+      TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
 
-        emit(RegisterSuccess(userId: userId, role: role, token: token));
-        return userId;
-      } else {
-        emit(RegisterFailure(error: response.data["message"] ?? " "));
-        return null;
-      }
-    } catch (error) {
-      // print("Network Error: $error");
-       if (error is DioException) {
-    print("DioException Error: ${error.message}");
-    print("DioException Response: ${error.response?.data}");
-    print("DioException Status Code: ${error.response?.statusCode}");
-  } else {
-    print("Unknown Error: $error");
-  }
+  Map<String, dynamic>? userdata;
+
   
+
+  register(String selectedRole) async {
+    emit(RegisterLoading());
+
+    userdata = selectedRole == "Technician"
+          ? {
+              ApiKey.email: emailController.text,
+              ApiKey.password: passwordController.text,
+              ApiKey.contactNumber: contactNumberController.text,
+              ApiKey.address: addressController.text,
+              ApiKey.centerName: centerNameController.text,
+            }
+          : {
+              ApiKey.email: emailController.text,
+              ApiKey.password: passwordController.text,
+              ApiKey.contactNumber: contactNumberController.text,
+              ApiKey.firstName: firstNameController.text,
+              ApiKey.lastName: lastNameController.text,
+              ApiKey.specialization: specializationController.text,
+            };
+
+    try {
+      final response = await api.post(
+        selectedRole == "Technician"
+            ? EndPoints.SignUpCenter
+            : EndPoints.SignUpDoctor,
+        isFromData: false,
+        data: userdata
+      );
+
+      final signUpModel = SignUpModel.fromJson(response);
+
+      if (signUpModel.message ==
+          "OTP sent to email. Please verify to complete registration.")
+        emit(OtpVerfication(data: userdata!));
+      else
+        emit(RegisterFailure(error: signUpModel.message));
+    } catch (error) {
+      if (error is DioException) {
+        print("DioException Error: ${error.message}");
+        print("DioException Response: ${error.response?.data}");
+        print("DioException Status Code: ${error.response?.statusCode}");
+      } else {
+        print("Unknown Error: $error");
+      }
       emit(RegisterFailure(error: "$error"));
-      return null;
+      //handle in ui ??????
+      // emit(RegisterFailure(error: response.data["message"]));
     }
   }
 
-  Future<String?> registerDoctor(String email, String password, String role,
-      String specialization, String contactNumber, String firstName, String lastName) async {
-    
-    emit(RegisterLoading());
-    
-    // print("here in api");
-    // print(email);
-    // print(password);
-    // print(contactNumber);
+
+
+  Future<void> verifyOtp(String otp, String selectedRole) async {
+    emit(OtpVerifying());
+
     try {
-      final response = await dio.post(
-        "https://graduation-project-mmih.vercel.app/api/RadiologistAuth/registerRadiologist",
+      if (userdata == null) {
+        emit(RegisterFailure(error: "Registration data not found"));
+        return;
+      }
+
+      final response = await api.post(
+        selectedRole == "Technician" 
+        ? EndPoints.VerifyOtpCenter 
+        : EndPoints.VerifyOtpDoctor,
+        isFromData: false,
         data: {
-          "firstName": firstName,  
-          "lastName": lastName,
-          "specialization": specialization,
-          "contactNumber": contactNumber,
-          "email": email,
-          "password": password,
+          ...userdata!,
+          ApiKey.otp: otp,
         },
       );
-     // print("3");
-      print(response);
-      print("dinatarekkkkkkkkkkkkk${response.data}");
 
-      if (response.statusCode == 201) {
-        final data = response.data;
-        final String token = data["token"];
-        final String userId = data["radiologist"]["_id"];
-        // print("Dataaaaaaaaaa${data}");
-        // print("idddddd${userId}");
+      final otpModel = OtpModel.fromJson(response,selectedRole);
 
-        emit(RegisterSuccess(userId: userId, role: role, token: token));
-        return userId;
+      if (otpModel.message == "Registration successful. You can now log in.") {
+        emit(RegisterSuccess(userData: userdata!));
       } else {
-        emit(RegisterFailure(error: response.data["message"] ?? " "));
-        return null;
+        emit(RegisterFailure(error: "Invalid OTP"));
       }
     } catch (error) {
-      // print("Network Error: $error");
-       if (error is DioException) {
-    print("DioException Error: ${error.message}");
-    print("DioException Response: ${error.response?.data}");
-    print("DioException Status Code: ${error.response?.statusCode}");
-  } else {
-    print("Unknown Error: $error");
-  }
-  
+      // _handleError(error);
+      if (error is DioException) {
+        print("DioException Error: ${error.message}");
+        print("DioException Response: ${error.response?.data}");
+        print("DioException Status Code: ${error.response?.statusCode}");
+      } else {
+        print("Unknown Error: $error");
+      }
       emit(RegisterFailure(error: "$error"));
-      return null;
     }
   }
 }

@@ -1,18 +1,26 @@
-
 import 'package:dio/dio.dart';
 
 abstract class RegisterState {}
 
 final class RegisterInitial extends RegisterState {}
+
 final class RegisterLoading extends RegisterState {}
-final class RegisterSuccess extends RegisterState {
-  final String userId;
-  final String token;
-  final String role;
-  RegisterSuccess({required this.role,required this.token, required this.userId}); 
+
+final class OtpVerfication extends RegisterState {
+  final Map<String, dynamic> data;
+
+  OtpVerfication({required this.data});
 }
+
+class OtpVerifying extends RegisterState {}
+
+class RegisterSuccess extends RegisterState {
+  final Map<String, dynamic> userData;
+
+  RegisterSuccess({required this.userData});
+}
+
 final class RegisterFailure extends RegisterState {
   final String error;
   RegisterFailure({required this.error});
 }
-// final class CompleteRegistrationSuccess extends RegisterState {}
