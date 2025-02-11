@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+
+class CustomFormTextField extends StatelessWidget {
+  //give it default value false , عشان متروحش لكل واحد و تديله قيمة و انا دكدا كدا مش عاوزة تتعمل غير ف الباسورد بس و دا بسبب اني لازم تبتصي قيمة تحت و تكون مش ب null
+  CustomFormTextField({this.hintText,
+   this.controller,this.obscureText = false, 
+   this.icon,this.suffixIcon,
+      this.suffixIconOnPressed,
+});
+
 import 'package:graduation_project_frontend/constants/colors.dart';
 
 class CustomFormTextField extends StatelessWidget {
 
-  CustomFormTextField(
-      {this.hintText, this.controller, this.obscureText = false, this.icon});
+
+ 
 
   TextEditingController? controller;
   String? hintText;
   IconData? icon;
+  bool? obscureText;//nullable
+  final Widget? suffixIcon; 
+  final VoidCallback? suffixIconOnPressed;
   bool? obscureText; //nullable
   @override
   Widget build(BuildContext context) {
@@ -42,6 +58,21 @@ class CustomFormTextField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(color: Colors.blue, width: 2),
+
+           ),
+          prefixIcon: icon != null ? Icon(icon,color:sky,) : null,
+           suffixIcon: suffixIcon != null
+            ? IconButton(
+                onPressed: suffixIconOnPressed, // ✅ استخدم الدالة هنا
+                icon: Icon(BlocProvider.of<LoginCubit>(context).suffixIcon, color: Colors.blue),
+              )
+            : null,
+           iconColor: Colors.white, // Ensures icon stays white
+    prefixIconConstraints: BoxConstraints(minWidth: 40, minHeight: 40), // Adjust padding
+    filled: false, // Prevents grey background
+         ),       
+      );
+
           ),
           prefixIcon: icon != null
               ? Icon(
@@ -56,6 +87,7 @@ class CustomFormTextField extends StatelessWidget {
         ),
       ),
     );
+
     // );
   }
 }
