@@ -9,6 +9,14 @@ import 'package:graduation_project_frontend/models/signup_model.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit(this.api) : super(RegisterInitial());
+  bool isRegisterPasswordShowing = true;
+  IconData suffixIcon = Icons.visibility_off;
+
+void changeRegisterPasswordSuffixIcon() {
+  isRegisterPasswordShowing = !isRegisterPasswordShowing;
+  suffixIcon = isRegisterPasswordShowing ? Icons.visibility : Icons.visibility_off;
+  emit(ChangeRegisterPasswordSuffixIconState());
+}
 
   final ApiConsumer api;
   final GlobalKey<FormState> loginKey = GlobalKey<FormState>();
@@ -119,4 +127,5 @@ class RegisterCubit extends Cubit<RegisterState> {
       emit(RegisterFailure(error: "$error"));
     }
   }
+
 }

@@ -62,7 +62,7 @@ class _SignupPageState extends State<SignupPage> {
                       color: sky,
                       child: Center(
                         child: Image.asset("assets/images/Doctor-bro.png",
-                            width: 200),
+                            width: 700),
                       ),
                     ),
                   ),
@@ -72,7 +72,7 @@ class _SignupPageState extends State<SignupPage> {
                       decoration: BoxDecoration(
                         color: sky,
                         image: DecorationImage(
-                          image: AssetImage("assets/images/image 5.png"),
+                          image: AssetImage("assets/images/image 5.png",),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -205,9 +205,18 @@ class _SignupPageState extends State<SignupPage> {
 
                             SizedBox(height: 20),
                             CustomFormTextField(
-                              obscureText: true, //to hide password
+                              obscureText: BlocProvider.of<RegisterCubit>(context)
+                                  .isRegisterPasswordShowing,
+                               //to hide password
                               hintText: 'Set your password',
                               icon: Icons.lock,
+                              suffixIcon: Icon(
+                                  BlocProvider.of<RegisterCubit>(context)
+                                      .suffixIcon),
+                              suffixIconOnPressed: () {
+                                BlocProvider.of<RegisterCubit>(context)
+                                    .changeRegisterPasswordSuffixIcon();
+                              },
                               controller: context
                                   .read<RegisterCubit>()
                                   .passwordController,
@@ -219,7 +228,15 @@ class _SignupPageState extends State<SignupPage> {
                             CustomFormTextField(
                                 hintText: "Confirm Password",
                                 icon: Icons.lock,
-                                obscureText: true),
+                                suffixIcon: Icon(
+                                  BlocProvider.of<RegisterCubit>(context)
+                                      .suffixIcon),
+                              suffixIconOnPressed: () {
+                                BlocProvider.of<RegisterCubit>(context)
+                                    .changeRegisterPasswordSuffixIcon();
+                              },
+                             obscureText: BlocProvider.of<RegisterCubit>(context)
+                                  .isRegisterPasswordShowing,),
 
                             const SizedBox(
                               height: 20,

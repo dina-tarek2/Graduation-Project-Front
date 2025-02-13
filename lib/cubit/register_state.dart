@@ -24,3 +24,4 @@ final class RegisterFailure extends RegisterState {
   final String error;
   RegisterFailure({required this.error});
 }
+class ChangeRegisterPasswordSuffixIconState extends RegisterState {}

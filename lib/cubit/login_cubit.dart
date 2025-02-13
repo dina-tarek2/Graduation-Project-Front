@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -43,13 +44,22 @@ class LoginCubit extends Cubit<LoginState> {
         },
       );
       user = SignInModel.fromJson(response);
+      
       final decodedToken = JwtDecoder.decode(user!.token);
       Id = decodedToken['id'];
       print(Id);
       emit(LoginSuccess(response));
-    } catch (e) {
-      emit(LoginError(e.toString()));
+    } on DioException catch (e) {
+    String errorMessage = "An unexpected error occurred";
+
+    if (e.response != null) {
+      errorMessage = e.response!.data['message'] ?? errorMessage;
+    
     }
+    emit(LoginError(errorMessage));
+  } catch (e) {
+    emit(LoginError("Unexpected error: No radiology center found with this email"));
+  }
   }
    @override
   Future<void> close() {

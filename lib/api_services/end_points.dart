@@ -7,8 +7,8 @@ class EndPoints {
   static String SignIn ="auth/loginRadiologyCenter";
   static String signInWithGoogle ="/patientAuth/signWithGoogle";
   static String DicomList ="get_all_dicom_files";
+  static String SentEmail ="auth/SendEmail";
   // static String getImages ="show_images/$dicomId";
-  static String SignIn = "auth/loginRadiologyCenter";
   //register
   static String SignUpCenter = "auth/registerRadiologyCenter";
   static String SignUpDoctor = "RadiologistAuth/registerRadiologist";
@@ -16,13 +16,15 @@ class EndPoints {
   static String VerifyOtpCenter = "auth/verifyOtp";
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
 
-  static String signInWithGoogle = "/patientAuth/signWithGoogle";
 }
 
 class ApiKey {
   static String message = "message";
   static String email = "email";
+  static String name = "name";
+  static String massage = "massage";
   static String password = "password";
+  static String phone = "phone";
 
   static String token = "token";
   static String id = "id";
