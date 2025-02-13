@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 
 class CustomButton extends StatelessWidget {
-   CustomButton({this.onTap, required this.text});
+   CustomButton({this.onTap, required this.text, this.width});
 
   VoidCallback? onTap;
-  String text;  
+  String text; 
+  double? width; 
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,8 @@ class CustomButton extends StatelessWidget {
                   color: blue,
                   borderRadius: BorderRadius.circular(15),
                 ),
-                width: double.infinity,//to take width of full screen
+                //width: double.infinity,//to take width of full screen
+                width: width,
                 height: 48,
                 child: Center(
                   // child: Text(text),
