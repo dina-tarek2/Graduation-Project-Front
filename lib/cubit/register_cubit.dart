@@ -66,10 +66,9 @@ void changeRegisterPasswordSuffixIcon() {
       );
 
       final signUpModel = SignUpModel.fromJson(response);
-
-      if (signUpModel.message ==
+if (signUpModel.message ==
           "OTP sent to email. Please verify to complete registration.")
-        emit(OtpVerfication(data: userdata!));
+        emit(OtpVerfication(data: userdata!, message: signUpModel.message));
       else
         emit(RegisterFailure(error: signUpModel.message));
     } catch (error) {
@@ -110,7 +109,7 @@ void changeRegisterPasswordSuffixIcon() {
 
       final otpModel = OtpModel.fromJson(response,selectedRole);
 
-      if (otpModel.message == "Registration successful. You can now log in.") {
+      if (otpModel.message == "the request has been sent successfully") {
         emit(RegisterSuccess(userData: userdata!));
       } else {
         emit(RegisterFailure(error: "Invalid OTP"));

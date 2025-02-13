@@ -7,7 +7,6 @@ import 'package:graduation_project_frontend/screens/verify_otp_page.dart';
 import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
-// import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SignupPage extends StatefulWidget {
   static String id = 'SignupPage';
@@ -21,12 +20,10 @@ class _SignupPageState extends State<SignupPage> {
   String? selectedRole; // To store the selected role
   bool isChecked = false; // To check if the checkbox is selected
   GlobalKey<FormState> formKey = GlobalKey();
-  // String? email, password;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: sky,
       //padding from left and right to make form in middle of right side
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -34,14 +31,23 @@ class _SignupPageState extends State<SignupPage> {
           listener: (context, state) {
             // TODO: implement listener
             if (state is OtpVerfication) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VerifyOtpPage(
-                    registerData: state.data,
-                    role: selectedRole!,
-                  ),
-                ),
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: VerifyOtpPage(
+                        message: state.message,
+                        role: selectedRole!,
+                      ),
+                    ),
+                  );
+                },
               );
             } else if (state is RegisterFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -50,8 +56,6 @@ class _SignupPageState extends State<SignupPage> {
             }
           },
           builder: (context, state) {
-            if (state is RegisterLoading)
-              return Center(child: CircularProgressIndicator());
             return Form(
               key: formKey,
               child: Row(
@@ -72,7 +76,9 @@ class _SignupPageState extends State<SignupPage> {
                       decoration: BoxDecoration(
                         color: sky,
                         image: DecorationImage(
-                          image: AssetImage("assets/images/image 5.png",),
+                          image: AssetImage(
+                            "assets/images/image 5.png",
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -83,7 +89,6 @@ class _SignupPageState extends State<SignupPage> {
                             const SizedBox(
                               height: 75,
                             ),
-                            //header
                             Text("Get Started Now",
                                 style: TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold)),
@@ -93,7 +98,6 @@ class _SignupPageState extends State<SignupPage> {
                             Column(
                               children: [
                                 //if i want to show word above box
-
                                 // Container(
                                 //   alignment:
                                 //       Alignment.centerLeft, // Align text to the left
@@ -105,7 +109,6 @@ class _SignupPageState extends State<SignupPage> {
                                 //     ),
                                 //   ),
                                 // ),
-
                                 CustomFormTextField(
                                   hintText: 'Enter your email',
                                   icon: Icons.email,
@@ -115,7 +118,6 @@ class _SignupPageState extends State<SignupPage> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(
                               height: 10,
                             ),
@@ -202,12 +204,12 @@ class _SignupPageState extends State<SignupPage> {
                                     .contactNumberController,
                               ),
                             ],
-
                             SizedBox(height: 20),
                             CustomFormTextField(
-                              obscureText: BlocProvider.of<RegisterCubit>(context)
-                                  .isRegisterPasswordShowing,
-                               //to hide password
+                              obscureText:
+                                  BlocProvider.of<RegisterCubit>(context)
+                                      .isRegisterPasswordShowing,
+                              //to hide password
                               hintText: 'Set your password',
                               icon: Icons.lock,
                               suffixIcon: Icon(
@@ -224,19 +226,20 @@ class _SignupPageState extends State<SignupPage> {
                             const SizedBox(
                               height: 20,
                             ),
-
                             CustomFormTextField(
-                                hintText: "Confirm Password",
-                                icon: Icons.lock,
-                                suffixIcon: Icon(
+                              hintText: "Confirm Password",
+                              icon: Icons.lock,
+                              suffixIcon: Icon(
                                   BlocProvider.of<RegisterCubit>(context)
                                       .suffixIcon),
                               suffixIconOnPressed: () {
                                 BlocProvider.of<RegisterCubit>(context)
                                     .changeRegisterPasswordSuffixIcon();
                               },
-                             obscureText: BlocProvider.of<RegisterCubit>(context)
-                                  .isRegisterPasswordShowing,),
+                              obscureText:
+                                  BlocProvider.of<RegisterCubit>(context)
+                                      .isRegisterPasswordShowing,
+                            ),
 
                             const SizedBox(
                               height: 20,
@@ -273,24 +276,27 @@ class _SignupPageState extends State<SignupPage> {
                               ],
                             ),
 
-                            CustomButton(
-                              onTap: () async {
-                                if (formKey.currentState!.validate()) {
-                                  if (selectedRole == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              "Please choose role")),
-                                    );
-                                    return;
-                                  }
-                                  final registerCubit =
-                                      context.read<RegisterCubit>();
-                                  registerCubit.register(selectedRole!);
-                                }
-                              },
-                              text: 'Sign up',
-                            ),
+                            state is RegisterLoading
+                                ? Center(child: CircularProgressIndicator())
+                                : CustomButton(
+                                    onTap: () async {
+                                      if (formKey.currentState!.validate()) {
+                                        if (selectedRole == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text("Please choose role")),
+                                          );
+                                          return;
+                                        }
+                                        final registerCubit =
+                                            context.read<RegisterCubit>();
+                                        registerCubit.register(selectedRole!);
+                                      }
+                                    },
+                                    text: 'Sign up',
+                                  ),
                             const SizedBox(
                               height: 10,
                             ),
