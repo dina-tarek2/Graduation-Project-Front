@@ -1,5 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_cubit.dart';
+import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
+import 'package:graduation_project_frontend/repositories/medical_repository.dart';
+import 'package:graduation_project_frontend/repositories/user_repository.dart';
+import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
+import 'package:graduation_project_frontend/screens/forget_password.dart';
+import 'package:graduation_project_frontend/screens/home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/cubit/contact_cubit.dart';
@@ -7,10 +14,12 @@ import 'package:graduation_project_frontend/cubit/dicom_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/cubit/register_cubit.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
-import 'package:graduation_project_frontend/screens/dicom_list_page.dart';
-import 'package:graduation_project_frontend/screens/home_page.dart';
+import 'package:graduation_project_frontend/screens/dicom.dart';
+import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
+import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/signin_page.dart';
-import 'package:graduation_project_frontend/screens/signup_page.dart';   
+import 'package:graduation_project_frontend/screens/signup_page.dart';
+import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 
 void main() {
   runApp(
@@ -20,7 +29,8 @@ void main() {
           create: (context) => RegisterCubit(DioConsumer(dio: Dio())),
         ),
         BlocProvider<LoginCubit>(
-          create: (context) => LoginCubit(DioConsumer(dio: Dio())),
+          create: (context) =>
+              LoginCubit(UserRepository(api: DioConsumer(dio: Dio()))),
         ),
         BlocProvider(
           create: (context) => DicomCubit(DioConsumer(dio: Dio())),
@@ -28,34 +38,55 @@ void main() {
         //  BlocProvider(
         //   create: (context) => HomePage(),
         // ),
-         BlocProvider(  
-      create: (context) => ContactCubit(DioConsumer(dio: Dio())),  )
-      ],
-      child: MyApp(),  // Use MyApp instead of an empty Container
-
+        BlocProvider(
+          create: (context) => ContactCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
+            create: (context) => MedicalReportsCubit(
+                repository: MedicalRepository(api: DioConsumer(dio: Dio())))),
+                
+         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+    ], 
+      child: MyApp(), // Use MyApp instead of an empty Container
     ),
   );
 }
 
-
-class MyApp extends StatelessWidget {  
-  @override  
-  Widget build(BuildContext context) {  
-    return
-     MaterialApp(  
-      debugShowCheckedModeBanner: false,  
-      // home: SignupPage(),       
-        routes: {
-          // 'LoginPage' : (context) => LoginPage(),
-          SigninPage.id: (context) => SigninPage(),
-
-          SignupPage.id: (context) => SignupPage(), 
-          DicomListPage.id:(context) => DicomListPage(),
-          HomePage.id:(context) => HomePage(),
-           ContactScreen.id: (context) => ContactScreen(), 
-
-        },
-        initialRoute: SignupPage.id,
-    );  
-  }  
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // home: SignupPage(),
+      routes: {
+        // 'LoginPage' : (context) => LoginPage(),
+        SigninPage.id: (context) => SigninPage(),
+        SignupPage.id: (context) => SignupPage(),
+        DicomListPage.id: (context) => DicomListPage(),
+        HomePage.id:(context) => HomePage(role: "Radiologist"),
+        ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
+        MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
+        ForgetPassword.id:(context) => ForgetPassword(),
+        // ManageDoctorsPage.id :(context) => ManageDoctorsPage(),
+        CenterDashboard.id :(context) => CenterDashboard(role: "RadiologyCenter"),
+        // MainScaffold.id :(context) => MainScaffold(),
+      },
+      initialRoute: SignupPage.id,
+    );
+  }
 }
+// import 'package:flutter/material.dart';  
+
+// void main() {  
+//   runApp(MyApp());  
+// }  
+
+// class MyApp extends StatelessWidget {  
+//   @override  
+//   Widget build(BuildContext context) {  
+//     return MaterialApp(  
+//       title: 'My App',  
+//       home: HomePage(),  
+//     );  
+//   }  
+// }  

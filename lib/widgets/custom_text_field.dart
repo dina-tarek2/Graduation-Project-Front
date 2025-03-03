@@ -15,6 +15,7 @@ class CustomFormTextField extends StatelessWidget {
     this.labelText,
     this.minLines,
     this.maxLines,
+    this.validator, 
   });
 
   TextEditingController? controller;
@@ -26,7 +27,7 @@ class CustomFormTextField extends StatelessWidget {
   final String? labelText;
   final int? minLines;
   final int? maxLines;
-
+ final FormFieldValidator<String>? validator;
   @override
   Widget build(BuildContext context) {
     return
@@ -37,7 +38,9 @@ class CustomFormTextField extends StatelessWidget {
         obscureText: obscureText!, //to hide password
         //used inside form
         validator: (data) {
-          if (data!.isEmpty) return 'field is required';
+          if (data!.isEmpty)
+         return 'field is required';
+         return'';
         },
         controller: controller,
         minLines: obscureText == true ? 1 : minLines,

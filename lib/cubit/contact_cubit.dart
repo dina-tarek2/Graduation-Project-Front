@@ -28,15 +28,9 @@ class ContactCubit extends Cubit<ContactState> {
           ApiKey.massage: messageController.text,
         },
       );
-      final message = response.data['message'] ?? "Message sent successfully";
+      // final message = response.data['message'] ?? "Message sent successfully";
+      emit(ContactSuccess());
 
-      emit(ContactSuccess(message));
-      nameController.clear();
-      emailController.clear();
-      phoneController.clear();
-      messageController.clear();
-
-      emit(ContactFailure("Failed to send message"));
     } catch (e) {
       emit(ContactFailure(e.toString()));
     }

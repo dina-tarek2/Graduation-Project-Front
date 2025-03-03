@@ -73,7 +73,7 @@ class _SignupPageState extends State<SignupPage> {
                         color: sky,
                         image: DecorationImage(
                           image: AssetImage("assets/images/image 5.png",),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
                       ),
                       child: Padding(
