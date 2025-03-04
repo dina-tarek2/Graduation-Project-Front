@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
+import 'package:graduation_project_frontend/screens/Doctor/dicom_viewer_page.dart';
+import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
@@ -195,7 +197,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
                     DataColumn(label: Text("Center", style: _columnStyle())),
                   ],
                   rows: filteredRecords
-                      .map((record) => _buildDataRow(record))
+                      .map((record) => _buildDataRow(record, context))
                       .toList(),
                 ),
               ),
@@ -220,40 +222,64 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-  DataRow _buildDataRow(RecordsListModel record) {
+DataCell _clickableCell(Widget child, BuildContext context) {
+  return DataCell(
+    MouseRegion(
+      cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MedicalReportPage()),
+          );
+        },
+        child: child,
+      ),
+    ),
+  );
+}
+
+
+  DataRow _buildDataRow(RecordsListModel record, BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('HH:mm');
 
     return DataRow(
       cells: [
-        DataCell(_buildStatusIndicator(record.status)),
-        DataCell(Text(record.patientName)),
-        DataCell(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(dateFormat.format(record.studyDate),
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(timeFormat.format(record.studyDate),
-                style: TextStyle(color: Colors.grey, fontSize: 12)),
-          ],
-        )),
-        DataCell(Text(record.age.toString())),
-        DataCell(Text(record.bodyPartExamined ?? "N/A")),
-        DataCell(Text(record.series ?? "N/A")),
-        DataCell(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(dateFormat.format(record.deadline),
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.red[700])),
-            Text(timeFormat.format(record.deadline),
-                style: TextStyle(color: Colors.grey, fontSize: 12)),
-          ],
-        )),
-        DataCell(Text(record.modality)),
-        DataCell(Text(record.centerName)),
+        _clickableCell(_buildStatusIndicator(record.status), context),
+        _clickableCell(Text(record.patientName), context),
+        _clickableCell(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(dateFormat.format(record.studyDate),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(timeFormat.format(record.studyDate),
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+          context,
+        ),
+        DataCell(Text(record.age.toString())), // غير قابل للنقر
+        DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
+        DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
+        _clickableCell(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(dateFormat.format(record.deadline),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.red[700])),
+              Text(timeFormat.format(record.deadline),
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+          context,
+        ),
+        _clickableCell(Text(record.modality), context),
+        _clickableCell(Text(record.centerName), context),
       ],
     );
   }
