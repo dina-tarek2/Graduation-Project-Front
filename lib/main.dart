@@ -6,7 +6,7 @@ import 'package:graduation_project_frontend/repositories/medical_repository.dart
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/forget_password.dart';
-import 'package:graduation_project_frontend/screens/home_page.dart';
+import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/cubit/contact_cubit.dart';

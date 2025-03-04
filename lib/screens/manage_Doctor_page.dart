@@ -3,18 +3,28 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
+import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
+import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 @immutable
-class ManageDoctorsPage extends StatelessWidget {
+class ManageDoctorsPage extends StatefulWidget {
   final String centerId;
-  TextEditingController idRadiologist = TextEditingController();
+
   ManageDoctorsPage({required this.centerId});
+
+  @override
+  State<ManageDoctorsPage> createState() => _ManageDoctorsPageState();
+}
+
+class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
+  TextEditingController idRadiologist = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          DoctorCubit(DioConsumer(dio: Dio()))..fetchDoctors(centerId),
+          DoctorCubit(DioConsumer(dio: Dio()))..fetchDoctors(widget.centerId),
       child: Scaffold(
         body: BlocBuilder<DoctorCubit, DoctorListState>(
           builder: (context, state) {
@@ -38,28 +48,33 @@ class ManageDoctorsPage extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showDialog(
+              
                 context: context,
                 builder: (context) {
                    return BlocProvider.value(
           value: context.read<DoctorCubit>(),
                   child:  AlertDialog(
+                    shape : RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
                     title: Text('Add Doctor'),
                     content: CustomFormTextField(
                       controller: idRadiologist,
-                      hintText: 'Enter Id For Radiologist You Want Add him',
+                      hintText: 'Enter Doctor Id',
                     ),
                     actions: [
+                      TextButton(onPressed: () {Navigator.of(context).pop();},
+                       child: Text("Cancel",style: TextStyle(color: Colors.redAccent),)),
                       TextButton(
                           onPressed: () {
-                            context
-                                .read<DoctorCubit>()
-                                .AddDoctor(idRadiologist.text, centerId);
+                              final doctorsCubit =context.read<DoctorCubit>();
+                          
+                               doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
                             Navigator.of(context).pop();
-                             context
-                                .read<DoctorCubit>()
-                                .fetchDoctors(centerId);
+                             
+                              doctorsCubit.fetchDoctors(centerIdd);
                           },
-                          child: Text('Ok'))
+                          child: Text('Ok',style: TextStyle(color: darkBlue),))
                     ],
                   )
                   );
@@ -156,11 +171,11 @@ class ManageDoctorsPage extends StatelessWidget {
                           onPressed: () {
                             context
                                 .read<DoctorCubit>()
-                                .AddDoctor(idRadiologist.text, centerId);
+                                .AddDoctor(idRadiologist.text, widget.centerId);
                             Navigator.of(context).pop();
                              context
                                 .read<DoctorCubit>()
-                                .fetchDoctors(centerId);
+                                .fetchDoctors(widget.centerId);
                           },
                           child: Text('Ok'))
                     ],
@@ -213,7 +228,7 @@ class ManageDoctorsPage extends StatelessWidget {
           SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              BlocProvider.of<DoctorCubit>(context).fetchDoctors(centerId);
+              BlocProvider.of<DoctorCubit>(context).fetchDoctors(widget.centerId);
             },
             icon: Icon(Icons.refresh),
             label: Text("Try Again"),

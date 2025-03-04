@@ -4,7 +4,8 @@ import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/dicom.dart';
-import 'package:graduation_project_frontend/screens/home_page.dart';
+import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
+import 'package:graduation_project_frontend/screens/forget_password.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
@@ -36,16 +37,16 @@ class MainScaffoldState extends State<MainScaffold> {
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
-        HomePage(role: widget.role),
+        CenterDashboard(role: widget.role),
         DicomListPage(),
         ManageDoctorsPage(centerId: '67c31def6dd0171065efc8dc',),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];
-    } else {
+    } else if (widget.role == "Radiologist"){
       // Default screens for other roles
       screens = [
-        CenterDashboard(role: widget.role),
+        HomePage(role: widget.role),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];

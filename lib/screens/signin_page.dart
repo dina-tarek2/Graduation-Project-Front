@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/forget_password.dart';
-import 'package:graduation_project_frontend/screens/home_page.dart';
+import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/signup_page.dart';
 import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
@@ -108,7 +108,7 @@ class _SigninPageState extends State<SigninPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            MainScaffold(role: "RadiologyCenter"),
+                                            MainScaffold(role: "Radiologist"),
                                       ),
                                     );
                                   }
