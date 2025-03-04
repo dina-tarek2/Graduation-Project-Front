@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_cubit.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
 import 'package:graduation_project_frontend/repositories/medical_repository.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
+import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/forget_password.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +28,16 @@ void main() {
         BlocProvider(
           create: (context) => RegisterCubit(DioConsumer(dio: Dio())),
         ),
-          BlocProvider(create: (context) => CenterCubit()),
+
+          BlocProvider(
+            create: (context) => CenterCubit(),
+          ),
+
+        BlocProvider(
+          create: (context) =>
+              RecordsListCubit(DioConsumer(dio: Dio()))..fetchRecords(),
+        ),
+
         BlocProvider<LoginCubit>(
           create: (context) =>
               LoginCubit(UserRepository(api: DioConsumer(dio: Dio()),centerCubit: context.read<CenterCubit>())),
@@ -42,7 +53,9 @@ void main() {
         ),
         BlocProvider(
             create: (context) => MedicalReportsCubit(
-                repository: MedicalRepository(api: DioConsumer(dio: Dio())))),
+                repository: MedicalRepository(api: DioConsumer(dio: Dio()))
+            )
+        ),
                 
          BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
     ], 
@@ -69,6 +82,10 @@ class MyApp extends StatelessWidget {
         // ManageDoctorsPage.id :(context) => ManageDoctorsPage(),
         CenterDashboard.id :(context) => CenterDashboard(role: "RadiologyCenter"),
         // MainScaffold.id :(context) => MainScaffold(),
+
+         //doctor
+        RecordsListPage.id: (context) => RecordsListPage(),
+        // MedicalReportPage.id: (context) => MedicalReportPage(),
       },
       initialRoute: SignupPage.id,
     );

@@ -4,6 +4,7 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
+import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/dicom.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
@@ -49,6 +50,7 @@ class MainScaffoldState extends State<MainScaffold> {
       // Default screens for other roles
       screens = [
         HomePage(role: widget.role),
+        RecordsListPage(),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];
