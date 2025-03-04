@@ -14,6 +14,9 @@ class EndPoints {
   //otp
   static String VerifyOtpCenter = "auth/verifyOtp";
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
+  //doctor
+  static String GetRecordsByRadiologistId =
+      "Record/getRecordsByRadiologistId/67bcebe6567f01f3d25677f5";
   //Doctor List 
    static String getCenterId(id){
     return'/relations/radiologists/$id';
