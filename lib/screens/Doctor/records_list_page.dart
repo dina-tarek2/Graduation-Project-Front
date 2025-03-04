@@ -228,7 +228,7 @@ DataCell _clickableCell(Widget child, BuildContext context) {
       cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
       child: GestureDetector(
         onTap: () {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => MedicalReportPage()),
           );

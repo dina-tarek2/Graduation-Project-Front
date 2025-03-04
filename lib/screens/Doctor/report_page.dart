@@ -20,6 +20,15 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+        title: Text("Medical Report"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), 
+          onPressed: () {
+            Navigator.pop(context); // يرجع لصفحة القائمة
+          },
+        ),
+      ),
       body: Row(
         children: [
           // Main content
@@ -36,13 +45,13 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Medical Report',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        // const Text(
+                        //   'Medical Report',
+                        //   style: TextStyle(
+                        //     fontSize: 22,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
                         Row(
                           children: [
                             ElevatedButton(
