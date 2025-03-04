@@ -41,26 +41,33 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   Widget _buildFilterSection() {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(child: _buildSearchBox()),
-          SizedBox(width: 12),
-          _buildStatusFilterChips(),
-        ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width *
+                  0.4, // controls search width
+              child: _buildSearchBox(),
+            ),
+            SizedBox(width: 12),
+            _buildStatusFilterChips(),
+          ],
+        ),
       ),
     );
   }
@@ -143,10 +150,11 @@ class _RecordsListPageState extends State<RecordsListPage> {
             ),
           );
         } else if (state is RecordsListSuccess) {
-          List<RecordsListModel> filteredRecords = state.records.where((record) {
+          List<RecordsListModel> filteredRecords =
+              state.records.where((record) {
             bool matchesSearch =
                 record.patientName.toLowerCase().contains(searchQuery) ||
-                record.id.contains(searchQuery);
+                    record.id.contains(searchQuery);
 
             bool matchesStatus =
                 selectedStatus == "All" || record.status == selectedStatus;
@@ -175,8 +183,10 @@ class _RecordsListPageState extends State<RecordsListPage> {
                   columnSpacing: 60,
                   columns: [
                     DataColumn(label: Text("Status", style: _columnStyle())),
-                    DataColumn(label: Text("Patient Name", style: _columnStyle())),
-                    DataColumn(label: Text("Study Date", style: _columnStyle())),
+                    DataColumn(
+                        label: Text("Patient Name", style: _columnStyle())),
+                    DataColumn(
+                        label: Text("Study Date", style: _columnStyle())),
                     DataColumn(label: Text("Age", style: _columnStyle())),
                     DataColumn(label: Text("Body Part", style: _columnStyle())),
                     DataColumn(label: Text("Series", style: _columnStyle())),
@@ -184,7 +194,9 @@ class _RecordsListPageState extends State<RecordsListPage> {
                     DataColumn(label: Text("Modality", style: _columnStyle())),
                     DataColumn(label: Text("Center", style: _columnStyle())),
                   ],
-                  rows: filteredRecords.map((record) => _buildDataRow(record)).toList(),
+                  rows: filteredRecords
+                      .map((record) => _buildDataRow(record))
+                      .toList(),
                 ),
               ),
             ),
@@ -290,8 +302,5 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   TextStyle _columnStyle() => TextStyle(
-      fontSize: 16, 
-      fontWeight: FontWeight.bold, 
-      color: Colors.blueGrey[800]
-  );
+      fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey[800]);
 }
