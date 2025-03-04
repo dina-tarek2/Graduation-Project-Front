@@ -99,6 +99,6 @@ class DioConsumer extends ApiConsumer {
     } on DioException catch (e) {
       print(e.toString());
     }
-    throw UnimplementedError();
+    
   }
 }

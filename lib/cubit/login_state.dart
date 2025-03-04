@@ -7,8 +7,8 @@ final class LoginInitial extends LoginState {}
 class LoginLoading extends LoginState {}
 
 class LoginSuccess extends LoginState {
-  final dynamic data;
-  LoginSuccess(this.data);
+  final dynamic role;
+  LoginSuccess(this.role);
 }
 class LoginDataSuccess extends LoginState {
   final String token;

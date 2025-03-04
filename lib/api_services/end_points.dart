@@ -1,10 +1,9 @@
-import 'package:flutter/rendering.dart';
 
 class EndPoints {
   static String baseUrl = "https://graduation-project-mmih.vercel.app/api/";
    static String DicomBaseUrl="https://dicom-file-git-main-ahmed0rasheds-projects.vercel.app/";
   //for radiologyCenter
-  static String SignIn ="auth/loginRadiologyCenter";
+  static String SignIn ="RadiologistAuth/login";
   static String signInWithGoogle ="/patientAuth/signWithGoogle";
   static String DicomList ="get_all_dicom_files";
   static String SentEmail ="auth/SendEmail";
@@ -15,7 +14,17 @@ class EndPoints {
   //otp
   static String VerifyOtpCenter = "auth/verifyOtp";
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
-
+  //Doctor List 
+   static String getCenterId(id){
+    return'/relations/radiologists/$id';
+  }
+}
+class EndPointsForReport{
+  static String baseUrl="https://graduation-project-mmih.vercel.app/api/";
+  static String getAllReports ="AIReports/getAllAIReports"; 
+  static String getPatientDetials(id){
+    return "Record/getRecordById/$id";
+  }
 }
 
 class ApiKey {
@@ -28,7 +37,7 @@ class ApiKey {
 
   static String token = "token";
   static String id = "id";
-  static String googleToken = "googleToken";
+  static String role = "role";
 
   //register
   static String firstName = "firstName";

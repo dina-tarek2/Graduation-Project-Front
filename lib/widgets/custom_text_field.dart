@@ -15,6 +15,9 @@ class CustomFormTextField extends StatelessWidget {
     this.labelText,
     this.minLines,
     this.maxLines,
+
+    this.validator, 
+
     this.width,
     this.height,
   });
@@ -28,8 +31,12 @@ class CustomFormTextField extends StatelessWidget {
   final String? labelText;
   final int? minLines;
   final int? maxLines;
+
+ final FormFieldValidator<String>? validator;
+
   final double? width;
   final double? height;
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +44,22 @@ class CustomFormTextField extends StatelessWidget {
         //to take input from user
         Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+
+      child: TextFormField(
+        obscureText: obscureText!, //to hide password
+        //used inside form
+        validator: (data) {
+          if (data!.isEmpty)
+         return 'field is required';
+         return'';
+        },
+        controller: controller,
+        minLines: obscureText == true ? 1 : minLines,
+        maxLines: obscureText == true ? 1 : (maxLines ?? 1),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey,
       child: SizedBox(
         width: width,
         height: height,
