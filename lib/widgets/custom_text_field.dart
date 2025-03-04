@@ -51,24 +51,7 @@ class CustomFormTextField extends StatelessWidget {
         validator: (data) {
           if (data!.isEmpty)
          return 'field is required';
-         return'';
         },
-        controller: controller,
-        minLines: obscureText == true ? 1 : minLines,
-        maxLines: obscureText == true ? 1 : (maxLines ?? 1),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey,
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: TextFormField(
-          obscureText: obscureText!, //to hide password
-          //used inside form
-          validator: (data) {
-            if (data!.isEmpty) return 'field is required';
-          },
           controller: controller,
           minLines: obscureText == true ? 1 : minLines,
           maxLines: obscureText == true ? 1 : (maxLines ?? 1),
@@ -111,9 +94,8 @@ class CustomFormTextField extends StatelessWidget {
             filled: false, // Prevents grey background
           ),
         ),
-      ),
-    );
-
+        );
+      
     // );
   }
 }
