@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 part 'login_state.dart';
 
 String? Id;
@@ -25,9 +26,9 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> login() async {
+    emit(LoginLoading());
    final response = await userRepository.login(email: emailController.text,
     password: passwordController.text);
-    emit(LoginLoading());
   // String errorMessage = response['message'] ?? 'An unknown error occurred.';  
   response.fold(
     (errorMassage){
@@ -39,12 +40,19 @@ class LoginCubit extends Cubit<LoginState> {
 
   });
     }
-    
+ 
   @override
   Future<void> close() {
     emailController.dispose();
     passwordController.dispose();
     return super.close();
+  }
+}
+  class CenterCubit extends Cubit<String> {
+  CenterCubit() : super('');
+
+  void setCenterId(String id) {
+    emit(id);
   }
 }
 

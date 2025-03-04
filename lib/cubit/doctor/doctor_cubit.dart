@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/api_consumer.dart';
 import 'package:graduation_project_frontend/api_services/end_points.dart';
@@ -34,10 +32,15 @@ class DoctorCubit extends Cubit<DoctorListState> {
     }
   }
 Future<void>AddDoctor(String DoctorId, String centerId)async{
+  emit(DoctorListLoading());
 try {
-   final response =await api.post('https://graduation-project-mmih.vercel.app/api/relations/radiologists/$centerId',data: {['radiologistId']:DoctorId});
+   final response =await api.post('https://graduation-project-mmih.vercel.app/api/relations/radiologists/$centerId'
+   ,data: {'radiologistId':DoctorId});
    if (response is Map &&response.containsKey('data')) {
-    fetchDoctors(centerId);
+    await fetchDoctors(centerId);
+      final newDoctor = Doctor.fromJson(response['data']);
+      doctors.add(newDoctor);
+      emit(DoctorListSuccess(List.from(doctors)));
    }
 } catch (e) {
    print("Error adding doctor: ${e.toString()}");

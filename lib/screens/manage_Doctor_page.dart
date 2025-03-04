@@ -9,8 +9,7 @@ import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 @immutable
 class ManageDoctorsPage extends StatefulWidget {
-  final String centerId;
-
+  String centerId ;
   ManageDoctorsPage({required this.centerId});
 
   @override
@@ -63,16 +62,21 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                       hintText: 'Enter Doctor Id',
                     ),
                     actions: [
-                      TextButton(onPressed: () {Navigator.of(context).pop();},
+                      TextButton(onPressed: () {
+                        Navigator.of(context).pop();},
                        child: Text("Cancel",style: TextStyle(color: Colors.redAccent),)),
                       TextButton(
-                          onPressed: () {
+                          onPressed: ()async {
                               final doctorsCubit =context.read<DoctorCubit>();
                           
-                               doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
+                              await doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
+                               doctorsCubit.emit(DoctorListLoading());
+                               await  doctorsCubit.fetchDoctors(widget.centerId);
+                                setState(() {});
                             Navigator.of(context).pop();
+                              idRadiologist.clear();
                              
-                              doctorsCubit.fetchDoctors(centerIdd);
+                            
                           },
                           child: Text('Ok',style: TextStyle(color: darkBlue),))
                     ],
@@ -169,13 +173,13 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                     actions: [
                       TextButton(
                           onPressed: () {
-                            context
-                                .read<DoctorCubit>()
-                                .AddDoctor(idRadiologist.text, widget.centerId);
-                            Navigator.of(context).pop();
-                             context
-                                .read<DoctorCubit>()
-                                .fetchDoctors(widget.centerId);
+                            final doctorsCubit = context.read<DoctorCubit>();
+                          
+                                doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
+                         
+                             doctorsCubit.fetchDoctors(widget.centerId);
+                                Navigator.of(context).pop();
+                                idRadiologist.clear();
                           },
                           child: Text('Ok'))
                     ],

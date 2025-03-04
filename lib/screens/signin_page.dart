@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/forget_password.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
@@ -8,6 +9,7 @@ import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 class SigninPage extends StatefulWidget {
@@ -25,7 +27,25 @@ class _SigninPageState extends State<SigninPage> {
   GlobalKey<FormState> formKey2 = GlobalKey();
 
   String? email, password;
-
+  @override
+  void initState() {
+    super.initState();
+    loadEmail();
+    }
+    Future<void> saveEmail(String email) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('saved_email', email); 
+}
+Future<void> loadEmail()async{
+  final pref=await SharedPreferences.getInstance();
+  final savedEmail =pref.getString('saved_email') ?? '';
+  if (savedEmail.isNotEmpty) {
+    setState(() {
+      isChecked =true;
+      BlocProvider.of<LoginCubit>(context).emailController.text =savedEmail;
+    });
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,16 +95,13 @@ class _SigninPageState extends State<SigninPage> {
                           children: [
                             BlocConsumer<LoginCubit, LoginState>(
                               listener: (context, state) {
-                                if (state is LoginLoading) {
-                                  CircularProgressIndicator();
-                                }
                                 if (state is LoginSuccess) {
                                   if (state.role == "RadiologyCenter") {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            MainScaffold(role: "RadiologyCenter"),
+                                        builder: (context) => MainScaffold(
+                                            role: "RadiologyCenter"),
                                       ),
                                     );
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -94,8 +111,6 @@ class _SigninPageState extends State<SigninPage> {
                                         backgroundColor: Colors.green.shade400,
                                       ),
                                     );
-                                    Navigator.pushReplacementNamed(
-                                        context, HomePage.id);
                                   } else if (state.role == "Radiologist") {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -231,12 +246,17 @@ class _SigninPageState extends State<SigninPage> {
                                 ),
                               ],
                             ),
-
+                              
                             BlocBuilder<LoginCubit, LoginState>(
                               builder: (context, state) {
-                                return CustomButton(
+                             return   state is LoginLoading
+                           ? Center(child:  CircularProgressIndicator()) :
+                                CustomButton(
                                   onTap: () async {
                                     if (formKey1.currentState!.validate()) {}
+                                    if(isChecked){
+                                      saveEmail(ApiKey.email);
+                                    }
                                     context.read<LoginCubit>().login();
                                   },
                                   text: 'Sign In',
