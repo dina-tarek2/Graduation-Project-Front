@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
@@ -40,11 +42,11 @@ class MainScaffoldState extends State<MainScaffold> {
       screens = [
         CenterDashboard(role: widget.role),
         DicomListPage(),
-        ManageDoctorsPage(centerId: '67c31def6dd0171065efc8dc',),
+        ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];
-    } else if (widget.role == "Radiologist"){
+    } else{
       // Default screens for other roles
       screens = [
         HomePage(role: widget.role),
@@ -146,7 +148,7 @@ class MainScaffoldState extends State<MainScaffold> {
                 // Content
                 Expanded(
                   child: Container(
-                    color: const Color(0xFFF8F9FA),
+                    color: Colors.white,
                     padding: const EdgeInsets.all(20),
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),

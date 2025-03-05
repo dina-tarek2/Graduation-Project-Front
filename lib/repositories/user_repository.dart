@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:graduation_project_frontend/api_services/api_consumer.dart';
 import 'package:graduation_project_frontend/api_services/end_points.dart';
+import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/models/signIn_model.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:dartz/dartz.dart';
-late String centerIdd;
 class UserRepository {
   final ApiConsumer api ;
-
-  UserRepository({required this.api});
+final CenterCubit centerCubit;
+  UserRepository({required this.api,required this.centerCubit});
 
 Future<Either<String,SignInModel>> login({
          required String email,
@@ -25,7 +25,8 @@ Future<Either<String,SignInModel>> login({
       final decodedToken = JwtDecoder.decode(user.token);
       String Id = decodedToken['id'];
 if (response is Map && response.containsKey("user")) {
-  centerIdd = response["user"]["_id"];
+ String centerId = response["user"]["id"];
+centerCubit.setCenterId(centerId);
 } else {
   print("Unexpected response structure: $response");
 }

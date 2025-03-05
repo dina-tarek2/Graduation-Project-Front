@@ -17,11 +17,9 @@ import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/cubit/register_cubit.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/dicom.dart';
-import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/signin_page.dart';
 import 'package:graduation_project_frontend/screens/signup_page.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 
 void main() {
   runApp(
@@ -30,13 +28,19 @@ void main() {
         BlocProvider(
           create: (context) => RegisterCubit(DioConsumer(dio: Dio())),
         ),
+
+          BlocProvider(
+            create: (context) => CenterCubit(),
+          ),
+
         BlocProvider(
           create: (context) =>
               RecordsListCubit(DioConsumer(dio: Dio()))..fetchRecords(),
         ),
+
         BlocProvider<LoginCubit>(
           create: (context) =>
-              LoginCubit(UserRepository(api: DioConsumer(dio: Dio()))),
+              LoginCubit(UserRepository(api: DioConsumer(dio: Dio()),centerCubit: context.read<CenterCubit>())),
         ),
         BlocProvider(
           create: (context) => DicomCubit(DioConsumer(dio: Dio())),
@@ -49,7 +53,9 @@ void main() {
         ),
         BlocProvider(
             create: (context) => MedicalReportsCubit(
-                repository: MedicalRepository(api: DioConsumer(dio: Dio())))),
+                repository: MedicalRepository(api: DioConsumer(dio: Dio()))
+            )
+        ),
                 
          BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
     ], 
