@@ -186,7 +186,8 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         .split(',')
                         .map((item) => Chip(
                               label: Text(item.trim()),
-                              backgroundColor: const Color.fromARGB(210, 206, 203, 203),
+                              backgroundColor:
+                                  const Color.fromARGB(210, 206, 203, 203),
                               labelStyle: TextStyle(
                                 color: color ?? Colors.black87,
                                 fontSize: 14,
@@ -313,13 +314,13 @@ class _DoctorProfileState extends State<DoctorProfile> {
 
 void _showSpecializationDialog(BuildContext context, Doctor doctor) {
   List<String> specializations = [
-    'Diagnostic Radiology',
-    'Interventional Radiology',
-    'Nuclear Medicine',
-    'Pediatric Radiology',
-    'Neuroradiology',
+    'Chest Radiology',
+    'Abdominal Radiology',
+    'Head and Neck Radiology',
     'Musculoskeletal Radiology',
-    'Emergency Radiology'
+    'Neuroradiology',
+    'Thoracic Radiology',
+    'Cardiovascular Radiology'
   ];
 
   Map<String, bool> isSelected = {
