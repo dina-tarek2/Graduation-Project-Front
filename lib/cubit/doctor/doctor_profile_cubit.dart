@@ -66,12 +66,12 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
 
       print("📂 the req ${formData.fields.toString()}");
 
-      final response = await dioConsumer.patch(
-        'https://graduation-project-mmih.vercel.app/api/radiologists/editRadiologist/$doctorId',
+      final response = await dioConsumer.post(
+        'https://graduation-project-mmih.vercel.app/api/radiologists/upload/$doctorId',
         data: formData, // ✅ إرسال `formData` بالكامل
       );
 
-      if (response != null && response["statusCode"] == 200) {
+      if (response != null ) {
         print("✅ تم تحديث صورة الملف الشخصي بنجاح: $response");
         await fetchDoctorProfile(doctorId);
       } else {
