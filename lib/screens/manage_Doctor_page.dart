@@ -10,7 +10,7 @@ import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 @immutable
 class ManageDoctorsPage extends StatefulWidget {
   String centerId ;
-  ManageDoctorsPage({required this.centerId});
+  ManageDoctorsPage({super.key, required this.centerId});
 
   @override
   State<ManageDoctorsPage> createState() => _ManageDoctorsPageState();
@@ -84,8 +84,8 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                   );
                 });
           },
-          child: Icon(Icons.add),
           tooltip: "Add New Doctor",
+          child: Icon(Icons.add),
         ),
       ),
     );
@@ -254,7 +254,7 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
 class DoctorCard extends StatelessWidget {
   final dynamic doctor;
   final int index;
-  const DoctorCard({required this.doctor, required this.index});
+  const DoctorCard({super.key, required this.doctor, required this.index});
 
   @override
   Widget build(BuildContext context) {

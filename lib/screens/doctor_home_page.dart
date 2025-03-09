@@ -3,7 +3,7 @@ class HomePage extends StatelessWidget {
   static const String id = 'HomePage';
 
   final String role;
-  const HomePage({Key? key, required this.role}) : super(key: key);
+  const HomePage({super.key, required this.role});
 
   @override
   Widget build(BuildContext context) {

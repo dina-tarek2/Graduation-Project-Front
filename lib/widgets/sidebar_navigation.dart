@@ -7,11 +7,11 @@ class SidebarNavigation extends StatefulWidget {
   final Function(int) onItemSelected;
 
   const SidebarNavigation({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.role,
     required this.onItemSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<SidebarNavigation> createState() => _SidebarNavigationState();

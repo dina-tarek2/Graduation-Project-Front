@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MedicalReportPage extends StatefulWidget {
-  const MedicalReportPage({Key? key}) : super(key: key);
+  const MedicalReportPage({super.key});
   static final id = "MedicalReportPage";
 
   @override
@@ -12,10 +12,10 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
   bool _isEditing = false;
 
   // default /original one values
-  TextEditingController _impressionController = TextEditingController(text: 'Findings are suggestive of mild bronchitis, with no radiological evidence of pneumonia or lung masses.');
-  TextEditingController _findingsController = TextEditingController(text: 'The chest X-ray shows increased bronchovascular markings in both lung fields.\nNo evidence of consolidation, pleural effusion, or pneumothorax is seen.\nThe cardiac silhouette and mediastinum appear within normal limits.\nThe costophrenic angles are clear.');
-  TextEditingController _commentsController = TextEditingController(text: 'The current study does not show signs of acute infection, but clinical symptoms should be evaluated in conjunction with these findings.\nComparison with previous X-rays (if available) would be helpful to assess for any progression.');
-  TextEditingController _recommendationsController = TextEditingController(text: 'Clinical correlation is advised to confirm bronchitis (consider pulmonary function tests if symptoms persist).\nIf symptoms worsen, a follow-up X-ray in 2-4 weeks is recommended.\nSmoking cessation is strongly advised if the patient is a smoker.');
+  final TextEditingController _impressionController = TextEditingController(text: 'Findings are suggestive of mild bronchitis, with no radiological evidence of pneumonia or lung masses.');
+  final TextEditingController _findingsController = TextEditingController(text: 'The chest X-ray shows increased bronchovascular markings in both lung fields.\nNo evidence of consolidation, pleural effusion, or pneumothorax is seen.\nThe cardiac silhouette and mediastinum appear within normal limits.\nThe costophrenic angles are clear.');
+  final TextEditingController _commentsController = TextEditingController(text: 'The current study does not show signs of acute infection, but clinical symptoms should be evaluated in conjunction with these findings.\nComparison with previous X-rays (if available) would be helpful to assess for any progression.');
+  final TextEditingController _recommendationsController = TextEditingController(text: 'Clinical correlation is advised to confirm bronchitis (consider pulmonary function tests if symptoms persist).\nIf symptoms worsen, a follow-up X-ray in 2-4 weeks is recommended.\nSmoking cessation is strongly advised if the patient is a smoker.');
 
   @override
   Widget build(BuildContext context) {

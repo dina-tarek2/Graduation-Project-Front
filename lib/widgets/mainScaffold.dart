@@ -11,17 +11,18 @@ import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/forget_password.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
+import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
 
 class MainScaffold extends StatefulWidget {
   final String role;
   final String title;
-  static String id ='MainScaffold';
+  static String id = 'MainScaffold';
   const MainScaffold({
-    Key? key,
+    super.key,
     required this.role,
     this.title = 'Dashboard',
-  }) : super(key: key);
+  });
 
   @override
   State<MainScaffold> createState() => MainScaffoldState();
@@ -36,7 +37,7 @@ class MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
@@ -46,7 +47,7 @@ class MainScaffoldState extends State<MainScaffold> {
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];
-    } else{
+    } else {
       // Default screens for other roles
       screens = [
         HomePage(role: widget.role),
@@ -63,7 +64,7 @@ class MainScaffoldState extends State<MainScaffold> {
       Navigator.pushReplacementNamed(context, 'SigninPage');
       return;
     }
-    
+
     // For regular screen switching within the main scaffold
     setState(() {
       selectedIndex = index;
@@ -81,7 +82,7 @@ class MainScaffoldState extends State<MainScaffold> {
             role: widget.role,
             onItemSelected: onItemSelected,
           ),
-          
+
           // Content area
           Expanded(
             child: Column(
@@ -133,18 +134,24 @@ class MainScaffoldState extends State<MainScaffold> {
                               color: sky,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
-                              Icons.person_outline,
-                              color: darkBlue,
-                              size: 20,
-                            ),
-                          ),
+                            child: GestureDetector(
+                                child: const Icon(
+                                  Icons.person_outline,
+                                  color: darkBlue,
+                                  size: 20,
+                                ),
+                                onTap: () {
+                                  if (widget.role == "Radiologist") {
+                                    onItemSelected(10);
+                                  }
+                                }),
+                          )
                         ],
                       ),
                     ],
                   ),
                 ),
-                
+
                 // Content
                 Expanded(
                   child: Container(
@@ -173,12 +180,14 @@ class MainScaffoldState extends State<MainScaffold> {
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-    
+
     // Fallback for settings or other screens not in the main list
     if (selectedIndex == 5) {
       return const Center(child: Text("Settings Screen"));
     }
-    
+    if (selectedIndex == 10) {
+      return DoctorProfile(doctorId: context.read<CenterCubit>().state);
+    }
     return screens[0]; // Default to first screen
   }
 
@@ -192,11 +201,13 @@ class MainScaffoldState extends State<MainScaffold> {
       case 2:
         return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Patients';
       case 3:
-        return widget.role == "RadiologyCenter" ?  'Medical Reports':'';
+        return widget.role == "RadiologyCenter" ? 'Medical Reports' : '';
       case 4:
         return 'Contact Us';
       case 5:
         return 'Settings';
+      case 10:
+        return 'My Profile';
       default:
         return widget.title;
     }

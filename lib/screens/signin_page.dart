@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SigninPage extends StatefulWidget {
   static String id = 'SigninPage';
 
+  const SigninPage({super.key});
+
   @override
   State<SigninPage> createState() => _SigninPageState();
 }

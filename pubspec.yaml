@@ -46,6 +46,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   shared_preferences: ^2.5.2
   webview_flutter: ^4.10.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -69,6 +70,7 @@ flutter:
     - assets/images/Mention-bro.png
     - assets/images/image 5.png
     - assets/images/BackgroundWhite.png
+    - assets/images/doctor_icon.jpg
     # - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see

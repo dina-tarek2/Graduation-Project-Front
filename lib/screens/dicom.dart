@@ -5,6 +5,8 @@ import 'package:graduation_project_frontend/cubit/dicom_cubit.dart';
 class DicomListPage extends StatefulWidget {
   static String id = 'DicomListPage';
 
+  const DicomListPage({super.key});
+
   @override
   DicomListPageState createState() => DicomListPageState();
 }

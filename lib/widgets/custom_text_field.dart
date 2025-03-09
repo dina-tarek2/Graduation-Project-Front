@@ -5,7 +5,7 @@ import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 
 class CustomFormTextField extends StatelessWidget {
   //give it default value false , عشان متروحش لكل واحد و تديله قيمة و انا دكدا كدا مش عاوزة تتعمل غير ف الباسورد بس و دا بسبب اني لازم تبتصي قيمة تحت و تكون مش ب null
-  CustomFormTextField({
+  CustomFormTextField({super.key, 
     this.hintText,
     this.controller,
     this.obscureText = false,
@@ -49,8 +49,10 @@ class CustomFormTextField extends StatelessWidget {
         obscureText: obscureText!, //to hide password
         //used inside form
         validator: (data) {
-          if (data!.isEmpty)
-         return 'field is required';
+          if (data!.isEmpty) {
+            return 'field is required';
+          return null;
+          }
         },
           controller: controller,
           minLines: obscureText == true ? 1 : minLines,

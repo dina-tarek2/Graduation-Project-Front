@@ -10,6 +10,8 @@ import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.
 class RecordsListPage extends StatefulWidget {
   static final id = "RecordsListPage";
 
+  const RecordsListPage({super.key});
+
   @override
   _RecordsListPageState createState() => _RecordsListPageState();
 }
@@ -61,7 +63,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
         ),
         child: Row(
           children: [
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width *
                   0.4, // controls search width
               child: _buildSearchBox(),
