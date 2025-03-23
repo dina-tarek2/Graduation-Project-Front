@@ -60,8 +60,7 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
     emit(DoctorProfileLoading());
     try {
       FormData formData = FormData.fromMap({
-        "image":
-            await MultipartFile.fromFile(imagePath),
+        "image": await MultipartFile.fromFile(imagePath),
       });
 
       print("📂 the req ${formData.fields.toString()}");
@@ -71,15 +70,20 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
         data: formData, // ✅ إرسال `formData` بالكامل
       );
 
-      if (response != null ) {
-        print("✅ تم تحديث صورة الملف الشخصي بنجاح: $response");
+      if (response != null && response["statusCode"] == 200) {
+        print("############# ");
+        emit(Success("Change photo is successfly ✅"));
+        await Future.delayed(Duration(seconds: 2));
         await fetchDoctorProfile(doctorId);
       } else {
-        emit(DoctorProfileError("❌ فشل في تحديث صورة الملف الشخصي"));
+        print("##################### ${response.toString()}");
+        emit(DoctorProfileError("Change Photo is filed ❌"));
+        await Future.delayed(Duration(seconds: 2));
+        await fetchDoctorProfile(doctorId);
       }
     } catch (e) {
       emit(DoctorProfileError(
-          "❌ خطأ أثناء تحديث صورة الملف الشخصي: ${e.toString()}"));
+          "Change Photo is filed ❌${e.toString()}"));
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../viewer.dart'; // استيراد الصفحة الجديدة
 
 class MedicalReportPage extends StatefulWidget {
   const MedicalReportPage({super.key});
@@ -12,18 +13,26 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
   bool _isEditing = false;
 
   // default /original one values
-  final TextEditingController _impressionController = TextEditingController(text: 'Findings are suggestive of mild bronchitis, with no radiological evidence of pneumonia or lung masses.');
-  final TextEditingController _findingsController = TextEditingController(text: 'The chest X-ray shows increased bronchovascular markings in both lung fields.\nNo evidence of consolidation, pleural effusion, or pneumothorax is seen.\nThe cardiac silhouette and mediastinum appear within normal limits.\nThe costophrenic angles are clear.');
-  final TextEditingController _commentsController = TextEditingController(text: 'The current study does not show signs of acute infection, but clinical symptoms should be evaluated in conjunction with these findings.\nComparison with previous X-rays (if available) would be helpful to assess for any progression.');
-  final TextEditingController _recommendationsController = TextEditingController(text: 'Clinical correlation is advised to confirm bronchitis (consider pulmonary function tests if symptoms persist).\nIf symptoms worsen, a follow-up X-ray in 2-4 weeks is recommended.\nSmoking cessation is strongly advised if the patient is a smoker.');
+  final TextEditingController _impressionController = TextEditingController(
+      text:
+          'Findings are suggestive of mild bronchitis, with no radiological evidence of pneumonia or lung masses.');
+  final TextEditingController _findingsController = TextEditingController(
+      text:
+          'The chest X-ray shows increased bronchovascular markings in both lung fields.\nNo evidence of consolidation, pleural effusion, or pneumothorax is seen.\nThe cardiac silhouette and mediastinum appear within normal limits.\nThe costophrenic angles are clear.');
+  final TextEditingController _commentsController = TextEditingController(
+      text:
+          'The current study does not show signs of acute infection, but clinical symptoms should be evaluated in conjunction with these findings.\nComparison with previous X-rays (if available) would be helpful to assess for any progression.');
+  final TextEditingController _recommendationsController = TextEditingController(
+      text:
+          'Clinical correlation is advised to confirm bronchitis (consider pulmonary function tests if symptoms persist).\nIf symptoms worsen, a follow-up X-ray in 2-4 weeks is recommended.\nSmoking cessation is strongly advised if the patient is a smoker.');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
+      appBar: AppBar(
         title: Text("Medical Report"),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back), 
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // يرجع لصفحة القائمة
           },
@@ -61,19 +70,25 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                 });
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _isEditing ? Colors.green : Colors.blueGrey,
+                                backgroundColor:
+                                    _isEditing ? Colors.green : Colors.blueGrey,
                                 foregroundColor: Colors.white,
                               ),
                               child: Text(_isEditing ? 'Save' : 'Edit'),
                             ),
                             const SizedBox(width: 10),
                             ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.black54,
-                              ),
-                              child: const Text('DICOM Viewer'),
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  DicomWebViewPage.id,
+                                  arguments: {
+                                    'url':
+                                        'http://localhost:8042/ohif/viewer?StudyInstanceUIDs=1.2.826.0.1.3680043.8.1055.1.20111103111148288.98361414.79379639',
+                                  },
+                                );
+                              },
+                              child: const Text("DICOM Viewer"),
                             ),
                           ],
                         ),
@@ -84,7 +99,8 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                     // Report sections
                     const Text(
                       'Examination & Diagnosis Details',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
 
@@ -97,7 +113,8 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                     _buildEditableSection('Comments', _commentsController),
                     const SizedBox(height: 20),
 
-                    _buildEditableSection('Recommendations', _recommendationsController),
+                    _buildEditableSection(
+                        'Recommendations', _recommendationsController),
                     const SizedBox(height: 20),
                   ],
                 ),

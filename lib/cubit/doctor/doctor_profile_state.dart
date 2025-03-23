@@ -8,7 +8,12 @@ class DoctorProfileLoading extends DoctorProfileState {}
 
 class DoctorProfileSuccess extends DoctorProfileState {
   final Doctor doctor;
-    DoctorProfileSuccess(this.doctor);
+  DoctorProfileSuccess(this.doctor);
+}
+
+class Success extends DoctorProfileState {
+  final String massege;
+  Success(this.massege);
 }
 
 class DoctorProfileError extends DoctorProfileState {

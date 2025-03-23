@@ -72,11 +72,12 @@ class _DoctorProfileState extends State<DoctorProfile> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox(height: 10),
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
                       CircleAvatar(
-                        radius: 50,
+                        radius: 52,
                         backgroundColor: blue, // لون افتراضي للخلفية
                         backgroundImage: _imageFile != null
                             ? FileImage(_imageFile!) as ImageProvider
@@ -95,7 +96,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
                   Text(
                     "${doctor.firstName} ${doctor.lastName}",
                     style: const TextStyle(
@@ -116,9 +117,9 @@ class _DoctorProfileState extends State<DoctorProfile> {
             child: Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
+              elevation: 6,
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(30),
                 child: Column(
                   children: [
                     _editableInfoRow(Icons.person, "First Name",
@@ -187,7 +188,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         .map((item) => Chip(
                               label: Text(item.trim()),
                               backgroundColor:
-                                  const Color.fromARGB(210, 206, 203, 203),
+                                  const Color.fromARGB(209, 222, 222, 222),
                               labelStyle: TextStyle(
                                 color: color ?? Colors.black87,
                                 fontSize: 14,
@@ -284,6 +285,17 @@ class _DoctorProfileState extends State<DoctorProfile> {
                   ImageSource.gallery); // ✅ إصلاح الخطأ باستخدام دالة صحيحة
             },
           ),
+          ListTile(
+              leading: const Icon(Icons.remove_circle_outline,
+                  color: Color(0xFFFF0202)),
+              title: const Text("Remove Photo"),
+              onTap: () {
+                Navigator.pop(context);
+                context
+                    .read<DoctorProfileCubit>()
+                    .updateDoctorProfile(widget.doctorId, {"image": ""});
+              } // ✅ إصلاح الخطأ باستخدام دالة صحيحة
+              ),
         ],
       ),
     );
@@ -301,12 +313,12 @@ class _DoctorProfileState extends State<DoctorProfile> {
     if (doctor.lastName.isNotEmpty) initials += doctor.lastName[0];
 
     return CircleAvatar(
-      radius: 43,
+      radius: 45,
       backgroundColor: _generateColor(doctor.firstName + doctor.lastName),
       child: Text(
         initials.toUpperCase(),
         style: const TextStyle(
-            fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
