@@ -4,9 +4,10 @@ import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.d
 import 'package:graduation_project_frontend/screens/viewer.dart';
 
 class MedicalReportPage extends StatefulWidget {
-  const MedicalReportPage({super.key, this.reportId});
+  const MedicalReportPage({super.key, this.reportId,this.Dicom_url});
   static final id = "MedicalReportPage";
   final String? reportId;
+  final String? Dicom_url;
 
   @override
   _MedicalReportPageState createState() => _MedicalReportPageState();
@@ -86,6 +87,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     onPressed: () {
+                                      print("hereeeee dicom url ${widget.Dicom_url}");
                                       Navigator.pushNamed(
                                         context,
                                         DicomWebViewPage.id,

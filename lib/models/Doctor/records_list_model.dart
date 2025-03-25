@@ -10,6 +10,7 @@ class RecordsListModel {
   final String? bodyPartExamined;
   final String email;
   final String dicomId;
+  final String Dicom_url;
   final String? series;
   final String status;
   final bool deleted;
@@ -42,7 +43,8 @@ class RecordsListModel {
     required this.deadline,
     required this.createdAt,
     required this.updatedAt,
-        required this.reportId,
+    required this.reportId,
+    required this.Dicom_url,
   });
 
   // convert JSON to Object
@@ -71,6 +73,7 @@ class RecordsListModel {
       deadline: DateTime.parse(json['deadline']),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      Dicom_url: json['Dicom_url'],
     );
   }
 }

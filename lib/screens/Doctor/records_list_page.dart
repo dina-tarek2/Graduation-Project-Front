@@ -225,7 +225,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
+DataCell _clickableCell(Widget child, BuildContext context,String reportid,String Dicom_url) {
   return DataCell(
     MouseRegion(
       cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
@@ -233,7 +233,7 @@ DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MedicalReportPage(reportId: reportid)),
+            MaterialPageRoute(builder: (context) => MedicalReportPage(reportId: reportid,Dicom_url: Dicom_url)),
           );
         },
         child: child,
@@ -249,8 +249,8 @@ DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
 
     return DataRow(
       cells: [
-        _clickableCell(_buildStatusIndicator(record.status), context,record.reportId),
-        _clickableCell(Text(record.patientName), context,record.reportId),
+        _clickableCell(_buildStatusIndicator(record.status), context,record.reportId,record.Dicom_url),
+        _clickableCell(Text(record.patientName), context,record.reportId,record.Dicom_url),
         _clickableCell(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,6 +264,7 @@ DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
           ),
           context,
           record.reportId
+          ,record.Dicom_url
         ),
         DataCell(Text(record.age.toString())), // غير قابل للنقر
         DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
@@ -282,9 +283,10 @@ DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
           ),
           context,
           record.reportId
+          ,record.Dicom_url
         ),
-        _clickableCell(Text(record.modality), context,record.reportId),
-        _clickableCell(Text(record.centerName), context,record.reportId),
+        _clickableCell(Text(record.modality), context,record.reportId,record.Dicom_url),
+        _clickableCell(Text(record.centerName), context,record.reportId,record.Dicom_url),
       ],
     );
   }
