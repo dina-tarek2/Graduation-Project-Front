@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:webview_windows/webview_windows.dart';
 
 // Cubits
@@ -47,6 +49,12 @@ void main() {
             //-
             create: (context) => //-
                 RecordsListCubit(DioConsumer(dio: Dio()))..fetchRecords()), //-
+
+        BlocProvider(
+          create: (context) => ReportPageCubit(DioConsumer(dio: Dio())),
+          //..fetchReport(),
+        ),
+
         BlocProvider(
           //-
           create: (context) => LoginCubit(UserRepository(
@@ -98,7 +106,10 @@ class MyApp extends StatelessWidget {
         ForgetPassword.id: (context) => ForgetPassword(),
         CenterDashboard.id: (context) =>
             CenterDashboard(role: "RadiologyCenter"),
+        //doctor
         RecordsListPage.id: (context) => RecordsListPage(),
+        MedicalReportPage.id: (context) => MedicalReportPage(),
+        //
         DicomWebViewPage.id: (context) {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;

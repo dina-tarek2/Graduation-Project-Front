@@ -2,6 +2,7 @@ class RecordsListModel {
   final String id;
   final String centerName;
   final String radiologistId;
+  final String reportId;
   final String patientName;
   final String patientId;
   final String sex;
@@ -41,6 +42,7 @@ class RecordsListModel {
     required this.deadline,
     required this.createdAt,
     required this.updatedAt,
+        required this.reportId,
   });
 
   // convert JSON to Object
@@ -51,6 +53,7 @@ class RecordsListModel {
       radiologistId: json['radiologistId'],
       patientName: json['patient_name'],
       patientId: json['patient_id'],
+      reportId: json['reportId'],
       sex: json['sex'],
       modality: json['modality'],
       bodyPartExamined: json['body_part_examined'],

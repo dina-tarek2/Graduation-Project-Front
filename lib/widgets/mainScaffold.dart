@@ -5,6 +5,7 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
+import 'package:graduation_project_frontend/screens/Doctor/chat_with_centers_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/dicom.dart';
@@ -50,6 +51,7 @@ class MainScaffoldState extends State<MainScaffold> {
       screens = [
         HomePage(role: widget.role),
         RecordsListPage(),
+        ChatWithCentersPage(),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
       ];
@@ -229,7 +231,7 @@ class MainScaffoldState extends State<MainScaffold> {
       case 1:
         return widget.role == "RadiologyCenter" ? 'Upload Dicom' : 'Dicom List';
       case 2:
-        return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Patients';
+        return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Chat';
       case 3:
         return widget.role == "RadiologyCenter" ? 'Medical Reports' : '';
       case 4:

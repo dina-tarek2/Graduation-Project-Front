@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
+import 'package:graduation_project_frontend/models/reports_model.dart';
 import 'package:graduation_project_frontend/screens/Doctor/dicom_viewer_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:intl/intl.dart';
@@ -193,7 +194,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
                         label: Text("Study Date", style: _columnStyle())),
                     DataColumn(label: Text("Age", style: _columnStyle())),
                     DataColumn(label: Text("Body Part", style: _columnStyle())),
-                    DataColumn(label: Text("Series", style: _columnStyle())),
+                    // DataColumn(label: Text("Series", style: _columnStyle())),
                     DataColumn(label: Text("Deadline", style: _columnStyle())),
                     DataColumn(label: Text("Modality", style: _columnStyle())),
                     DataColumn(label: Text("Center", style: _columnStyle())),
@@ -224,7 +225,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-DataCell _clickableCell(Widget child, BuildContext context) {
+DataCell _clickableCell(Widget child, BuildContext context,String reportid) {
   return DataCell(
     MouseRegion(
       cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
@@ -232,7 +233,7 @@ DataCell _clickableCell(Widget child, BuildContext context) {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MedicalReportPage()),
+            MaterialPageRoute(builder: (context) => MedicalReportPage(reportId: reportid)),
           );
         },
         child: child,
@@ -248,8 +249,8 @@ DataCell _clickableCell(Widget child, BuildContext context) {
 
     return DataRow(
       cells: [
-        _clickableCell(_buildStatusIndicator(record.status), context),
-        _clickableCell(Text(record.patientName), context),
+        _clickableCell(_buildStatusIndicator(record.status), context,record.reportId),
+        _clickableCell(Text(record.patientName), context,record.reportId),
         _clickableCell(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,10 +263,11 @@ DataCell _clickableCell(Widget child, BuildContext context) {
             ],
           ),
           context,
+          record.reportId
         ),
         DataCell(Text(record.age.toString())), // غير قابل للنقر
         DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
-        DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
+        // DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
         _clickableCell(
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,9 +281,10 @@ DataCell _clickableCell(Widget child, BuildContext context) {
             ],
           ),
           context,
+          record.reportId
         ),
-        _clickableCell(Text(record.modality), context),
-        _clickableCell(Text(record.centerName), context),
+        _clickableCell(Text(record.modality), context,record.reportId),
+        _clickableCell(Text(record.centerName), context,record.reportId),
       ],
     );
   }

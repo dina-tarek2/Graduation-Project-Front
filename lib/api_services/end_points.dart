@@ -17,6 +17,7 @@ class EndPoints {
   //doctor
   static String GetRecordsByRadiologistId =
       "Record/getRecordsByRadiologistId/67bcebe6567f01f3d25677f5";
+  static String analyzeImage(String id) => "AIReports/analyzeImage/$id";//67c5a83c4b4c95a43a780f78    
   //Doctor List 
    static String getCenterId(id){
     return'/relations/radiologists/$id';
