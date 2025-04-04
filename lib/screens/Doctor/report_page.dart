@@ -1,10 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 
 class MedicalReportPage extends StatefulWidget {
-  const MedicalReportPage({super.key, this.reportId,this.Dicom_url});
+  const MedicalReportPage({super.key, this.reportId, this.Dicom_url});
   static final id = "MedicalReportPage";
   final String? reportId;
   final String? Dicom_url;
@@ -15,10 +16,23 @@ class MedicalReportPage extends StatefulWidget {
 
 class _MedicalReportPageState extends State<MedicalReportPage> {
   bool _isEditing = false;
+  String? viewerUrl;
+  void getViewerUrl() async {
+    var response = await uploadDicom(widget.Dicom_url);
+
+    if (response != null) {
+      setState(() {
+        viewerUrl = response['viewer_url'];
+      });
+    } else {
+      print("❌ Failed to get Viewer URL");
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    getViewerUrl();
     context.read<ReportPageCubit>().fetchReport(widget.reportId!);
   }
 
@@ -87,15 +101,12 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     onPressed: () {
-                                      print("hereeeee dicom url ${widget.Dicom_url}");
+                                      print("hereeeee dicom url ${viewerUrl}");
                                       Navigator.pushNamed(
-                                        context,
-                                        DicomWebViewPage.id,
-                                        arguments: {
-                                          'url':
-                                              'http://localhost:8042/ohif/viewer?StudyInstanceUIDs=1.2.826.0.1.3680043.8.1055.1.20111103111148288.98361414.79379639',
-                                        },
-                                      );
+                                          context, DicomWebViewPage.id,
+                                          arguments: {
+                                            'url': viewerUrl,
+                                          });
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.grey[300],
@@ -192,5 +203,27 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
         const Divider(),
       ],
     );
+  }
+
+  Future<Map<String, dynamic>?> uploadDicom(String? dicomUrl) async {
+    try {
+      final dio = Dio();
+      final response = await dio.post(
+        'http://localhost:5000/upload-dicom',
+        data: {'dicom_url': dicomUrl},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+        ; // ✅ يرجع الريسبونس بالكامل
+      } else {
+        print("❌ Error: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("❌ Exception: $e");
+      return null;
+    }
   }
 }
