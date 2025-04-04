@@ -24,11 +24,11 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
         final doctor = Doctor.fromJson(response);
         emit(DoctorProfileSuccess(doctor));
       } else {
-        emit(DoctorProfileError("❌ فشل تحميل بيانات الطبيب: استجابة فارغة"));
+        emit(DoctorProfileError("Faild get data ❌"));
       }
     } catch (e) {
       emit(
-          DoctorProfileError("❌ خطأ أثناء جلب بيانات الطبيب: ${e.toString()}"));
+          DoctorProfileError("Faild ❌  ${e.toString()}"));
     }
   }
 
@@ -44,14 +44,14 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
       );
 
       if (response != null) {
-        print("✅ تم تحديث بيانات الطبيب بنجاح: $response");
+        print("✅done $response");
         await fetchDoctorProfile(doctorId); // ✅ تحديث البيانات بعد التعديل
       } else {
-        emit(DoctorProfileError("❌ فشل في تحديث بيانات الطبيب"));
+        emit(DoctorProfileError("❌ faild change the data"));
       }
     } catch (e) {
       emit(DoctorProfileError(
-          "❌ خطأ أثناء تحديث بيانات الطبيب: ${e.toString()}"));
+          "❌ Fiald: ${e.toString()}"));
     }
   }
 
