@@ -21,6 +21,10 @@ class EndPoints {
    static String getCenterId(id){
     return'/relations/radiologists/$id';
   }
+  //forgetPassword
+  static String ForgetPassword ='auth/forgotPassword';
+  static String CheckOtp ='auth/checkOtp';
+  static String ResetPassword ='auth/resetPassword';
 }
 class EndPointsForReport{
   static String baseUrl="https://graduation-project-mmih.vercel.app/api/";
@@ -40,6 +44,7 @@ class ApiKey {
 
   static String token = "token";
   static String id = "id";
+  static String id1 = "_id";
   static String role = "role";
 
   //register
@@ -54,6 +59,7 @@ class ApiKey {
 
   //otp
   static String otp = "otp";
+  static String newPassword = "newPassword";
 
   static String radiologyCenter = "radiologyCenter";
   static String Radiologist = "Radiologist";

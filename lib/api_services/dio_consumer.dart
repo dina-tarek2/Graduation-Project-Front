@@ -33,12 +33,10 @@ class DioConsumer extends ApiConsumer {
         data: isFromData ? FormData.fromMap(data) : data,
         queryParameters: queryParameters,
       );
-      return Response.data;
+      return Response;
     } on DioException catch (e) {
-      // switch (e.type) {
-      //   case dio
-      // }
-      print(e.toString());
+      print("DioException: ${e.message}");
+      throw (" ${e.response?.data['message'] ?? e.message}");
     }
   }
 
@@ -55,11 +53,11 @@ class DioConsumer extends ApiConsumer {
         data: data,
         queryParameters: queryParameters,
       );
-      return Response.data;
+      return Response;
     } on DioException catch (e) {
-      print(e.toString());
+      print("DioException: ${e.message}");
+      throw (" ${e.response?.data['message'] ?? e.message}");
     }
-    throw UnimplementedError();
   }
 
   @override
@@ -75,11 +73,11 @@ class DioConsumer extends ApiConsumer {
         data: data,
         queryParameters: queryParameters,
       );
-      return Response.data;
+      return Response;
     } on DioException catch (e) {
-      print(e.toString());
+      print("DioException: ${e.message}");
+      throw (" ${e.response?.data['message'] ?? e.message}");
     }
-    throw UnimplementedError();
   }
 
   @override
@@ -90,15 +88,15 @@ class DioConsumer extends ApiConsumer {
     bool isFromData = false,
   }) async {
     try {
-      final Response = await dio.post(
+      final response = await dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
       );
-      return Response.data;
+      return response;
     } on DioException catch (e) {
-      print(e.toString());
+      print("DioException: ${e.message}");
+      throw (" ${e.response?.data['message'] ?? e.message}");
     }
-    
   }
 }

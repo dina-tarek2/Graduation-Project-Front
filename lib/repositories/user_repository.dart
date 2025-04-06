@@ -5,10 +5,15 @@ import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/models/signIn_model.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:dartz/dartz.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class UserRepository {
   final ApiConsumer api ;
 final CenterCubit centerCubit;
-  UserRepository({required this.api,required this.centerCubit});
+final UserCubit userCubit;
+  UserRepository({required this.api,
+  required this.centerCubit,
+  required this.userCubit,
+  });
 
 Future<Either<String,SignInModel>> login({
          required String email,
@@ -21,24 +26,27 @@ Future<Either<String,SignInModel>> login({
           ApiKey.password: password,
         },
       );
-      final user = SignInModel.fromJson(response);
+      final user = SignInModel.fromJson(response.data);
       final decodedToken = JwtDecoder.decode(user.token);
       String Id = decodedToken['id'];
-if (response is Map && response.containsKey("user")) {
- String centerId = response["user"]["id"];
-centerCubit.setCenterId(centerId);
+      String role = response.data["role"];
+      userCubit.setUserRole(role);
+       SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("userRole", role);
+ if (response.statusCode== 200){
+   if (response.data["role"] == "Radiologist") {
+          String centerId = response.data["user"]["_id"];
+          centerCubit.setCenterId(centerId);
+        }else{
+          String centerId = response.data["user"]["id"];
+          centerCubit.setCenterId(centerId);
+        }
+        return Right(user);
 } else {
-  print("Unexpected response structure: $response");
-}
-           
-      return Right(user);
-    } on DioException catch (e) {
-      if (e.response?.data is Map) {
-        final errorMessage = e.response?.data['message'] ?? 'Unknown error';
-        return Left(errorMessage);
+        return Left(response.data['message']);
       }
-      
-      return Left(e.response?.data.toString() ?? 'An error occurred');
-    }
+  } catch (e) {
+return Left(e.toString());
   }
   }
+}

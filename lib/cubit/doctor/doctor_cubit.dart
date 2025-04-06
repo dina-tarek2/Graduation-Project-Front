@@ -14,15 +14,12 @@ class DoctorCubit extends Cubit<DoctorListState> {
       final response = await api.get(
         EndPoints.getCenterId(centerId)
       );
-      if (response is Map && response.containsKey("data")) {
-        List<dynamic> doctorJson = response["data"]["radiologists"] ?? [];
-       if (doctorJson.isNotEmpty) {
+      if (response.statusCode==200) {
+        List<dynamic> doctorJson =  response.data["data"]["radiologists"] ?? [];
+       
           doctors =
-              doctorJson.map((json) => Doctor.fromJson(json)).toList();
+              doctorJson.map((json) => Doctor.fromJson(json  as Map<String, dynamic>)).toList();
           emit(DoctorListSuccess(doctors));
-      }else {
-        emit(DoctorListError("Failed to fetch doctors"));
-      }
       }else {
         emit(DoctorListError("Invalid response format."));
       }

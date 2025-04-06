@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
 class SidebarNavigation extends StatefulWidget {
   final int selectedIndex;
@@ -28,114 +29,116 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: isExpanded ? 250 : 80,
-      decoration: BoxDecoration(
-        color: darkBlue,
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            spreadRadius: 1,
-            blurRadius: 15,
-            offset: const Offset(2, 0),
+    return Container(
+      color: Colors.white, 
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: isExpanded ? 250 : 80,
+          decoration: BoxDecoration(
+            color:  Blue,
+            borderRadius: const BorderRadius.all(
+             Radius.circular(30),
+             
+            ),
+            shape: BoxShape.rectangle
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Colors.black,
+            //     spreadRadius: 1,
+            //     blurRadius: 15,
+            //     offset: const Offset(2, 0),
+            //   ),
+            // ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Logo and toggle button
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
-            child: Row(
-              mainAxisAlignment: isExpanded
-                  ? MainAxisAlignment.spaceBetween
-                  : MainAxisAlignment.center,
-              children: [
-                if (isExpanded)
-                  Row(
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: darkBabyBlue,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'R',
+          child: Column(
+            children: [
+              // Logo and toggle button
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: isExpanded
+                      ? MainAxisAlignment.spaceBetween
+                      : MainAxisAlignment.center,
+                  children: [
+                    if (isExpanded)
+                      Row(
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: darkBabyBlue,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'R',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Radintal',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: darkBabyBlue,
+                              letterSpacing: 0.5,
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'RadAssist',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: darkBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          isExpanded ? Icons.chevron_left : Icons.chevron_right,
                           color: darkBabyBlue,
-                          letterSpacing: 0.5,
+                          size: 22,
                         ),
+                        onPressed: toggleSidebar,
+                        padding: const EdgeInsets.all(8),
+                        constraints: const BoxConstraints(),
+                        splashRadius: 24,
                       ),
-                    ],
-                  ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: darkBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      isExpanded ? Icons.chevron_left : Icons.chevron_right,
-                      color: darkBabyBlue,
-                      size: 22,
                     ),
-                    onPressed: toggleSidebar,
-                    padding: const EdgeInsets.all(8),
-                    constraints: const BoxConstraints(),
-                    splashRadius: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Menu header
-          if (isExpanded)
-            Padding(
-              padding: const EdgeInsets.only(left: 25, bottom: 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'MAIN MENU',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: darkBabyBlue,
-                    letterSpacing: 1.2,
-                  ),
+                  ],
                 ),
               ),
-            ),
-
-          // Navigation items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              children: _buildNavigationItems(),
-            ),
+              
+              // Menu header
+              if (isExpanded)
+                Padding(
+                  padding: const EdgeInsets.only(left: 25, bottom: 10),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'MAIN MENU',
+                     style: customTextStyle(12, FontWeight.w600, darkBabyBlue),
+                    ),
+                  ),
+                ),
+        
+              // Navigation items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  children: _buildNavigationItems(),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -151,6 +154,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(2, Icons.groups_rounded, 'Manage Doctors'),
         buildNavItem(3, Icons.summarize_rounded, 'Center Reports'),
         buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     } else if (widget.role == "Radiologist") {
       items.addAll([
@@ -159,6 +163,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(2, Icons.person_rounded, 'Patients'),
         buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
         buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     }
     
@@ -195,9 +200,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
     }
     
     // Settings and Logout
-    items.add(buildNavItem(5, Icons.settings_rounded, 'Settings'));
+    items.add(buildNavItem(6, Icons.settings_rounded, 'Settings'));
     items.add(const SizedBox(height: 20));
-    items.add(buildNavItem(6, Icons.logout_rounded, 'Log Out'));
+    items.add(buildNavItem(7, Icons.logout_rounded, 'Log Out'));
     
     return items;
   }
@@ -208,32 +213,10 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: InkWell(
         onTap: () => widget.onItemSelected(index),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(40),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 46,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: isSelected 
-                ? const Color(0xFFE0F1F1) 
-                : (isExpanded ? Colors.transparent : Colors.transparent),
-            gradient: isSelected 
-                ? LinearGradient(
-                    colors: [const Color(0xFFE0F1F1), Colors.white],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ) 
-                : null,
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFFE0F1F1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
-          ),
           child: Row(
             mainAxisAlignment:
                 isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
@@ -246,8 +229,10 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                   color: isSelected 
                       ? darkBabyBlue
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+ borderRadius: const BorderRadius.only(
+    topRight: Radius.circular(50),
+    bottomRight: Radius.circular(50),
+  ),                ),
                 child: Center(
                   child: Icon(
                     icon,
@@ -260,11 +245,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                 Expanded(
                   child: Text(
                     title,
-                    style: TextStyle(
-                      color: isSelected ? const Color(0xFF073042) : darkBabyBlue,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                      fontSize: 14,
-                    ),
+                     style: customTextStyle(14, FontWeight.normal, darkBabyBlue),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -280,8 +261,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                 ),
             ],
           ),
-        ),
-      ),
-    );
+          ),
+        ), 
+      );
+    
   }
 }

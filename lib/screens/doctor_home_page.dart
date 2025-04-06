@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-class HomePage extends StatelessWidget {
-  static const String id = 'HomePage';
-
-  final String role;
-  const HomePage({Key? key, required this.role}) : super(key: key);
+class DashboardContent extends StatefulWidget {
+  static String id = 'DashboardContent';
+  
+  DashboardContent({Key? key}) : super(key: key);
 
   @override
+  State<DashboardContent> createState() => _DashboardContentState();
+}
+
+class _DashboardContentState extends State<DashboardContent> {
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // title: 'Dashboard',
-      body: Center(
-        child: Text('Home Page Content'),
-      ),
-      //  role: role,
+    return Center(
+      child:Text(
+        "Home Dashboard"
+      )
     );
   }
 }

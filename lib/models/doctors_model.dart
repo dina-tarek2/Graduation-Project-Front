@@ -2,7 +2,7 @@ class Doctor {
   final String id;
   final String firstName;
   final String lastName;
-  final String specialization;
+  final  List<String> specialization;
   final String contactNumber;
   final String email;
   final String status;
@@ -22,7 +22,7 @@ class Doctor {
       id: json["_id"],
       firstName: json["firstName"],
       lastName: json["lastName"],
-      specialization: json["specialization"],
+      specialization: List<String>.from(json["specialization"] ?? []),
       contactNumber: json["contactNumber"],
       email: json["email"],
       status: json["status"],
