@@ -5,7 +5,6 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
-import 'package:graduation_project_frontend/screens/Doctor/chat_with_centers_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
@@ -52,10 +51,10 @@ ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<User
     } else{
       // Default screens for other roles
       screens = [
-        // HomePage(role: widget.role),
-        RecordsListPage(),
         DashboardContent(),
+        RecordsListPage(),
         MedicalReportsScreen(),
+        ContactScreen(role: widget.role),
         ContactScreen(role: widget.role),
 ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
     }
@@ -195,12 +194,11 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                       child: _getSelectedScreen(),
                     ),
                   ),
-                ],
+            )],
               ),
             ),
           ],
         ),
-      ),
     );
   }
 

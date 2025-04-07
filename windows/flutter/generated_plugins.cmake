@@ -5,8 +5,8 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus
-  record_windows
   file_selector_windows
+  record_windows
   webview_windows
 )
 

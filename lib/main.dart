@@ -67,14 +67,7 @@ void main() {
           create: (context) =>
               LoginCubit(UserRepository(api: DioConsumer(dio: Dio()),centerCubit: context.read<CenterCubit>(),userCubit:context.read<UserCubit>() )),
         ),
-        BlocProvider(
-          //-
-          create: (context) => LoginCubit(UserRepository(
-            //-
-            api: DioConsumer(dio: Dio()), //-
-            centerCubit: context.read<CenterCubit>(), //-
-          )), //-
-        ), //-
+      
         BlocProvider(
             create: (context) => DicomCubit(DioConsumer(dio: Dio()))), //-
         BlocProvider(
@@ -82,40 +75,25 @@ void main() {
                 repository: MedicalRepository(api: DioConsumer(dio: Dio()))
             )
         ),
-                
+               BlocProvider(
+          create: (context) => ContactCubit(DioConsumer(dio: Dio())),
+        ),   
          BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+        //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
     BlocProvider(
       create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
       
     ),
-    
+    BlocProvider(
+            create: (context) =>
+                DoctorProfileCubit(DioConsumer(dio: Dio()))),
+                  BlocProvider(
+            create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
     ], 
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
   );
 }
-            //-
-            create: (context) => ContactCubit(DioConsumer(dio: Dio()))), //-
-        BlocProvider(
-          //-
-          create: (context) => MedicalReportsCubit(
-            //-
-            repository: MedicalRepository(api: DioConsumer(dio: Dio())), //-
-          ), //-
-        ), //-
-        BlocProvider(
-            create: (context) => DoctorCubit(DioConsumer(dio: Dio()))), //-
-        BlocProvider(
-            //-
-            create: (context) =>
-                DoctorProfileCubit(DioConsumer(dio: Dio()))), //-
-      ], //-
-      child: const MyApp(), //-
-    ), //-
-  ); //-
-  // ... rest of the code//+
-} // {"conversationId":"00a1ede0-0309-41ca-b949-aa6fb68964c1","source":"instruct"}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -139,7 +117,7 @@ class MyApp extends StatelessWidget {
         // MainScaffold.id :(context) => MainScaffold(),
 
          //doctor
-        HomePage.id: (context) => HomePage(role: "Radiologist"),
+        // HomePage.id: (context) => HomePage(role: "Radiologist"),
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
         MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
         CenterDashboard.id: (context) =>
