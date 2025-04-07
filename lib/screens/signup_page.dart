@@ -11,6 +11,8 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 class SignupPage extends StatefulWidget {
   static String id = 'SignupPage';
 
+  const SignupPage({super.key});
+
   @override
   State<SignupPage> createState() => _SignupPageState();
 }
@@ -255,10 +257,10 @@ class _SignupPageState extends State<SignupPage> {
                                   },
                                   //to change default color of checkbox from purple to blue
                                   fillColor:
-                                      MaterialStateProperty.resolveWith<Color>(
-                                          (Set<MaterialState> states) {
+                                      WidgetStateProperty.resolveWith<Color>(
+                                          (Set<WidgetState> states) {
                                     if (states
-                                        .contains(MaterialState.selected)) {
+                                        .contains(WidgetState.selected)) {
                                       return blue; //when click on it
                                     }
                                     return Colors.white; //on default

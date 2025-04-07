@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class DicomViewerPage extends StatelessWidget {
+  const DicomViewerPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

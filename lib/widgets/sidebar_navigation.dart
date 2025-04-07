@@ -8,11 +8,11 @@ class SidebarNavigation extends StatefulWidget {
   final Function(int) onItemSelected;
 
   const SidebarNavigation({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.role,
     required this.onItemSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<SidebarNavigation> createState() => _SidebarNavigationState();
@@ -160,7 +160,8 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
       items.addAll([
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Dicom List'),
-        buildNavItem(2, Icons.person_rounded, 'Patients'),
+        // buildNavItem(2, Icons.person_rounded, 'Patients'),
+        buildNavItem(2, Icons.person_rounded, 'Chat'),
         buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
         buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),

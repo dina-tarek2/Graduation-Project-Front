@@ -15,9 +15,9 @@ final UserCubit userCubit;
   required this.userCubit,
   });
 
-Future<Either<String,SignInModel>> login({
-         required String email,
-         required String password}) async {
+
+  Future<Either<String, SignInModel>> login(
+      {required String email, required String password}) async {
     try {
       final response = await api.post(
         EndPoints.SignIn,
@@ -50,3 +50,4 @@ return Left(e.toString());
   }
   }
 }
+

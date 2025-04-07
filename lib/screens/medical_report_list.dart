@@ -10,6 +10,8 @@ import 'package:graduation_project_frontend/widgets/build_states_card.dart';
 
 class MedicalReportsScreen extends StatelessWidget {
   static String id ='MedicalReportsScreen';
+
+  const MedicalReportsScreen({super.key});
   @override
   Widget build(BuildContext context) {
      return BlocProvider(
