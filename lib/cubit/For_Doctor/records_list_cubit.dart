@@ -18,15 +18,19 @@ class RecordsListCubit extends Cubit<RecordsListState> {
 
       print("Response received: $response");
 
-      if (response is List) {
+      if (response.data is List) {
         print("List received successfully");
 
-        List<RecordsListModel> records = response
-            .cast<
-                Map<String,
-                    dynamic>>() // check data is a Map<String, dynamic>
-            .map((e) => RecordsListModel.fromJson(e))
-            .toList();
+      List<RecordsListModel> records = (response.data as List)
+          .map((item) => RecordsListModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+
+        // List<RecordsListModel> records = response
+        //     .cast<
+        //         Map<String,
+        //             dynamic>>() // check data is a Map<String, dynamic>
+        //     .map((e) => RecordsListModel.fromJson(e))
+        //     .toList();
 
         emit(RecordsListSuccess(records));
       } else {
