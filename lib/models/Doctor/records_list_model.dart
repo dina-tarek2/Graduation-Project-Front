@@ -2,6 +2,7 @@ class RecordsListModel {
   final String id;
   final String centerName;
   final String radiologistId;
+  final String reportId;
   final String patientName;
   final String patientId;
   final String sex;
@@ -9,6 +10,7 @@ class RecordsListModel {
   final String? bodyPartExamined;
   final String email;
   final String dicomId;
+  final String Dicom_url;
   final String? series;
   final String status;
   final bool deleted;
@@ -41,6 +43,8 @@ class RecordsListModel {
     required this.deadline,
     required this.createdAt,
     required this.updatedAt,
+    required this.reportId,
+    required this.Dicom_url,
   });
 
   // convert JSON to Object
@@ -51,6 +55,7 @@ class RecordsListModel {
       radiologistId: json['radiologistId'],
       patientName: json['patient_name'],
       patientId: json['patient_id'],
+      reportId: json['reportId'],
       sex: json['sex'],
       modality: json['modality'],
       bodyPartExamined: json['body_part_examined'],
@@ -68,6 +73,7 @@ class RecordsListModel {
       deadline: DateTime.parse(json['deadline']),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      Dicom_url: json['Dicom_url'],
     );
   }
 }

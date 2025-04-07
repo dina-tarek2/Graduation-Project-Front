@@ -38,7 +38,7 @@ Widget buildReportCard(Report report) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Text('Confidence Level: ${report.confidenceLevel}%'),
-              Text('${dateFormat.format(report.generatedDate)}'),
+              Text(dateFormat.format(report.generatedDate)),
             ],
           ),
           // SizedBox(height: 8),

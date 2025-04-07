@@ -7,3 +7,4 @@ const Color lightBlue = Color(0xFF5FA8D3); // Corrected Hex Color Format
 const Color text = Color(0xFF899CC9);
 const Color blue = Color(0xFF296992);
 const Color Blue = Color(0xFF081c34);
+const Color grey = Color(0xD3606060);

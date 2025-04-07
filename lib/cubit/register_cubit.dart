@@ -67,10 +67,11 @@ void changeRegisterPasswordSuffixIcon() {
 
       final signUpModel = SignUpModel.fromJson(response);
 if (signUpModel.message ==
-          "OTP sent to email. Please verify to complete registration.")
-        emit(OtpVerfication(data: userdata!, message: signUpModel.message));
-      else
-        emit(RegisterFailure(error: signUpModel.message));
+          "OTP sent to email. Please verify to complete registration.") {
+  emit(OtpVerfication(data: userdata!, message: signUpModel.message));
+} else {
+  emit(RegisterFailure(error: signUpModel.message));
+}
     } catch (error) {
       if (error is DioException) {
         print("DioException Error: ${error.message}");

@@ -14,6 +14,8 @@ import 'package:graduation_project_frontend/cubit/login_state.dart';
 class SigninPage extends StatefulWidget {
   static String id = 'SigninPage';
 
+  const SigninPage({super.key});
+
   @override
   State<SigninPage> createState() => _SigninPageState();
 }

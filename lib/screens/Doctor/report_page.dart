@@ -1,8 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:graduation_project_frontend/screens/viewer.dart';
 
 class MedicalReportPage extends StatefulWidget {
-  const MedicalReportPage({Key? key}) : super(key: key);
+  const MedicalReportPage({super.key, this.reportId, this.Dicom_url});
   static final id = "MedicalReportPage";
+  final String? reportId;
+  final String? Dicom_url;
 
   @override
   _MedicalReportPageState createState() => _MedicalReportPageState();
@@ -10,92 +16,159 @@ class MedicalReportPage extends StatefulWidget {
 
 class _MedicalReportPageState extends State<MedicalReportPage> {
   bool _isEditing = false;
+  String? viewerUrl;
+  void getViewerUrl() async {
+    var response = await uploadDicom(widget.Dicom_url);
 
-  // default /original one values
-  TextEditingController _impressionController = TextEditingController(text: 'Findings are suggestive of mild bronchitis, with no radiological evidence of pneumonia or lung masses.');
-  TextEditingController _findingsController = TextEditingController(text: 'The chest X-ray shows increased bronchovascular markings in both lung fields.\nNo evidence of consolidation, pleural effusion, or pneumothorax is seen.\nThe cardiac silhouette and mediastinum appear within normal limits.\nThe costophrenic angles are clear.');
-  TextEditingController _commentsController = TextEditingController(text: 'The current study does not show signs of acute infection, but clinical symptoms should be evaluated in conjunction with these findings.\nComparison with previous X-rays (if available) would be helpful to assess for any progression.');
-  TextEditingController _recommendationsController = TextEditingController(text: 'Clinical correlation is advised to confirm bronchitis (consider pulmonary function tests if symptoms persist).\nIf symptoms worsen, a follow-up X-ray in 2-4 weeks is recommended.\nSmoking cessation is strongly advised if the patient is a smoker.');
+    if (response != null) {
+      setState(() {
+        viewerUrl = response['viewer_url'];
+      });
+    } else {
+      print("❌ Failed to get Viewer URL");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getViewerUrl();
+    context.read<ReportPageCubit>().fetchReport(widget.reportId!);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          // Main content
-          Expanded(
-            child: Container(
-              color: Colors.grey[100],
-              padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Medical Report',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: Text("Medical Report"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // يرجع لصفحة القائمة
+          },
+        ),
+      ),
+      body: BlocBuilder<ReportPageCubit, ReportPageState>(
+        builder: (context, state) {
+          if (state is ReportPageLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is ReportPageFailure) {
+            return Center(
+              child: Text("Error is : ${state.errmessage}"),
+            );
+          } else if (state is ReportPageSuccess) {
+            return Row(
+              children: [
+                // Main content
+                Expanded(
+                  child: Container(
+                    color: Colors.grey[100],
+                    padding: const EdgeInsets.all(16),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // const Text(
+                              //   'Medical Report',
+                              //   style: TextStyle(
+                              //     fontSize: 22,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _isEditing = !_isEditing;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _isEditing
+                                          ? Colors.green
+                                          : Colors.blueGrey,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: Text(_isEditing ? 'Save' : 'Edit'),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      print("hereeeee dicom url ${viewerUrl}");
+                                      Navigator.pushNamed(
+                                          context, DicomWebViewPage.id,
+                                          arguments: {
+                                            'url': viewerUrl,
+                                          });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                      foregroundColor: Colors.black54,
+                                    ),
+                                    child: const Text('DICOM Viewer'),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditing = !_isEditing;
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _isEditing ? Colors.green : Colors.blueGrey,
-                                foregroundColor: Colors.white,
+                          const SizedBox(height: 40),
+
+                          // Report sections
+                          const Text(
+                            'Examination & Diagnosis Details',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+
+                          _buildEditableSection(
+                              'Impression',
+                              context
+                                  .read<ReportPageCubit>()
+                                  .impressionController
+                              //  _impressionController
                               ),
-                              child: Text(_isEditing ? 'Save' : 'Edit'),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.black54,
+                          const SizedBox(height: 20),
+
+                          _buildEditableSection('Findings',
+                              context.read<ReportPageCubit>().findingsController
+                              // _findingsController
                               ),
-                              child: const Text('DICOM Viewer'),
-                            ),
-                          ],
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+
+                          _buildEditableSection('Comments & Recommendations',
+                              context.read<ReportPageCubit>().commentsController
+                              // _commentsController
+                              ),
+                          const SizedBox(height: 20),
+
+                          // _buildEditableSection(
+                          //     'Recommendations',
+                          //     context
+                          //         .read<ReportPageCubit>()
+                          //         .recommendationsController
+                          //     // _recommendationsController
+                          //     ),
+                          // const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 40),
-
-                    // Report sections
-                    const Text(
-                      'Examination & Diagnosis Details',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 20),
-
-                    _buildEditableSection('Impression', _impressionController),
-                    const SizedBox(height: 20),
-
-                    _buildEditableSection('Findings', _findingsController),
-                    const SizedBox(height: 20),
-
-                    _buildEditableSection('Comments', _commentsController),
-                    const SizedBox(height: 20),
-
-                    _buildEditableSection('Recommendations', _recommendationsController),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ],
+              ],
+            );
+          } else
+            return const Center(
+              child: Text("error in state in ui"),
+            );
+        },
       ),
     );
   }
@@ -130,5 +203,27 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
         const Divider(),
       ],
     );
+  }
+
+  Future<Map<String, dynamic>?> uploadDicom(String? dicomUrl) async {
+    try {
+      final dio = Dio();
+      final response = await dio.post(
+        'http://localhost:5000/upload-dicom',
+        data: {'dicom_url': dicomUrl},
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+        ; // ✅ يرجع الريسبونس بالكامل
+      } else {
+        print("❌ Error: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("❌ Exception: $e");
+      return null;
+    }
   }
 }
