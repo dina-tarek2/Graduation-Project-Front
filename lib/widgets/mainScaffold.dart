@@ -7,10 +7,11 @@ import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/chat_with_centers_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
+import 'package:graduation_project_frontend/screens/chatScreen.dart';
+import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/dicom.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
-import 'package:graduation_project_frontend/screens/forget_password.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
@@ -31,6 +32,7 @@ class MainScaffold extends StatefulWidget {
 }
 
 class MainScaffoldState extends State<MainScaffold> {
+  
   int selectedIndex = 0;
   late final List<Widget> screens;
   File? _imageFile;
@@ -46,24 +48,29 @@ class MainScaffoldState extends State<MainScaffold> {
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-      ];
-    } else {
+ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
+    } else{
+      // Default screens for other roles
       screens = [
-        HomePage(role: widget.role),
+        // HomePage(role: widget.role),
         RecordsListPage(),
-        ChatWithCentersPage(),
+        DashboardContent(),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-      ];
+ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
     }
   }
 
   void onItemSelected(int index) {
-    if (index == 6) {
-      Navigator.pushReplacementNamed(context, 'SigninPage');
+    // Only handle special navigation cases (like logout)
+    if (index == 7) {
+      context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
+       Navigator.pushReplacementNamed(context, 'SigninPage');
       return;
     }
 
+    
+    // For regular screen switching within the main scaffold
     setState(() {
       selectedIndex = index;
     });
@@ -138,17 +145,6 @@ class MainScaffoldState extends State<MainScaffold> {
                 Container(
                   height: 70,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -157,7 +153,7 @@ class MainScaffoldState extends State<MainScaffold> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF073042),
+                          color: Blue,
                         ),
                       ),
                       Row(
@@ -199,11 +195,11 @@ class MainScaffoldState extends State<MainScaffold> {
                       child: _getSelectedScreen(),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -212,8 +208,10 @@ class MainScaffoldState extends State<MainScaffold> {
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-
-    if (selectedIndex == 5) {
+    
+    // Fallback for settings or other screens not in the main list
+    if (selectedIndex == 6) {
+   
       return const Center(child: Text("Settings Screen"));
     }
 
@@ -237,6 +235,8 @@ class MainScaffoldState extends State<MainScaffold> {
       case 4:
         return 'Contact Us';
       case 5:
+        return 'Chat App';
+        case 6:
         return 'Settings';
       case 10:
         return 'My Profile';

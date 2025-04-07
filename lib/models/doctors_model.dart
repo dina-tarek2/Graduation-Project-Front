@@ -2,6 +2,7 @@ class Doctor {
   final String id;
   final String firstName;
   final String lastName;
+
   final List<dynamic> specialization;
   final String contactNumber;
   final String email;

@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 import '../api_services/end_points.dart';
 
 class SignInModel {
@@ -18,7 +17,7 @@ class SignInModel {
    return SignInModel(
     token: jsonData[ApiKey.token] ?? '',
     role: jsonData[ApiKey.role],
-    id: jsonData[ApiKey.id],
+    id: jsonData['user'] != null ? jsonData['user']['_id'] : null
    );
  }
 }

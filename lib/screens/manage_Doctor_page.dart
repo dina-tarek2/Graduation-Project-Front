@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
-import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 @immutable
 class ManageDoctorsPage extends StatefulWidget {
@@ -299,7 +298,7 @@ class DoctorCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      doctor.specialization,
+                      doctor.specialization.join(", "),
                       style: TextStyle(
                         fontSize: 12,
                         // color: Theme.of(context).primaryColor,
