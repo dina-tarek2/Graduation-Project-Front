@@ -20,8 +20,8 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
         'https://graduation-project-mmih.vercel.app/api/radiologists/getRadiologistById/$doctorId',
       );
 
-      if (response != null && response.isNotEmpty) {
-        final doctor = Doctor.fromJson(response);
+      if (response.data != null && response.data.isNotEmpty) {
+        final doctor = Doctor.fromJson(response.data);
         emit(DoctorProfileSuccess(doctor));
       } else {
         emit(DoctorProfileError("Faild get data ❌"));
@@ -43,7 +43,7 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
         data: updates, // ✅ الآن البيانات تُرسل بشكل صحيح
       );
 
-      if (response != null) {
+      if (response.data != null) {
         print("✅done $response");
         await fetchDoctorProfile(doctorId); // ✅ تحديث البيانات بعد التعديل
       } else {
@@ -70,7 +70,7 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
         data: formData, // ✅ إرسال `formData` بالكامل
       );
 
-      if (response != null && response["statusCode"] == 200) {
+      if (response.data != null && response.data["statusCode"] == 200) {
         print("############# ");
         emit(Success("Change photo is successfly ✅"));
         await Future.delayed(Duration(seconds: 2));
