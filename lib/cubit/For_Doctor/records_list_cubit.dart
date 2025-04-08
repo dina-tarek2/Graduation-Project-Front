@@ -16,7 +16,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
     try {
       final response = await api.get(EndPoints.GetRecordsByRadiologistId);
 
-      print("Response received: $response.data");
+      print("Response received: ${response.data}");
 
       if (response.data is List) {
         print("List received successfully");
@@ -27,9 +27,10 @@ class RecordsListCubit extends Cubit<RecordsListState> {
         //             dynamic>>() // check data is a Map<String, dynamic>
         //     .map((e) => RecordsListModel.fromJson(e))
         //     .toList();
-       List<RecordsListModel> records = (response.data as List)
-    .map((item) => RecordsListModel.fromJson(item as Map<String, dynamic>))
-    .toList();
+        List<RecordsListModel> records = (response.data as List)
+            .map((item) =>
+                RecordsListModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
         emit(RecordsListSuccess(records));
       } else {

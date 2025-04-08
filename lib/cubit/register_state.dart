@@ -24,4 +24,7 @@ final class RegisterFailure extends RegisterState {
   final String error;
   RegisterFailure({required this.error});
 }
+
+class LicenseImagePicked extends RegisterState {}
+
 class ChangeRegisterPasswordSuffixIconState extends RegisterState {}

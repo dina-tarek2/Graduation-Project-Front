@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
+import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
@@ -31,7 +33,6 @@ class MainScaffold extends StatefulWidget {
 }
 
 class MainScaffoldState extends State<MainScaffold> {
-  
   int selectedIndex = 0;
   late final List<Widget> screens;
   File? _imageFile;
@@ -43,12 +44,18 @@ class MainScaffoldState extends State<MainScaffold> {
     if (widget.role == "RadiologyCenter") {
       screens = [
         CenterDashboard(role: widget.role),
-        DicomListPage(),
+        DicomsListPage(),
+        // UploadButtonScreen(),
+        // DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
-    } else{
+        ChatScreen(
+          userId: context.read<CenterCubit>().state,
+          userType: context.read<UserCubit>().state,
+        ),
+      ];
+    } else {
       // Default screens for other roles
       screens = [
         DashboardContent(),
@@ -56,7 +63,11 @@ ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<User
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
         ContactScreen(role: widget.role),
-ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
+        ChatScreenToDoctor(
+          userId: context.read<CenterCubit>().state,
+          userType: context.read<UserCubit>().state,
+        ),
+      ];
     }
   }
 
@@ -64,11 +75,10 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     // Only handle special navigation cases (like logout)
     if (index == 7) {
       context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
-       Navigator.pushReplacementNamed(context, 'SigninPage');
+      Navigator.pushReplacementNamed(context, 'SigninPage');
       return;
     }
 
-    
     // For regular screen switching within the main scaffold
     setState(() {
       selectedIndex = index;
@@ -194,11 +204,12 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                       child: _getSelectedScreen(),
                     ),
                   ),
-            )],
-              ),
+                )
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -206,10 +217,9 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-    
+
     // Fallback for settings or other screens not in the main list
     if (selectedIndex == 6) {
-   
       return const Center(child: Text("Settings Screen"));
     }
 
@@ -234,7 +244,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
         return 'Contact Us';
       case 5:
         return 'Chat App';
-        case 6:
+      case 6:
         return 'Settings';
       case 10:
         return 'My Profile';
