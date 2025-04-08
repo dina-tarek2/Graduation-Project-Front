@@ -37,7 +37,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
           duration: const Duration(milliseconds: 300),
           width: isExpanded ? 250 : 80,
           decoration: BoxDecoration(
-            color:  Blue,
+            color:  darkblue,
             borderRadius: const BorderRadius.all(
              Radius.circular(30),
              

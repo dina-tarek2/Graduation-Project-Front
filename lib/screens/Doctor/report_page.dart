@@ -216,7 +216,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
 
       if (response.statusCode == 200) {
         return response.data;
-        ; // ✅ يرجع الريسبونس بالكامل
+         // ✅ يرجع الريسبونس بالكامل
       } else {
         print("❌ Error: ${response.statusCode}");
         return null;

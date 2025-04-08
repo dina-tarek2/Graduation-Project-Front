@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
@@ -138,13 +138,13 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         doctor.numberOfReports.toString(),
                         editable: false),
                     _infoRow(
-                      doctor.status == "Active"
+                      doctor.status == "online"
                           ? Icons.check_circle
                           : Icons.cancel,
                       "Status",
                       doctor.status,
                       color:
-                          doctor.status == "Active" ? Colors.green : Colors.red,
+                          doctor.status == "online" ? Colors.green : Colors.red,
                       editable: false,
                     ),
                   ],

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/models/reports_model.dart';
-import 'package:graduation_project_frontend/screens/Doctor/dicom_viewer_page.dart';
+
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
+
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 
 class RecordsListPage extends StatefulWidget {

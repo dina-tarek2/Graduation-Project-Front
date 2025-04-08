@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:webview_windows/webview_windows.dart';
 
@@ -61,39 +62,38 @@ void main() {
           //..fetchReport(),
         ),
 
-          BlocProvider(create: (context) => CenterCubit()),
-          BlocProvider(create: (context) => UserCubit()),
+        BlocProvider(create: (context) => CenterCubit()),
+        BlocProvider(create: (context) => UserCubit()),
         BlocProvider<LoginCubit>(
-          create: (context) =>
-              LoginCubit(UserRepository(api: DioConsumer(dio: Dio()),centerCubit: context.read<CenterCubit>(),userCubit:context.read<UserCubit>() )),
+          create: (context) => LoginCubit(UserRepository(
+              api: DioConsumer(dio: Dio()),
+              centerCubit: context.read<CenterCubit>(),
+              userCubit: context.read<UserCubit>())),
         ),
-      
+
         BlocProvider(
             create: (context) => DicomCubit(DioConsumer(dio: Dio()))), //-
         BlocProvider(
             create: (context) => MedicalReportsCubit(
-                repository: MedicalRepository(api: DioConsumer(dio: Dio()))
-            )
-        ),
-               BlocProvider(
+                repository: MedicalRepository(api: DioConsumer(dio: Dio())))),
+        BlocProvider(
           create: (context) => ContactCubit(DioConsumer(dio: Dio())),
-        ),   
-         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+        ),
+        BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
-    BlocProvider(
-      create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
-      
-    ),
-    BlocProvider(
-            create: (context) =>
-                DoctorProfileCubit(DioConsumer(dio: Dio()))),
-                  BlocProvider(
-            create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
-    ], 
+        BlocProvider(
+          create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
+            create: (context) => DoctorProfileCubit(DioConsumer(dio: Dio()))),
+        BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+          BlocProvider(create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
+      ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
   );
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -106,17 +106,20 @@ class MyApp extends StatelessWidget {
         SigninPage.id: (context) => SigninPage(),
         SignupPage.id: (context) => SignupPage(),
         DicomListPage.id: (context) => DicomListPage(),
-        DashboardContent.id:(context) => DashboardContent(),
+        DashboardContent.id: (context) => DashboardContent(),
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
         MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
-        ForgetPassword.id:(context) => ForgetPassword(),
+        ForgetPassword.id: (context) => ForgetPassword(),
         // ManageDoctorsPage.id :(context) => ManageDoctorsPage(),
-        OtpResetpassword.id :(context) => OtpResetpassword(),
-        ResetPassword.id :(context) => ResetPassword(),
-        ChatScreen.id :(context) => ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state,),
+        OtpResetpassword.id: (context) => OtpResetpassword(),
+        ResetPassword.id: (context) => ResetPassword(),
+        ChatScreen.id: (context) => ChatScreen(
+              userId: context.read<CenterCubit>().state,
+              userType: context.read<UserCubit>().state,
+            ),
         // MainScaffold.id :(context) => MainScaffold(),
 
-         //doctor
+        //doctor
         // HomePage.id: (context) => HomePage(role: "Radiologist"),
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
         MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
@@ -135,4 +138,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
