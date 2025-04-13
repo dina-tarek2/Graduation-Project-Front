@@ -1,7 +1,24 @@
+// باقي الاستيرادات
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
+import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
+import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Notifications/formatNotificationDate.dart';
+import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 
-enum NotificationType { success, error, warning, info }
+enum NotificationType { success, error, warning, info, notify }
+
+enum AnimationStyle {
+  slide,
+  fade,
+  glass,
+  card,
+  toast,
+  notify,
+}
 
 class AdvancedNotification extends StatelessWidget {
   final String message;
@@ -13,6 +30,20 @@ class AdvancedNotification extends StatelessWidget {
   final Widget? trailingAction;
   final bool showProgress;
   final AnimationStyle animationStyle;
+  final String? image;
+  final String? sound;
+  final DateTime? date;
+  final Icon? icon;
+
+  static late BuildContext _context;
+
+  static void setContext(BuildContext context) {
+    _context = context;
+  }
+
+  static BuildContext getContext() {
+    return _context;
+  }
 
   const AdvancedNotification({
     Key? key,
@@ -25,6 +56,10 @@ class AdvancedNotification extends StatelessWidget {
     this.trailingAction,
     this.showProgress = false,
     this.animationStyle = AnimationStyle.slide,
+    this.image,
+    this.sound,
+    this.date,
+    this.icon,
   }) : super(key: key);
 
   Color get backgroundColor {
@@ -36,6 +71,7 @@ class AdvancedNotification extends StatelessWidget {
       case NotificationType.warning:
         return Colors.amber.shade50;
       case NotificationType.info:
+      case NotificationType.notify:
         return Colors.blue.shade50;
     }
   }
@@ -49,6 +85,7 @@ class AdvancedNotification extends StatelessWidget {
       case NotificationType.warning:
         return Colors.amber;
       case NotificationType.info:
+      case NotificationType.notify:
         return Colors.blue;
     }
   }
@@ -63,12 +100,17 @@ class AdvancedNotification extends StatelessWidget {
         return Icons.warning_amber_outlined;
       case NotificationType.info:
         return Icons.info_outline;
+      case NotificationType.notify:
+        return Icons.notifications_none;
     }
   }
 
   void show(BuildContext context) {
+    if (sound != null && sound!.isNotEmpty) {
+      final player = AudioPlayer();
+      player.play(UrlSource(sound!));
+    }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    
     final snackBar = _buildStyled(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -85,6 +127,8 @@ class AdvancedNotification extends StatelessWidget {
         return _buildCardStyleSnackBar(context);
       case AnimationStyle.toast:
         return _buildToastStyleSnackBar(context);
+      case AnimationStyle.notify:
+        return _buildNotifyCard(context);
     }
   }
 
@@ -255,7 +299,8 @@ class AdvancedNotification extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
-                  child: leadingIcon ?? Icon(defaultIcon, color: iconColor, size: 30),
+                  child: leadingIcon ??
+                      Icon(defaultIcon, color: iconColor, size: 30),
                 ),
               ),
               SizedBox(width: 16),
@@ -359,21 +404,122 @@ class AdvancedNotification extends StatelessWidget {
     );
   }
 
+  // باقي أنواع الـ SnackBar بدون تعديل...
+
+  SnackBar _buildNotifyCard(BuildContext context) {
+    return SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 20,
+        right: 20,
+        left: 20,
+      ),
+      content: Align(
+        alignment: Alignment.bottomRight,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 400,
+            minHeight: 100,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: blue,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: iconColor.withOpacity(0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (image != null && image!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          image!,
+                          width: 42,
+                          height: 42,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    else if (icon != null)
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(child: icon),
+                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (title != null && title!.isNotEmpty)
+                            Text(
+                              title!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          if (title != null && title!.isNotEmpty)
+                            const SizedBox(height: 2),
+                          Text(
+                            message,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatNotificationDate(date ?? DateTime.now()),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.white38,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      duration: duration,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
   }
 }
 
-enum AnimationStyle {
-  slide,
-  fade,
-  glass,
-  card,
-  toast,
-}
-
-// دالة مساعدة لإظهار الإشعارات بسهولة في أي مكان في التطبيق
 void showAdvancedNotification(
   BuildContext context, {
   required String message,
@@ -385,7 +531,12 @@ void showAdvancedNotification(
   Widget? trailingAction,
   bool showProgress = false,
   AnimationStyle style = AnimationStyle.card,
+  String? image,
+  String? sound,
+  DateTime? date,
+  Icon? icon,
 }) {
+
   AdvancedNotification(
     message: message,
     title: title,
@@ -396,5 +547,16 @@ void showAdvancedNotification(
     trailingAction: trailingAction,
     showProgress: showProgress,
     animationStyle: style,
+    image: image,
+    sound: sound,
+    date: date ?? DateTime.now(),
+    icon: icon,
   ).show(context);
+final scaffoldState = context.findAncestorStateOfType<MainScaffoldState>();
+
+context.read<NotificationCubit>().loadNotifications(
+  context.read<CenterCubit>().state,
+);
+
+scaffoldState?.reloadNotifyIcon();
 }

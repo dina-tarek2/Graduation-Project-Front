@@ -4,6 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
+
+import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
+import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
+import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
+
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:webview_windows/webview_windows.dart';
 
@@ -81,13 +87,22 @@ void main() {
         ),
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
+
         BlocProvider(
           create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
         ),
         BlocProvider(
+          create: (context) => UploadedDicomsCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
+            //-
+            create: (context) =>
+                UploadDicomCubit(DioConsumer(dio: Dio(), isdicom: true))),
+        BlocProvider(
             create: (context) => DoctorProfileCubit(DioConsumer(dio: Dio()))),
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
-          BlocProvider(create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
+        BlocProvider(
+            create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
       ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
@@ -128,6 +143,10 @@ class MyApp extends StatelessWidget {
         //doctor
         RecordsListPage.id: (context) => RecordsListPage(),
         MedicalReportPage.id: (context) => MedicalReportPage(),
+        //center
+        UploadScreen.id: (context) => UploadScreen(),
+        // UploadButtonScreen.id:(context) => UploadButtonScreen(),
+        DicomsListPage.id: (context) => DicomsListPage(),
         //
         DicomWebViewPage.id: (context) {
           final args = ModalRoute.of(context)!.settings.arguments

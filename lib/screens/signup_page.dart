@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/register_cubit.dart';
@@ -78,9 +80,10 @@ class _SignupPageState extends State<SignupPage> {
                       decoration: BoxDecoration(
                         color: sky,
                         image: DecorationImage(
-                          image: AssetImage("assets/images/image 5.png",),
+                          image: AssetImage(
+                            "assets/images/image 5.png",
+                          ),
                           fit: BoxFit.fill,
-
                         ),
                       ),
                       child: Padding(
@@ -191,21 +194,108 @@ class _SignupPageState extends State<SignupPage> {
                                     .centerNameController,
                               ),
                               CustomFormTextField(
-                                hintText: 'Enter your address',
+                                hintText: 'Street',
                                 icon: Icons.work,
                                 controller: context
                                     .read<RegisterCubit>()
-                                    .addressController,
+                                    .streetController,
                               ),
                               CustomFormTextField(
-                                hintText: 'Enter your contact no.',
+                                hintText: 'City',
+                                icon: Icons.work,
+                                controller: context
+                                    .read<RegisterCubit>()
+                                    .cityController,
+                              ),
+                              CustomFormTextField(
+                                hintText: 'State',
+                                icon: Icons.work,
+                                controller: context
+                                    .read<RegisterCubit>()
+                                    .stateController,
+                              ),
+                              CustomFormTextField(
+                                hintText: 'Zipcode',
+                                icon: Icons.work,
+                                controller: context
+                                    .read<RegisterCubit>()
+                                    .zipcodeController,
+                              ),
+                              CustomFormTextField(
+                                hintText: 'Contact No.',
                                 icon: Icons.work,
                                 controller: context
                                     .read<RegisterCubit>()
                                     .contactNumberController,
                               ),
+                              //  CustomFormTextField(
+                              //   hintText: 'Radiology Practice License Image',
+                              //   icon: Icons.work,
+                              //   controller: context
+                              //       .read<RegisterCubit>()
+                              //       .contactNumberController,
+                              // ),
+                              InkWell(
+                                onTap: () => context
+                                    .read<RegisterCubit>()
+                                    .pickLicenseImage(),
+                                child: Container(
+                                  padding: EdgeInsets.all(12),
+                                  // EdgeInsets.symmetric(
+                                  //     horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.cloud_upload_outlined,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(width: 8),
+                                      BlocBuilder<RegisterCubit, RegisterState>(
+                                        builder: (context, state) {
+                                          print(context
+                                              .read<RegisterCubit>()
+                                              .licenseImageFile);
+                                          return Text(
+                                            context
+                                                        .read<RegisterCubit>()
+                                                        .licenseImageFile ==
+                                                    null
+                                                ? "Upload Radiology Practice License Image"
+                                                : context
+                                                    .read<RegisterCubit>()
+                                                    .licenseImageFile!
+                                                    .path
+                                                    .split(Platform.pathSeparator)
+                                                    .last,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
-                            SizedBox(height: 20),
+                            // SizedBox(height: 20),
                             CustomFormTextField(
                               obscureText:
                                   BlocProvider.of<RegisterCubit>(context)
@@ -224,9 +314,9 @@ class _SignupPageState extends State<SignupPage> {
                                   .read<RegisterCubit>()
                                   .passwordController,
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
+                            // const SizedBox(
+                            //   height: 20,
+                            // ),
                             CustomFormTextField(
                               hintText: "Confirm Password",
                               icon: Icons.lock,
@@ -259,8 +349,7 @@ class _SignupPageState extends State<SignupPage> {
                                   fillColor:
                                       WidgetStateProperty.resolveWith<Color>(
                                           (Set<WidgetState> states) {
-                                    if (states
-                                        .contains(WidgetState.selected)) {
+                                    if (states.contains(WidgetState.selected)) {
                                       return blue; //when click on it
                                     }
                                     return Colors.white; //on default

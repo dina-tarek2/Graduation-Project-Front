@@ -8,31 +8,26 @@ class NotificationCubit extends Cubit<NotificationState> {
   final ApiConsumer api;
   List<AppNotification> notifications = [];
 
-  // تحميل الإشعارات من الـ API
   Future<int> loadNotifications(String userId) async {
-    emit(NotificationLoading()); // إظهار حالة التحميل
+    emit(NotificationLoading());
 
     try {
       final response = await api.get(
-        'https://graduation-project-mmih.vercel.app/api/notifications/$userId',
+        'https://graduation-project--xohomg.fly.dev/api/notifications/all/$userId',
       );
 
-      final responseData = response.data; // الحصول على بيانات الـ response
-      print('✅Response Notification: $responseData');
-
-      // تأكد أن الـ response يحتوي على success = true وnotifications موجودة
+      final responseData = response.data;
+      print('Response data: $responseData'); // طباعة استجابة الإشعار المرسلrr
       if (responseData != null &&
           responseData['success'] == true &&
           responseData['notifications'] != null) {
         final List<dynamic> data = responseData['notifications'];
 
-        // تحويل البيانات إلى قائمة من AppNotification
         final List<AppNotification> loaded =
             data.map((notif) => AppNotification.fromJson(notif)).toList();
 
-        print('✅Parsed Notifications: $loaded');
 
-        notifications = loaded; // حفظ الإشعارات في المتغير
+        notifications = loaded;
         emit(NotificationLoaded(loaded));
         //unread notification
         int unread = 0;
@@ -45,16 +40,14 @@ class NotificationCubit extends Cubit<NotificationState> {
       } else {
         emit(
             NotificationError('فشل في تحميل الإشعارات أو البيانات غير مكتملة'));
-            return 0;
+        return 0;
       }
     } catch (e) {
-      emit(NotificationError(
-          'حدث خطأ أثناء تحميل الإشعارات: $e')); // معالجة الخطأ
-      print('❌Error loading notifications: $e'); // طباعة الخطأ في الـ console
+      emit(NotificationError('❌Error loading notifications: $e'));
+      print('❌Error loading notifications: $e');
       return 0;
     }
   }
-
 
   Future<void> sendNotification(
       String userId, String userType, String title, String message) async {
@@ -90,16 +83,13 @@ class NotificationCubit extends Cubit<NotificationState> {
         'https://graduation-project-mmih.vercel.app/api/notifications/read/$notificationId',
       );
 
-      print(
-          '✅Response Mark As Read: ${response}'); // طباعة استجابة تحديث الإشعار
-
       if (response['status'] == true) {
-        print('تم تحديث الإشعار إلى مقروء');
+        print('the notification has been marked as read');
       } else {
-        print('فشل في تحديث الإشعار');
+        print('Failed to mark notification as read');
       }
     } catch (e) {
-      print('خطأ: $e');
+      print('❌error: $e');
     }
   }
 

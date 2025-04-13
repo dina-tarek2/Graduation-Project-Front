@@ -6,17 +6,20 @@ import 'package:graduation_project_frontend/cubit/Notification/notification_cubi
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
+import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
-import 'package:graduation_project_frontend/screens/dicom.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
+import 'package:graduation_project_frontend/widgets/custom_toast.dart'
+    as custom_toast;
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
 
@@ -44,6 +47,7 @@ class MainScaffoldState extends State<MainScaffold> {
   final GlobalKey _notificationIconKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   late int selectedIndex;
+
   @override
   void initState() {
     super.initState();
@@ -53,11 +57,19 @@ class MainScaffoldState extends State<MainScaffold> {
           context.read<CenterCubit>().state,
         );
     // Fetch notifications>
+    context.read<NotificationCubit>().loadNotifications(
+          context.read<CenterCubit>().state,
+        );
+    print(
+        "////////////////////////////////////// ${context.read<CenterCubit>().state}");
+    custom_toast.AdvancedNotification.setContext(context);
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
         CenterDashboard(role: widget.role),
-        DicomListPage(),
+        DicomsListPage(),
+        // UploadButtonScreen(),
+        // DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
@@ -67,7 +79,6 @@ class MainScaffoldState extends State<MainScaffold> {
         ),
       ];
     } else {
-      // Default screens for other roles (e.g., Radiologist)
       screens = [
         DashboardContent(),
         RecordsListPage(),
@@ -82,6 +93,10 @@ class MainScaffoldState extends State<MainScaffold> {
     }
   }
 
+  void reloadNotifyIcon() {
+    setState(() {});
+  }
+
   // Handle navigation from the sidebar
   void onItemSelected(int index) {
     if (index == 7) {
@@ -89,6 +104,7 @@ class MainScaffoldState extends State<MainScaffold> {
       Navigator.pushReplacementNamed(context, 'SigninPage');
       return;
     }
+
     setState(() {
       selectedIndex = index;
     });
@@ -160,7 +176,7 @@ class MainScaffoldState extends State<MainScaffold> {
     if (_unreadNotificationCount > 0) {
       return Colors.orangeAccent; // اللون إذا كانت هناك إشعارات غير مقروءة
     }
-    return sky; // اللون إذا كانت الإشعارات مقروءة أو لا توجد إشعارات
+    return sky;
   }
 
 // دالة لحساب عدد الإشعارات غير المقروءة
@@ -279,6 +295,14 @@ class MainScaffoldState extends State<MainScaffold> {
                             onTap: () {
                               if (_overlayEntry == null) {
                                 _showNotificationsPopup();
+                                custom_toast.showAdvancedNotification(
+                                  context,
+                                  message: "new notification message",
+                                  title: "New Notification",
+                                  type: custom_toast.NotificationType.notify,
+                                  duration: Duration(seconds: 5),
+                                  style: custom_toast.AnimationStyle.notify,
+                                );
                               } else {
                                 _removeNotificationsPopup();
                               }
@@ -302,8 +326,8 @@ class MainScaffoldState extends State<MainScaffold> {
                                   if (_unreadNotificationCount >
                                       0) // عرض العداد إذا كان هناك إشعارات غير مقروءة
                                     Positioned(
-                                      right: 0,
-                                      top: 0,
+                                      right: 16,
+                                      top: -15,
                                       child: Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(

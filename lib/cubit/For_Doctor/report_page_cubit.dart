@@ -33,7 +33,7 @@ class ReportPageCubit extends Cubit<ReportPageState> {
             "https://www.aleqt.com/sites/default/files/a/506265_149401.jpg"
       });
 
-      final reportModel = ReportModel.fromJson(response);
+      final reportModel = ReportModel.fromJson(response.data);
 
       if (reportModel.error == null) {
         impressionController.text = reportModel.diagnosisReportImpression ?? "";

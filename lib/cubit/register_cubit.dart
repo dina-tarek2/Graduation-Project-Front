@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,17 +8,19 @@ import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/cubit/register_state.dart';
 import 'package:graduation_project_frontend/models/otp_model.dart';
 import 'package:graduation_project_frontend/models/signup_model.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit(this.api) : super(RegisterInitial());
   bool isRegisterPasswordShowing = true;
   IconData suffixIcon = Icons.visibility_off;
 
-void changeRegisterPasswordSuffixIcon() {
-  isRegisterPasswordShowing = !isRegisterPasswordShowing;
-  suffixIcon = isRegisterPasswordShowing ? Icons.visibility : Icons.visibility_off;
-  emit(ChangeRegisterPasswordSuffixIconState());
-}
+  void changeRegisterPasswordSuffixIcon() {
+    isRegisterPasswordShowing = !isRegisterPasswordShowing;
+    suffixIcon =
+        isRegisterPasswordShowing ? Icons.visibility : Icons.visibility_off;
+    emit(ChangeRegisterPasswordSuffixIconState());
+  }
 
   final ApiConsumer api;
   final GlobalKey<FormState> loginKey = GlobalKey<FormState>();
@@ -25,7 +29,10 @@ void changeRegisterPasswordSuffixIcon() {
   final TextEditingController contactNumberController = TextEditingController();
 
   final TextEditingController centerNameController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+  final TextEditingController streetController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController zipcodeController = TextEditingController();
 
   final TextEditingController specializationController =
       TextEditingController();
@@ -33,45 +40,50 @@ void changeRegisterPasswordSuffixIcon() {
   final TextEditingController lastNameController = TextEditingController();
 
   Map<String, dynamic>? userdata;
-
-  
+  File? licenseImageFile;
 
   register(String selectedRole) async {
     emit(RegisterLoading());
 
     userdata = selectedRole == "Technician"
-          ? {
-              ApiKey.email: emailController.text,
-              ApiKey.password: passwordController.text,
-              ApiKey.contactNumber: contactNumberController.text,
-              ApiKey.address: addressController.text,
-              ApiKey.centerName: centerNameController.text,
-            }
-          : {
-              ApiKey.email: emailController.text,
-              ApiKey.password: passwordController.text,
-              ApiKey.contactNumber: contactNumberController.text,
-              ApiKey.firstName: firstNameController.text,
-              ApiKey.lastName: lastNameController.text,
-              ApiKey.specialization: specializationController.text,
-            };
+        ? {
+            ApiKey.email: emailController.text,
+            ApiKey.password: passwordController.text,
+            ApiKey.contactNumber: contactNumberController.text,
+            ApiKey.address: {
+              "street": streetController.text,
+              "city": cityController.text,
+              "state": stateController.text,
+              "zipCode": zipcodeController.text,
+            },
+            ApiKey.centerName: centerNameController.text,
+          }
+        : {
+            ApiKey.email: emailController.text,
+            ApiKey.password: passwordController.text,
+            ApiKey.contactNumber: contactNumberController.text,
+            ApiKey.firstName: firstNameController.text,
+            ApiKey.lastName: lastNameController.text,
+            ApiKey.specialization: specializationController.text,
+          };
 
     try {
       final response = await api.post(
-        selectedRole == "Technician"
-            ? EndPoints.SignUpCenter
-            : EndPoints.SignUpDoctor,
-        isFromData: false,
-        data: userdata
-      );
+          selectedRole == "Technician"
+              ? EndPoints.SignUpCenter
+              : EndPoints.SignUpDoctor,
+          isFromData: false,
+          data: userdata);
 
-      final signUpModel = SignUpModel.fromJson(response);
-if (signUpModel.message ==
+      final signUpModel = SignUpModel.fromJson(response.data);
+      if (signUpModel.message ==
           "OTP sent to email. Please verify to complete registration.") {
-  emit(OtpVerfication(data: userdata!, message: signUpModel.message));
-} else {
-  emit(RegisterFailure(error: signUpModel.message));
-}
+        print("hereee");
+        print(licenseImageFile);
+        emit(OtpVerfication(data: userdata!, message: signUpModel.message));
+      } else {
+        emit(RegisterFailure(error: signUpModel.message));
+      }
     } catch (error) {
       if (error is DioException) {
         print("DioException Error: ${error.message}");
@@ -86,8 +98,6 @@ if (signUpModel.message ==
     }
   }
 
-
-
   Future<void> verifyOtp(String otp, String selectedRole) async {
     emit(OtpVerifying());
 
@@ -98,9 +108,9 @@ if (signUpModel.message ==
       }
 
       final response = await api.post(
-        selectedRole == "Technician" 
-        ? EndPoints.VerifyOtpCenter 
-        : EndPoints.VerifyOtpDoctor,
+        selectedRole == "Technician"
+            ? EndPoints.VerifyOtpCenter
+            : EndPoints.VerifyOtpDoctor,
         isFromData: false,
         data: {
           ...userdata!,
@@ -108,7 +118,7 @@ if (signUpModel.message ==
         },
       );
 
-      final otpModel = OtpModel.fromJson(response,selectedRole);
+      final otpModel = OtpModel.fromJson(response, selectedRole);
 
       if (otpModel.message == "the request has been sent successfully") {
         emit(RegisterSuccess(userData: userdata!));
@@ -128,4 +138,16 @@ if (signUpModel.message ==
     }
   }
 
+  Future<void> pickLicenseImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      licenseImageFile = File(pickedFile.path);
+      //  print("dinaa");
+      //   print(licenseImageFile);
+      // emit(ImagePickedSuccess(licenseImageFile!)); // لو عندك استيت مخصصة
+      emit(LicenseImagePicked()); // دي حالة فاضية هنعرفها تحت
+    }
+  }
 }

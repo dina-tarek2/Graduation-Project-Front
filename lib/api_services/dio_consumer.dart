@@ -5,9 +5,14 @@ import 'package:graduation_project_frontend/api_services/end_points.dart';
 
 class DioConsumer extends ApiConsumer {
   final Dio dio;
+  final bool? isdicom;
   // to add dio in the construactor
-  DioConsumer({required this.dio}) {
-    dio.options.baseUrl = EndPoints.baseUrl;
+  DioConsumer({required this.dio, this.isdicom = false}) {
+    if (isdicom == true) {
+      dio.options.baseUrl = EndPoints.DicomBaseUrl;
+    } else {
+      dio.options.baseUrl = EndPoints.baseUrl;
+    }
     //tosent header with request
     dio.interceptors.add(ApiInterceptors());
     // to print info about request
@@ -80,18 +85,23 @@ class DioConsumer extends ApiConsumer {
     }
   }
 
-  @override
+@override
   Future post(
     String path, {
     dynamic data,
+    CancelToken? cancelToken,
     Map<String, dynamic>? queryParameters,
     bool isFromData = false,
+        ProgressCallback? onSendProgress,
+
   }) async {
     try {
       final response = await dio.post(
         path,
         data: data,
+        cancelToken: cancelToken,
         queryParameters: queryParameters,
+        onSendProgress: onSendProgress,
       );
       return response;
     } on DioException catch (e) {

@@ -2,7 +2,6 @@
 // import 'dart:typed_data';
 // import 'package:flutter/material.dart';
 
-
 // Future<void> fetchDicomInstances() async {
 //   final dio = Dio();
 //   try {
