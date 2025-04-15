@@ -4,6 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Admin/dashboard_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
@@ -55,7 +59,7 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
       ];
-    } else {
+    } else if (widget.role == "Radiologist") {
       // Default screens for other roles
       screens = [
         DashboardContent(),
@@ -67,6 +71,13 @@ class MainScaffoldState extends State<MainScaffold> {
           userId: context.read<CenterCubit>().state,
           userType: context.read<UserCubit>().state,
         ),
+      ];
+    } else {
+      screens = [
+        DashboardPage(),
+        RequestsPage(),
+        ManageCentersPage(),
+        ManageDoctorsaPage(),
       ];
     }
   }
@@ -235,11 +246,17 @@ class MainScaffoldState extends State<MainScaffold> {
       case 0:
         return 'Dashboard';
       case 1:
-        return widget.role == "RadiologyCenter" ? 'Upload Dicom' : 'Dicom List';
+        return widget.role == "RadiologyCenter"
+            ? 'Upload Dicom'
+            : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
       case 2:
-        return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Chat';
+        return widget.role == "RadiologyCenter"
+            ? 'Manage Doctors'
+            : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
       case 3:
-        return widget.role == "RadiologyCenter" ? 'Medical Reports' : '';
+        return widget.role == "RadiologyCenter"
+            ? 'Medical Reports'
+            : (widget.role == "Admin" ? 'Manage Doctors' : '');
       case 4:
         return 'Contact Us';
       case 5:

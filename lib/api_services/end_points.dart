@@ -12,19 +12,21 @@ class EndPoints {
   static String SignUpCenter = "auth/registerRadiologyCenter";
   static String SignUpDoctor = "RadiologistAuth/registerRadiologist";
   //otp
-  // static String VerifyOtpCenter(otp,email,password,centerName,contactNumber,zipCode,street,city,state) =>
-  // "auth/verify-otp/$email/$otp/$password/$centerName/$contactNumber/$zipCode/$street/$city/$state";
-  static String VerifyOtpCenter = "";
+  static String VerifyOtpCenter(otp,email,password,centerName,contactNumber,zipCode,street,city,state) =>
+  "auth/verify-otp/$email/$otp/$password/$centerName/$contactNumber/$zipCode/$street/$city/$state";
+
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
   //doctor
   static String GetRecordsByRadiologistId =
-      "Record/getRecordsByRadiologistId/67bcebe6567f01f3d25677f5";
+      "Record/getRecordsByRadiologistId/67fd9050433fe6d2e1d18f56";
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
-  static String upload = "upload_dicom?centerId=67c31def6dd0171065efc8dc";
+  static String upload = "upload_dicom?centerId=67fea9142e0c58da5a1b3619";
   static String GetRecordsByCenterId =
-      "/Record/getRecordsByCenterId/67c31def6dd0171065efc8dc";
+      "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
+  //Admin
+  static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
   //Doctor List
   static String getCenterId(id) {
     return '/relations/radiologists/$id';

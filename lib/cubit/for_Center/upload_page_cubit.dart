@@ -164,6 +164,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
         if (uploadModel.message == "DICOM file uploaded successfully") {
           successCount++;
           emit(UploadDicomSuccess());
+          // showimages(uploadModel.publicId);
         } else {
           failCount++;
           emit(UploadDicomFailure(
@@ -183,6 +184,14 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
       failCount: failCount,
     ));
   }
+
+
+    // Future<void> showimages(String publicId)async {
+      
+    //   final response = await api.
+
+    // }
+
 
   void cancelUpload() {
     if (_cancelToken != null && !_cancelToken!.isCancelled) {

@@ -165,6 +165,15 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
       ]);
+    }else if (widget.role == "Admin") {
+      items.addAll([
+        buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
+        buildNavItem(1, Icons.cloud_upload_rounded, 'Requests'),
+        buildNavItem(2, Icons.person_rounded, 'Manage Centers'),
+        buildNavItem(3, Icons.medical_information_rounded, 'Manage Doctors'),
+        // buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
+      ]);
     }
     
     // Settings divider and header
