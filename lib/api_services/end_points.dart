@@ -12,8 +12,9 @@ class EndPoints {
   static String SignUpCenter = "auth/registerRadiologyCenter";
   static String SignUpDoctor = "RadiologistAuth/registerRadiologist";
   //otp
-  static String VerifyOtpCenter(otp,email,password,centerName,contactNumber,zipCode,street,city,state) =>
-  "auth/verify-otp/$email/$otp/$password/$centerName/$contactNumber/$zipCode/$street/$city/$state";
+  static String VerifyOtpCenter(otp, email, password, centerName, contactNumber,
+          zipCode, street, city, state) =>
+      "auth/verify-otp/$email/$otp/$password/$centerName/$contactNumber/$zipCode/$street/$city/$state";
 
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
   //doctor
@@ -27,6 +28,9 @@ class EndPoints {
       "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
   //Admin
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
+  static String addCenterByAdmin = "admin/addRadiologyCenter";
+  static String getNotApprovedCenters = "admin/getNotApprovedRadiologyCenters";
+
   //Doctor List
   static String getCenterId(id) {
     return '/relations/radiologists/$id';

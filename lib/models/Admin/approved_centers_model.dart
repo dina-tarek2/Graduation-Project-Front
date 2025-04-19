@@ -243,14 +243,14 @@ class Week {
 
 class RecordsCountPerDay {
     RecordsCountPerDay({
-        required this.the20250414,
+        required this.count,
     });
 
-    final int? the20250414;
+    final int? count;
 
     factory RecordsCountPerDay.fromJson(Map<String, dynamic> json){ 
         return RecordsCountPerDay(
-            the20250414: json["2025-04-14"],
+            count: json["2025-04-14"],
         );
     }
 
