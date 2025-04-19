@@ -22,3 +22,12 @@ final class ManageCentersFailure extends ManageCentersState {
 
   ManageCentersFailure({required this.error});
 }
+
+//add center for admin
+final class AddCenterSuccess extends ManageCentersState {}
+
+final class AddCenterFailure extends ManageCentersState {
+ final String error;
+
+  AddCenterFailure({required this.error});
+}
