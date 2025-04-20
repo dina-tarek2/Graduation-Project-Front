@@ -9,7 +9,8 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 
 class DoctorProfile extends StatefulWidget {
   final String doctorId;
-  const DoctorProfile({super.key, required this.doctorId});
+  final String role;
+  const DoctorProfile({super.key, required this.doctorId,required this.role});
 
   @override
   _DoctorProfileState createState() => _DoctorProfileState();

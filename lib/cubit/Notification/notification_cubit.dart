@@ -7,6 +7,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   NotificationCubit(this.api) : super(NotificationInitial());
   final ApiConsumer api;
   List<AppNotification> notifications = [];
+  List<AppNotification> unreadNotifications = [];
 
   Future<int> loadNotifications(String userId) async {
     emit(NotificationLoading());
@@ -17,7 +18,6 @@ class NotificationCubit extends Cubit<NotificationState> {
       );
 
       final responseData = response.data;
-      print('Response data: $responseData'); // طباعة استجابة الإشعار المرسلrr
       if (responseData != null &&
           responseData['success'] == true &&
           responseData['notifications'] != null) {
@@ -25,7 +25,6 @@ class NotificationCubit extends Cubit<NotificationState> {
 
         final List<AppNotification> loaded =
             data.map((notif) => AppNotification.fromJson(notif)).toList();
-
 
         notifications = loaded;
         emit(NotificationLoaded(loaded));
@@ -47,6 +46,15 @@ class NotificationCubit extends Cubit<NotificationState> {
       print('❌Error loading notifications: $e');
       return 0;
     }
+  }
+
+  Future<List<AppNotification>> getunreadNotification() async {
+    for (int i = 0; i < notifications.length; i++) {
+      if (notifications[i].isRead == false) {
+        unreadNotifications.add(notifications[i]);
+      }
+    }
+    return unreadNotifications;
   }
 
   Future<void> sendNotification(
@@ -83,7 +91,7 @@ class NotificationCubit extends Cubit<NotificationState> {
         'https://graduation-project-mmih.vercel.app/api/notifications/read/$notificationId',
       );
 
-      if (response['status'] == true) {
+      if (response.data['isRead'] == true) {
         print('the notification has been marked as read');
       } else {
         print('Failed to mark notification as read');
@@ -104,5 +112,17 @@ class NotificationCubit extends Cubit<NotificationState> {
     notifications[index] = updatedNotification;
 
     emit(NotificationLoaded(List.from(notifications)));
+  }
+
+  void markAllAsRead(String userId) {
+    //get notification
+    getunreadNotification();
+    for (int i = 0; i < unreadNotifications.length; i++) {
+      markNotificationAsRead(notifications[i].id);
+          Duration(seconds: 3);
+    }
+    unreadNotifications = [];
+    Duration(seconds: 10);
+    loadNotifications(userId);
   }
 }

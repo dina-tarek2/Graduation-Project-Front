@@ -1,24 +1,20 @@
 import 'package:intl/intl.dart';
 
-String formatNotificationDate(DateTime date) {
-  // إضافة ساعتين
-  final updatedDate = date.add(Duration(hours: 2));
-
+String formatNotificationDate(DateTime dateTime) {
   final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final dateOnly =
-      DateTime(updatedDate.year, updatedDate.month, updatedDate.day);
+  final difference = now.difference(dateTime);
 
-  final difference = today.difference(dateOnly).inDays;
-
-  if (difference == 0) {
-    // اليوم
-    return DateFormat('hh:mm a', 'en_US').format(updatedDate);
-  } else if (difference < 7) {
-    // خلال نفس الأسبوع
-    return '${DateFormat('EEEE', 'en_US').format(updatedDate)} - ${DateFormat('hh:mm a', 'en_US').format(updatedDate)}';
+  if (difference.inSeconds < 60) {
+    return 'Just now';
+  } else if (difference.inMinutes < 60) {
+    return '${difference.inMinutes} min ago';
+  } else if (difference.inHours < 24 && now.day == dateTime.day) {
+    return 'Today at ${DateFormat('h:mm a').format(dateTime)}';
+  } else if (difference.inHours < 48 &&
+      now.day - dateTime.day == 1 &&
+      now.month == dateTime.month) {
+    return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
   } else {
-    // أقدم من أسبوع
-    return DateFormat('dd MMM yyyy - hh:mm a', 'en_US').format(updatedDate);
+    return DateFormat('MMM d at h:mm a').format(dateTime);
   }
 }

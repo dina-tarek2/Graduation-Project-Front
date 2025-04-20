@@ -21,13 +21,14 @@ class LoginCubit extends Cubit<LoginState> {
   String? currentUserId;
   bool isSocketListenersInitialized = false;
 
-  IO.Socket socket = IO.io("http://localhost:8000", <String, dynamic>{
+  IO.Socket socket =
+      IO.io("https://graduation-project--xohomg.fly.dev/", <String, dynamic>{
     "transports": ["websocket"],
     "autoConnect": false,
   });
 
   void initSocket() {
-    _setupSocketListeners();  
+    _setupSocketListeners();
 
     socket.connect();
   }
@@ -42,10 +43,20 @@ class LoginCubit extends Cubit<LoginState> {
         makeUserOnline(currentUserId!);
       }
     });
-    socket.on("initialNotifications", (notifications) {});
-    socket.on("rich_notification", (notification) {
-      //receive notification
+    socket.on("initialNotifications", (notifications) {
+      for (int i = 0; i < notifications.length; i++) {
+        if (i % 2 == 0) {
+          notifications[i]['sound'] = "";
+        }
+        ;
+        getNotify(notifications[i]);
+        Duration(seconds: 5);
+      }
+    });
 
+    socket.on("rich_notification", (notification) {
+      print("Received rich notification: $notification");
+      notification['sound'] = "";
       getNotify(notification);
     });
 
@@ -98,7 +109,7 @@ class LoginCubit extends Cubit<LoginState> {
   // Function to grt notify
   void getNotify(notification) {
     if (socket.connected) {
-      final iconData = notification['icon'];
+      final iconData = "https://i.pinimg.com/originals/54/72/d1/5472d1b09d3d724228109d381d617326.jpg";
       final bool isImageUrl = iconData != null && iconData.startsWith('http');
       custom_toast.showAdvancedNotification(
         custom_toast.AdvancedNotification.getContext(),
@@ -107,7 +118,7 @@ class LoginCubit extends Cubit<LoginState> {
         image: isImageUrl ? iconData : null,
         icon: !isImageUrl
             ? Icon(Icons.notifications)
-            : null, // أو أيقونة تانية حسب النوع
+            : null, 
         sound: notification['sound'],
         date: DateTime.parse(notification['createdAt']),
         type: custom_toast.NotificationType.notify,

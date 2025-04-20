@@ -113,11 +113,7 @@ class MainScaffoldState extends State<MainScaffold> {
   // Build the profile avatar widget
   Widget buildProfileAvatar() {
     final state;
-    if (widget.role == "Radiologist") {
-      state = context.watch<DoctorProfileCubit>().state;
-    } else {
-      state = context.watch<CenterCubit>().state;
-    }
+    state = context.watch<DoctorProfileCubit>().state;
     String? imageUrl;
     String? doctorName;
     String? doctorName1;
@@ -134,11 +130,9 @@ class MainScaffoldState extends State<MainScaffold> {
 
     return GestureDetector(
       onTap: () {
-        if (widget.role == "Radiologist") {
-          setState(() {
-            selectedIndex = 10;
-          });
-        }
+        setState(() {
+          selectedIndex = 10;
+        });
       },
       child: CircleAvatar(
         radius: 15,
@@ -165,7 +159,7 @@ class MainScaffoldState extends State<MainScaffold> {
   }
 
   IconData _getNotificationIcon() {
-    if (_unreadNotificationCount > 0) {
+    if (_unreadNotificationCount > 0 && selectedIndex != 11) {
       return Icons.notifications_active_rounded;
     }
     return Icons.notifications_none_rounded;
@@ -173,7 +167,7 @@ class MainScaffoldState extends State<MainScaffold> {
 
 // دالة للحصول على اللون المناسب لأيقونة الإشعارات
   Color _getIconBackgroundColor() {
-    if (_unreadNotificationCount > 0) {
+    if (_unreadNotificationCount > 0 && selectedIndex != 11) {
       return Colors.orangeAccent; // اللون إذا كانت هناك إشعارات غير مقروءة
     }
     return sky;
@@ -227,7 +221,9 @@ class MainScaffoldState extends State<MainScaffold> {
       return const Center(child: Text("Settings Screen"));
     }
     if (selectedIndex == 10) {
-      return DoctorProfile(doctorId: context.read<CenterCubit>().state);
+      return DoctorProfile(
+          doctorId: context.read<CenterCubit>().state,
+          role: context.read<CenterCubit>().state);
     }
     if (selectedIndex == 11) {
       return NotificationsScreen();
@@ -295,14 +291,6 @@ class MainScaffoldState extends State<MainScaffold> {
                             onTap: () {
                               if (_overlayEntry == null) {
                                 _showNotificationsPopup();
-                                custom_toast.showAdvancedNotification(
-                                  context,
-                                  message: "new notification message",
-                                  title: "New Notification",
-                                  type: custom_toast.NotificationType.notify,
-                                  duration: Duration(seconds: 5),
-                                  style: custom_toast.AnimationStyle.notify,
-                                );
                               } else {
                                 _removeNotificationsPopup();
                               }
@@ -323,8 +311,9 @@ class MainScaffoldState extends State<MainScaffold> {
                                     color: Color(0xFF073042),
                                     size: 20,
                                   ),
-                                  if (_unreadNotificationCount >
-                                      0) // عرض العداد إذا كان هناك إشعارات غير مقروءة
+                                  if (_unreadNotificationCount > 0 &&
+                                      selectedIndex !=
+                                          11) // عرض العداد إذا كان هناك إشعارات غير مقروءة
                                     Positioned(
                                       right: 16,
                                       top: -15,

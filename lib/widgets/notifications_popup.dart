@@ -4,165 +4,242 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:intl/intl.dart';
 
-class NotificationsPopup extends StatelessWidget {
+class NotificationsPopup extends StatefulWidget {
   static const String id = "NotificationsPopup";
   const NotificationsPopup({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Obtain userId from CenterCubit
-    final String userId = context.read<CenterCubit>().state;
+  State<NotificationsPopup> createState() => _NotificationsPopupState();
+}
 
-    // Ensure notifications are loaded after the first frame
+class _NotificationsPopupState extends State<NotificationsPopup> {
+  late final String userId;
+
+  @override
+  void initState() {
+    super.initState();
+    userId = context.read<CenterCubit>().state;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationCubit>().loadNotifications(userId);
     });
+  }
 
+  String formatNotificationDate(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24 && now.day == dateTime.day) {
+      return 'Today at ${DateFormat('h:mm a').format(dateTime)}';
+    }
+    if (diff.inDays == 1) {
+      return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
+    }
+    return DateFormat('MMM d, yyyy - h:mm a').format(dateTime);
+  }
+
+  Color getNotificationColor(String? type, bool isRead) {
+    if (isRead) return Colors.white;
+
+    switch (type) {
+      case 'error':
+        return Colors.red.shade100;
+      case 'success':
+        return Colors.green.shade100;
+      case 'info':
+      default:
+        return Colors.yellow.shade100;
+    }
+  }
+
+  Icon getNotificationIcon(bool isRead) {
+    return Icon(
+      isRead ? Icons.check_circle : Icons.notifications_active,
+      color: isRead ? Colors.green : Colors.orange,
+      size: 18,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 6,
       backgroundColor: Colors.transparent,
-      child: SizedBox(
-        width: 280, // ✅ تحديد العرض يمنع الخطأ
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            // ✅ عشان يمنع overflow لو زاد المحتوى
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Text(
-                    'Notifications',
-                    style: TextStyle(
-                      color: darkblue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                BlocBuilder<NotificationCubit, NotificationState>(
-                  builder: (context, state) {
-                    if (state is NotificationLoading) {
-                      return const SizedBox(
-                        height: 200,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    } else if (state is NotificationLoaded) {
-                      final notifications = state.notifications;
-
-                      return SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: notifications.length.clamp(0, 4),
-                          itemBuilder: (context, index) {
-                            final notification = notifications[index];
-                            return Card(
-                              elevation: 2,
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              color: notification.isRead
-                                  ? Colors.white // Light background if read
-                                  : Colors.yellow
-                                      .shade100, // Darker background if unread
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
-                                title: Text(
-                                  notification.title,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                subtitle: Text(
-                                  notification.message,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                trailing: notification.isRead
-                                    ? const Icon(Icons.check,
-                                        color: Colors.green, size: 16)
-                                    : const Icon(Icons.notifications, size: 16),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    } else if (state is NotificationError) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child:
-                            Center(child: Text('Failed to load notifications')),
-                      );
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child:
-                            Center(child: Text('No notifications available')),
-                      );
-                    }
-                  },
-                ),
-                BlocBuilder<NotificationCubit, NotificationState>(
-                  builder: (context, state) {
-                    if (state is NotificationLoaded &&
-                        state.notifications.length > 4) {
-                      return const Padding(
-                        padding: EdgeInsets.only(top: 8.0, bottom: 12),
-                        child: Text(
-                          'You have more notifications.',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-                // زر View All داخل الـ Dialog
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => MainScaffold(
-                              role: context.read<UserCubit>().state,
-                              Index: 11), // مثلاً 2 للإشعارات
-                        ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('View All'),
-                  ),
-                ),
-              ],
+      child: Container(
+        width: 320,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              spreadRadius: 4,
             ),
-          ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Text(
+                'Notifications',
+                style: TextStyle(
+                  color: darkblue,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            BlocBuilder<NotificationCubit, NotificationState>(
+              builder: (context, state) {
+                if (state is NotificationLoading) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                } else if (state is NotificationLoaded) {
+                  final notifications = state.notifications;
+
+                  if (notifications.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text('No notifications available'),
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: notifications.length.clamp(0, 4),
+                        separatorBuilder: (_, __) => Divider(height: 1),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final n = notifications[index];
+                          final formattedDate =
+                              formatNotificationDate(n.createdAt!);
+
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: getNotificationColor("info", n.isRead),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
+                              title: Text(
+                                n.title,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(n.message,
+                                      style: const TextStyle(fontSize: 12)),
+                                  const SizedBox(height: 4),
+                                  Tooltip(
+                                    message: DateFormat('yyyy-MM-dd – HH:mm')
+                                        .format(n.createdAt!),
+                                    child: Text(
+                                      formattedDate,
+                                      style: const TextStyle(
+                                          fontSize: 10, color: Colors.grey),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: getNotificationIcon(n.isRead),
+                              onTap: () {
+                                if (!n.isRead) {
+                                  context
+                                      .read<NotificationCubit>()
+                                      .markAsRead(index);
+                                }
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      if (notifications.length > 4)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You have more notifications...',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () {
+                          context
+                              .read<NotificationCubit>()
+                              .markAllAsRead(userId);
+                        },
+                        child: const Text(
+                          'Mark all as read',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.blueAccent),
+                        ),
+                      ),
+                    ],
+                  );
+                } else if (state is NotificationError) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: Text('Failed to load notifications')),
+                  );
+                } else {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: Text('No notifications available')),
+                  );
+                }
+              },
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => MainScaffold(
+                          role: context.read<UserCubit>().state,
+                          Index: 11,
+                        ),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text('View All'),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

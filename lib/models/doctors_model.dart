@@ -8,7 +8,7 @@ class Doctor {
   final String email;
   final String status;
   final String imageUrl;
-  final int numberOfReports;
+  final Map<String, dynamic> numberOfReports;
 
   Doctor({
     required this.id,
@@ -32,7 +32,7 @@ class Doctor {
       email: json["email"] ?? '',
       status: json["status"] ?? '',
       imageUrl: json["image"] ?? '',
-      numberOfReports: json["numberOfReports"] ?? 0, // ✅ تم تصحيح الاسم
+      numberOfReports: json["numberOfReports"] ?? [], // ✅ تم تصحيح الاسم
     );
   }
 }
