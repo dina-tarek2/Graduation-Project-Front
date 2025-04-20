@@ -2,11 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:graduation_project_frontend/cubit/Admin/not_approved_centers_cubit.dart';
+import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 
 import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:graduation_project_frontend/screens/Admin/add_center_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/center_info_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 
@@ -77,6 +83,15 @@ void main() {
               userCubit: context.read<UserCubit>())),
         ),
 
+        //admin
+        BlocProvider(
+          create: (context) => ManageCentersCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
+          create: (context) => NotApprovedCentersCubit(DioConsumer(dio: Dio())),
+        ),
+        //
+
         BlocProvider(
             create: (context) => DicomCubit(DioConsumer(dio: Dio()))), //-
         BlocProvider(
@@ -146,7 +161,13 @@ class MyApp extends StatelessWidget {
         //center
         UploadScreen.id: (context) => UploadScreen(),
         // UploadButtonScreen.id:(context) => UploadButtonScreen(),
+
         DicomsListPage.id: (context) => DicomsListPage(),
+        // admin
+        ManageCentersPage.id: (context) => ManageCentersPage(),
+        AddCenterPage.id: (context) => AddCenterPage(),
+        RequestsPage.id: (context) => RequestsPage(),
+
         //
         DicomWebViewPage.id: (context) {
           final args = ModalRoute.of(context)!.settings.arguments

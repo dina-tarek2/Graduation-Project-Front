@@ -6,6 +6,10 @@ import 'package:graduation_project_frontend/cubit/Notification/notification_cubi
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Admin/dashboard_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.dart';
+import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
@@ -78,7 +82,9 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
       ];
-    } else {
+    } else if (widget.role == "Radiologist") {
+      // Default screens for other roles
+
       screens = [
         DashboardContent(),
         RecordsListPage(),
@@ -89,6 +95,13 @@ class MainScaffoldState extends State<MainScaffold> {
           userId: context.read<CenterCubit>().state,
           userType: context.read<UserCubit>().state,
         ),
+      ];
+    } else {
+      screens = [
+        DashboardPage(),
+        RequestsPage(),
+        ManageCentersPage(),
+        ManageDoctorsaPage(),
       ];
     }
   }
@@ -379,4 +392,53 @@ class MainScaffoldState extends State<MainScaffold> {
       ),
     );
   }
+<<<<<<< HEAD
+=======
+
+  Widget _getSelectedScreen() {
+    if (selectedIndex < screens.length) {
+      return screens[selectedIndex];
+    }
+
+    // Fallback for settings or other screens not in the main list
+    if (selectedIndex == 6) {
+      return const Center(child: Text("Settings Screen"));
+    }
+
+    if (selectedIndex == 10) {
+      return DoctorProfile(doctorId: context.read<CenterCubit>().state);
+    }
+
+    return screens[0];
+  }
+
+  String _getScreenTitle() {
+    switch (selectedIndex) {
+      case 0:
+        return 'Dashboard';
+      case 1:
+        return widget.role == "RadiologyCenter"
+            ? 'Upload Dicom'
+            : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
+      case 2:
+        return widget.role == "RadiologyCenter"
+            ? 'Manage Doctors'
+            : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
+      case 3:
+        return widget.role == "RadiologyCenter"
+            ? 'Medical Reports'
+            : (widget.role == "Admin" ? 'Manage Doctors' : '');
+      case 4:
+        return 'Contact Us';
+      case 5:
+        return 'Chat App';
+      case 6:
+        return 'Settings';
+      case 10:
+        return 'My Profile';
+      default:
+        return widget.title;
+    }
+  }
+>>>>>>> dad68791135ccac6a7503397d7db3f025d44906c
 }

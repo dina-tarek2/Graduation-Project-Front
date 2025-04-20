@@ -26,7 +26,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
 
     if (result != null) {
       selectedFiles = result.paths.map((path) => File(path!)).toList();
-      print('تم اختيار ${selectedFiles.length} ملف');
+      print(' ${selectedFiles.length} chosen');
       await uploadAllFilesIndividually();
     } else {
       // المستخدم لغى الاختيار
@@ -112,7 +112,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
 
   Future<void> uploadAllFilesIndividually() async {
     if (selectedFiles.isEmpty) {
-      emit(UploadDicomFailure(error: "لم يتم اختيار أي ملفات."));
+      emit(UploadDicomFailure(error: " No files chosen."));
       return;
     }
 
@@ -122,7 +122,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
     for (var dicomFile in selectedFiles) {
       if (!dicomFile.existsSync()) {
         failCount++;
-        emit(UploadDicomFailure(error: "الملف ${dicomFile.path} غير موجود."));
+        emit(UploadDicomFailure(error: "File ${dicomFile.path} doesnot exist."));
         continue;
       }
 
@@ -164,10 +164,12 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
         if (uploadModel.message == "DICOM file uploaded successfully") {
           successCount++;
           emit(UploadDicomSuccess());
+           await showimages(uploadModel.publicId!);
+          print("returned heree again");
         } else {
           failCount++;
           emit(UploadDicomFailure(
-              error: uploadModel.message ?? "فشل غير معروف"));
+              error: uploadModel.message ?? "Unknown errorr"));
         }
       } catch (error) {
         failCount++;
@@ -175,8 +177,8 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
       }
     }
 
-    // ✅ بعد ما يخلص كل الملفات
-    selectedFiles.clear(); // تصفير الليستة
+    
+    selectedFiles.clear(); 
 
     emit(UploadDicomSummary(
       successCount: successCount,
@@ -184,10 +186,32 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
     ));
   }
 
+
+
+  Future<void> showimages(String publicId) async {
+    try {
+      final response = await api.get(EndPoints.showImages(publicId));
+
+      if (response.statusCode == 200) {
+        print("show images done successfully");
+      }
+    }  catch (error) {
+    
+      if (error is DioException) {
+        print("DioException Error: ${error.message}");
+        print("DioException Response: ${error.response?.data}");
+        print("DioException Status Code: ${error.response?.statusCode}");
+      } else {
+        print("Unknown Error: $error");
+      }
+      emit(UploadDicomFailure(error: "$error"));
+    }
+  }
+
   void cancelUpload() {
     if (_cancelToken != null && !_cancelToken!.isCancelled) {
       _cancelToken!.cancel("Upload cancelled by user");
-      emit(UploadDicomInitial()); // ترجع الحالة للوضع الطبيعي
+      emit(UploadDicomInitial()); 
     }
   }
 }

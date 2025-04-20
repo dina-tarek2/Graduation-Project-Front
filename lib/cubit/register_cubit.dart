@@ -107,20 +107,40 @@ class RegisterCubit extends Cubit<RegisterState> {
         return;
       }
 
+       // تجهيز الصورة كـ MultipartFile
+    MultipartFile? licenseImage;
+    if (licenseImageFile != null) {
+      licenseImage = await MultipartFile.fromFile(
+        licenseImageFile!.path,
+        filename: licenseImageFile!.path.split('/').last,
+      );
+    }
+
+    // تجهيز البيانات كـ FormData
+    FormData formData = FormData.fromMap({
+      "path": licenseImage,
+    });
+
       final response = await api.post(
         selectedRole == "Technician"
-            ? EndPoints.VerifyOtpCenter
+            ? EndPoints.VerifyOtpCenter(
+                otp,
+                userdata![ApiKey.email],
+                userdata![ApiKey.password],
+                userdata![ApiKey.centerName],
+                userdata![ApiKey.contactNumber],
+                userdata![ApiKey.address]["zipCode"],
+                userdata![ApiKey.address]["street"],
+                userdata![ApiKey.address]["city"],
+                userdata![ApiKey.address]["state"])
             : EndPoints.VerifyOtpDoctor,
-        isFromData: false,
-        data: {
-          ...userdata!,
-          ApiKey.otp: otp,
-        },
+        isFromData: true,
+        data:formData,
       );
 
-      final otpModel = OtpModel.fromJson(response, selectedRole);
+      final otpModel = OtpModel.fromJson(response.data, selectedRole);
 
-      if (otpModel.message == "the request has been sent successfully") {
+      if (otpModel.message == "The request has been sent successfully") {
         emit(RegisterSuccess(userData: userdata!));
       } else {
         emit(RegisterFailure(error: "Invalid OTP"));

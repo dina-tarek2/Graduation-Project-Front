@@ -224,23 +224,25 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-DataCell _clickableCell(Widget child, BuildContext context,String reportid,String Dicom_url) {
-  return DataCell(
-    MouseRegion(
-      cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MedicalReportPage(reportId: reportid,Dicom_url: Dicom_url)),
-          );
-        },
-        child: child,
+  DataCell _clickableCell(
+      Widget child, BuildContext context, String reportid, String Dicom_url) {
+    return DataCell(
+      MouseRegion(
+        cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MedicalReportPage(
+                      reportId: reportid, Dicom_url: Dicom_url)),
+            );
+          },
+          child: child,
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   DataRow _buildDataRow(RecordsListModel record, BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
@@ -248,44 +250,46 @@ DataCell _clickableCell(Widget child, BuildContext context,String reportid,Strin
 
     return DataRow(
       cells: [
-        _clickableCell(_buildStatusIndicator(record.status), context,record.reportId,record.Dicom_url),
-        _clickableCell(Text(record.patientName), context,record.reportId,record.Dicom_url),
+        _clickableCell(_buildStatusIndicator(record.status), context,
+            record.reportId, record.Dicom_url),
+        _clickableCell(Text(record.patientName), context, record.reportId,
+            record.Dicom_url),
         _clickableCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(dateFormat.format(record.studyDate),
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(timeFormat.format(record.studyDate),
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-          context,
-          record.reportId
-          ,record.Dicom_url
-        ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(dateFormat.format(record.studyDate),
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(timeFormat.format(record.studyDate),
+                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+            context,
+            record.reportId,
+            record.Dicom_url),
         DataCell(Text(record.age.toString())), // غير قابل للنقر
         DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
         // DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
         _clickableCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(dateFormat.format(record.deadline),
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.red[700])),
-              Text(timeFormat.format(record.deadline),
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-          context,
-          record.reportId
-          ,record.Dicom_url
-        ),
-        _clickableCell(Text(record.modality), context,record.reportId,record.Dicom_url),
-        _clickableCell(Text(record.centerName), context,record.reportId,record.Dicom_url),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(dateFormat.format(record.deadline),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red[700])),
+                Text(timeFormat.format(record.deadline),
+                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+            context,
+            record.reportId,
+            record.Dicom_url),
+        _clickableCell(
+            Text(record.modality), context, record.reportId, record.Dicom_url),
+        _clickableCell(Text(record.centerName), context, record.reportId,
+            record.Dicom_url),
       ],
     );
   }
