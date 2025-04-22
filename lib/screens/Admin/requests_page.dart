@@ -63,7 +63,9 @@ class _RequestsPageState extends State<RequestsPage> {
                 } else if (state is NotApprovedCentersSuccess) {
                   final centers = state.centers;
 
-                  return ListView.builder(
+                  return centers.length == 0 ?
+                   const Text("No Recently Requests.")
+                   :  ListView.builder(
                     itemCount: centers.length,
                     itemBuilder: (context, index) {
                       return _buildRadiologyCenterRow(centers[index]);
@@ -94,25 +96,15 @@ class _RequestsPageState extends State<RequestsPage> {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              '??? available centers',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-            ),
+            // Text(
+            //   '??? available centers',
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     color: Colors.grey.shade600,
+            //   ),
+            // ),
           ],
         ),
-        // ElevatedButton.icon(
-        //   onPressed: () {},
-        //   icon: const Icon(Icons.add),
-        //   label: const Text('Add new doctor'),
-        //   style: ElevatedButton.styleFrom(
-        //     backgroundColor: const Color(0xFF6B9E76),
-        //     foregroundColor: Colors.white,
-        //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        //   ),
-        // ),
       ],
     );
   }
@@ -121,7 +113,7 @@ class _RequestsPageState extends State<RequestsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100, // رمادي خفيف للخلفية
+        color: Colors.grey.shade100,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
@@ -137,9 +129,10 @@ class _RequestsPageState extends State<RequestsPage> {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 40),
+          // Avatar space
+          SizedBox(width: 40),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               'Name',
               style: TextStyle(
@@ -150,18 +143,7 @@ class _RequestsPageState extends State<RequestsPage> {
             ),
           ),
           Expanded(
-            flex: 1,
-            child: Text(
-              'ID',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
+            flex: 4,
             child: Text(
               'Email',
               style: TextStyle(
@@ -172,7 +154,7 @@ class _RequestsPageState extends State<RequestsPage> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               'Phone number',
               style: TextStyle(
@@ -183,7 +165,7 @@ class _RequestsPageState extends State<RequestsPage> {
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               'Date added',
               style: TextStyle(
@@ -193,18 +175,7 @@ class _RequestsPageState extends State<RequestsPage> {
               ),
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              'STATUS',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          const SizedBox(width: 40),
+          SizedBox(width: 60),
         ],
       ),
     );
@@ -228,70 +199,55 @@ class _RequestsPageState extends State<RequestsPage> {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: Colors.blue.shade50,
-            backgroundImage: AssetImage(center.image!),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    center.centerName!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Text(
-                  //   doctor.specialty,
-                  //   style: TextStyle(
-                  //     fontSize: 12,
-                  //     color: Colors.grey.shade600,
-                  //   ),
-                  // ),
-                ],
-              ),
+          SizedBox(
+            width: 40,
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.blue.shade50,
+              backgroundImage:
+                  center.image != null ? NetworkImage(center.image!) : null,
+              child: center.image == null ? Icon(Icons.person) : null,
             ),
           ),
           Expanded(
-            flex: 1,
+            flex: 3,
             child: Text(
-              center.id!,
-              style: const TextStyle(fontSize: 14),
+              center.centerName!,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 4,
             child: Text(
               center.email!,
               style: const TextStyle(fontSize: 14),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Text(
               center.contactNumber!,
               style: const TextStyle(fontSize: 14),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  center.createdAt!.timeZoneName,
+                  '${center.createdAt!.hour}:${center.createdAt!.minute.toString().padLeft(2, '0')}:${center.createdAt!.second.toString().padLeft(2, '0')}',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  center.createdAt!.day.toString(),
+                  '${center.createdAt!.day}/${center.createdAt!.month}/${center.createdAt!.year}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
@@ -300,39 +256,21 @@ class _RequestsPageState extends State<RequestsPage> {
               ],
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: center.isApproved!
-                    ? const Color(0xFFEAF5EB)
-                    : const Color(0xFFFFE8E8),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                center.isApproved! ? 'Approved' : 'Declined',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: center.isApproved!
-                      ? const Color(0xFF6B9E76)
-                      : const Color(0xFFFF5D5D),
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
+          SizedBox(
+            width: 60,
+            child: IconButton(
+              onPressed: () {
+                // print("herwee id ${center.id}");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ViewCenterProfilePage(
+                            centerId: center.id!,
+                          )),
+                );
+              },
+              icon: const Icon(Icons.chevron_right, color: Colors.grey),
             ),
-          ),
-          IconButton(
-            onPressed: () {
-              // context.read<CenterProfileCubit>().ViewCenterProfilePage();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ViewCenterProfilePage()),
-              );
-            },
-            icon: const Icon(Icons.chevron_right, color: Colors.grey),
           ),
         ],
       ),
