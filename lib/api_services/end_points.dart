@@ -25,14 +25,22 @@ class EndPoints {
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
   static String upload = "upload_dicom?centerId=67fea9142e0c58da5a1b3619";
-  static String showImages(id) => "https://dicom-fastapi.fly.dev/show_images/$id";
+  static String showImages(id) =>
+      "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId =
       "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
-  //Admin
+  //Admin - in center
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
   static String addCenterByAdmin = "admin/addRadiologyCenter";
   static String getNotApprovedCenters = "admin/getNotApprovedRadiologyCenters";
-
+  static String removeCenter(centerId) =>
+      "admin/removeRadiologyCenter/$centerId";
+  static String getCenterInfoByAdmin(centerId) =>
+      "admin/getRadiologyCenter/$centerId";
+  static String approveCenterAdmin(centerId) =>
+      "admin/approveRadiologyCenter/$centerId";
+  //admin -indoctor
+  static String getDoctorsByAdmin = "admin/getRadiologists";
   //Doctor List
   static String getCenterId(id) {
     return '/relations/radiologists/$id';

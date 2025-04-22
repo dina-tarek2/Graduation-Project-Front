@@ -82,50 +82,67 @@ class _ManageCentersPageState extends State<ManageCentersPage> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'All Radiology Centers',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'All Radiology Centers',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Centers Grid
-                  Expanded(
-                    child: BlocBuilder<ManageCentersCubit, ManageCentersState>(
-                      builder: (context, state) {
-                        if (state is ManageCentersLoading) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (state is ManageCentersFailure) {
-                          return Center(child: Text('Error: ${state.error}'));
-                        } else if (state is ManageCentersSuccess) {
-                          final centers = state.centers;
-
-                          return GridView.count(
-                            crossAxisCount: 2,
-                            childAspectRatio: 2.5,
-                            crossAxisSpacing: 20,
-                            mainAxisSpacing: 20,
-                            children: List.generate(centers.length, (index) {
-                              final center = centers[index];
-                              return _buildRadiologyCenterCard(
-                                  center.image ?? " ",
-                                  center.centerName ?? 'No Name',
-                                  center.email ?? 'No Description',
-                                  center.recordsCountPerDay!.count ?? 0);
-                            }),
-                          );
-                        } else {
-                          return Center(child: Text('No data loaded'));
-                        }
-                      },
+                    // Centers Grid
+                    Expanded(
+                      child:
+                          BlocConsumer<ManageCentersCubit, ManageCentersState>(
+                        listener: (context, state) {
+                          if (state is DeletedSuccessfully) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Center deleted successfully!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else if (state is DeletedFailure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to delete center.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state is ManageCentersLoading) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (state is ManageCentersFailure) {
+                            return Center(child: Text('Error: ${state.error}'));
+                          } else if (state is ManageCentersSuccess) {
+                            final centers = state.centers;
+                            return GridView.count(
+                              crossAxisCount: 2,
+                              childAspectRatio: 2.5,
+                              crossAxisSpacing: 20,
+                              mainAxisSpacing: 20,
+                              children: List.generate(centers.length, (index) {
+                                final center = centers[index];
+                                return _buildRadiologyCenterCard(
+                                    center.image ?? " ",
+                                    center.centerName ?? 'No Name',
+                                    center.email ?? 'No Description',
+                                    center.recordsCountPerDay!.count ?? 0,
+                                    center.id!);
+                              }),
+                            );
+                          } else {
+                            return Center(child: Text('No data loaded'));
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ]),
             ),
           ),
         ],
@@ -133,8 +150,8 @@ class _ManageCentersPageState extends State<ManageCentersPage> {
     );
   }
 
-  Widget _buildRadiologyCenterCard(
-      String image, String name, String bio, int recordsCountPerDay) {
+  Widget _buildRadiologyCenterCard(String image, String name, String bio,
+      int recordsCountPerDay, String centerId) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -204,7 +221,36 @@ class _ManageCentersPageState extends State<ManageCentersPage> {
               // Remove button
               TextButton(
                 onPressed: () {
-                  // Add your remove functionality here
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext dialogContext) {
+                      return AlertDialog(
+                        title: Text('Confirm Deletion'),
+                        content: Text(
+                            'Are you sure you want to delete this center?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext)
+                                  .pop(); // Close the dialog
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext)
+                                  .pop(); // Close the dialog
+                              context.read<ManageCentersCubit>().removeCenter(
+                                  centerId); // Call the delete method
+                                  context.read<ManageCentersCubit>().fetchApprovedCenters()
+                                  ; 
+                            },
+                            child: Text('Yes, Delete'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

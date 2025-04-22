@@ -1,4 +1,3 @@
-
 abstract class RegisterState {}
 
 final class RegisterInitial extends RegisterState {}
@@ -6,7 +5,7 @@ final class RegisterInitial extends RegisterState {}
 final class RegisterLoading extends RegisterState {}
 
 final class OtpVerfication extends RegisterState {
-final Map<String, dynamic> data;
+  final Map<String, dynamic> data;
   final String message;
 
   OtpVerfication({required this.message, required this.data});

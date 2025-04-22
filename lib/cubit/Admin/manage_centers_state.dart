@@ -31,3 +31,14 @@ final class AddCenterFailure extends ManageCentersState {
 
   AddCenterFailure({required this.error});
 }
+
+//removecenter
+final class DeletedSuccessfully extends ManageCentersState {}
+
+
+final class DeletedFailure extends ManageCentersState {
+ final String error;
+
+  DeletedFailure({required this.error}); 
+}
+

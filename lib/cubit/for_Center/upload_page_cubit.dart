@@ -159,18 +159,21 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
           },
         );
 
+
         final uploadModel = UploadModel.fromJson(response.data);
 
         if (uploadModel.message == "DICOM file uploaded successfully") {
-          successCount++;
+          
           emit(UploadDicomSuccess());
-           await showimages(uploadModel.publicId!);
+          showimages(uploadModel.publicId!);
           print("returned heree again");
         } else {
           failCount++;
           emit(UploadDicomFailure(
               error: uploadModel.message ?? "Unknown errorr"));
         }
+        
+        successCount++;
       } catch (error) {
         failCount++;
         emit(UploadDicomFailure(error: "$error"));
