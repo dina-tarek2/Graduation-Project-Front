@@ -109,7 +109,7 @@ class LoginCubit extends Cubit<LoginState> {
   // Function to grt notify
   void getNotify(notification) {
     if (socket.connected) {
-      final iconData = "https://i.pinimg.com/originals/54/72/d1/5472d1b09d3d724228109d381d617326.jpg";
+      final iconData = notification['icon'];
       final bool isImageUrl = iconData != null && iconData.startsWith('http');
       custom_toast.showAdvancedNotification(
         custom_toast.AdvancedNotification.getContext(),

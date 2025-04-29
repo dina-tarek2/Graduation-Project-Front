@@ -50,30 +50,34 @@ class RecordsListModel {
   // convert JSON to Object
   factory RecordsListModel.fromJson(Map<String, dynamic> json) {
     return RecordsListModel(
-      id: json['_id'],
-      centerName: json['centerName'],
-      radiologistId: json['radiologistId'],
-      patientName: json['patient_name'],
-      patientId: json['patient_id'],
-      reportId: json['reportId'],
-      sex: json['sex'],
-      modality: json['modality'],
-      bodyPartExamined: json['body_part_examined'],
-      email: json['email'],
-      dicomId: json['DicomId'],
-      series: json['series'],
-      status: json['status'],
-      deleted: json['deleted'],
-      aiReportResult: json['aiReportResult'],
-      studyDate: DateTime.parse(json['study_date']),
+      id: json['_id'] ?? '',
+      centerName: json['centerName'] ?? '', 
+      radiologistId: json['radiologistId'] ?? '',
+      patientName: json['patient_name'] ?? '',
+      patientId: json['patient_id'] ?? '',
+      reportId: json['reportId'] ?? '',
+      sex: json['sex'] ?? '',
+      modality: json['modality'] ?? '',
+      bodyPartExamined: json['body_part_examined'] ?? '',
+      email: json['email'] ?? '',
+      dicomId: json['DicomId'] ?? '',
+      series: json['series'] ?? '',
+      status: json['status'] ?? '',
+      deleted: json['deleted'] ?? false,
+      aiReportResult: json['aiReportResult'] ?? '',
+      studyDate: DateTime.parse(
+          json['study_date'] ?? DateTime.now().toIso8601String()),
       patientBirthDate: json['PatientBirthDate'] != null
           ? DateTime.tryParse(json['PatientBirthDate'])
           : null,
       age: json['age'] != "N/A" ? int.tryParse(json['age'].toString()) : null,
-      deadline: DateTime.parse(json['deadline']),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      Dicom_url: json['Dicom_url'],
+      deadline: DateTime.parse(json['deadline'] ??
+          DateTime.now().toIso8601String()), 
+      createdAt: DateTime.parse(json['createdAt'] ??
+          DateTime.now().toIso8601String()), 
+      updatedAt:
+          DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      Dicom_url: json['Dicom_url'] ?? '',
     );
   }
 }

@@ -19,13 +19,16 @@ class EndPoints {
 
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
   //doctor
-  static String GetRecordsByRadiologistId =
+  static String GetRecordsByRadiologistId(String id) =>
+      // "Record/getRecordsByRadiologistId/$id";
       "Record/getRecordsByRadiologistId/67fd9050433fe6d2e1d18f56";
+
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
   static String upload = "upload_dicom?centerId=67fea9142e0c58da5a1b3619";
-  static String showImages(id) => "https://dicom-fastapi.fly.dev/show_images/$id";
+  static String showImages(id) =>
+      "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId =
       "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
   //Admin
@@ -47,6 +50,7 @@ class EndPoints {
 class EndPointsForReport {
   static String baseUrl = "https://graduation-project-mmih.vercel.app/api/";
   static String getAllReports = "AIReports/getAllAIReports";
+  static String getReport(id) => "AIReports/getOneAIReport/$id";
   static String getPatientDetials(id) {
     return "Record/getRecordById/$id";
   }

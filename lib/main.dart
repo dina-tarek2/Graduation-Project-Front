@@ -67,7 +67,7 @@ void main() {
         BlocProvider(
             //-
             create: (context) => //-
-                RecordsListCubit(DioConsumer(dio: Dio()))..fetchRecords()), //-
+                RecordsListCubit(DioConsumer(dio: Dio()))), //-
 
         BlocProvider(
           create: (context) => ReportPageCubit(DioConsumer(dio: Dio())),
@@ -172,7 +172,7 @@ class MyApp extends StatelessWidget {
         DicomWebViewPage.id: (context) {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;
-          return DicomWebViewPage(url: args['url']);
+          return DicomWebViewPage(url: args['url'], reportId: args['reportId'],recordId: args['recordId']);
         },
       },
     );

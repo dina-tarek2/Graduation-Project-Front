@@ -4,6 +4,7 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/screens/Notifications/formatNotificationDate.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 import 'package:intl/intl.dart';
 
@@ -27,41 +28,45 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
     });
   }
 
-  String formatNotificationDate(DateTime dateTime) {
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-
-    if (diff.inSeconds < 60) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24 && now.day == dateTime.day) {
-      return 'Today at ${DateFormat('h:mm a').format(dateTime)}';
-    }
-    if (diff.inDays == 1) {
-      return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
-    }
-    return DateFormat('MMM d, yyyy - h:mm a').format(dateTime);
-  }
-
   Color getNotificationColor(String? type, bool isRead) {
-    if (isRead) return Colors.white;
-
+    if (isRead) return Colors.grey.shade200;
     switch (type) {
       case 'error':
-        return Colors.red.shade100;
+        return Colors.red.shade50;
       case 'success':
-        return Colors.green.shade100;
+        return Colors.green.shade50;
       case 'info':
       default:
-        return Colors.yellow.shade100;
+        return Colors.blue.shade50;
     }
   }
 
-  Icon getNotificationIcon(bool isRead) {
-    return Icon(
-      isRead ? Icons.check_circle : Icons.notifications_active,
-      color: isRead ? Colors.green : Colors.orange,
-      size: 18,
-    );
+  Icon getNotificationIcon(String? type, bool isRead) {
+    if (isRead) {
+      return const Icon(Icons.check_circle, color: Colors.green, size: 20);
+    }
+    switch (type) {
+      case 'error':
+        return const Icon(Icons.error_outline, color: Colors.red, size: 20);
+      case 'success':
+        return const Icon(Icons.check_circle_outline,
+            color: Colors.green, size: 20);
+      case 'info':
+      default:
+        return const Icon(Icons.notifications_active, color: blue, size: 20);
+    }
+  }
+
+  Color getTimeTextColor(String? type) {
+    switch (type) {
+      case 'error':
+        return Colors.red;
+      case 'success':
+        return Colors.green;
+      case 'info':
+      default:
+        return blue;
+    }
   }
 
   @override
@@ -121,7 +126,7 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                         shrinkWrap: true,
                         itemCount: notifications.length.clamp(0, 4),
                         separatorBuilder: (_, __) => Divider(height: 1),
-                        physics: const NeverScrollableScrollPhysics(),
+                        // physics: const ScrollPhysics(),
                         itemBuilder: (context, index) {
                           final n = notifications[index];
                           final formattedDate =
@@ -132,7 +137,7 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 12),
                             decoration: BoxDecoration(
-                              color: getNotificationColor("info", n.isRead),
+                              color: getNotificationColor('info', n.isRead),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: ListTile(
@@ -148,21 +153,26 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(n.message,
-                                      style: const TextStyle(fontSize: 12)),
+                                  Text(
+                                    n.message,
+                                    style: const TextStyle(fontSize: 12),
+                                    maxLines: 1,
+                                  ),
                                   const SizedBox(height: 4),
                                   Tooltip(
                                     message: DateFormat('yyyy-MM-dd – HH:mm')
                                         .format(n.createdAt!),
                                     child: Text(
                                       formattedDate,
-                                      style: const TextStyle(
-                                          fontSize: 10, color: Colors.grey),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: getTimeTextColor('info'),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                              trailing: getNotificationIcon(n.isRead),
+                              trailing: getNotificationIcon('info', n.isRead),
                               onTap: () {
                                 if (!n.isRead) {
                                   context
@@ -183,18 +193,6 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                           ),
                         ),
                       const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () {
-                          context
-                              .read<NotificationCubit>()
-                              .markAllAsRead(userId);
-                        },
-                        child: const Text(
-                          'Mark all as read',
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.blueAccent),
-                        ),
-                      ),
                     ],
                   );
                 } else if (state is NotificationError) {

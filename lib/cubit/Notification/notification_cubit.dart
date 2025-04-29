@@ -6,16 +6,19 @@ import 'notification_state.dart';
 class NotificationCubit extends Cubit<NotificationState> {
   NotificationCubit(this.api) : super(NotificationInitial());
   final ApiConsumer api;
+
+  final String baseUrl =
+      'https://graduation-project--xohomg.fly.dev/api/notifications';
+
   List<AppNotification> notifications = [];
   List<AppNotification> unreadNotifications = [];
 
+  /// تحميل كل الإشعارات لمستخدم
   Future<int> loadNotifications(String userId) async {
     emit(NotificationLoading());
 
     try {
-      final response = await api.get(
-        'https://graduation-project--xohomg.fly.dev/api/notifications/all/$userId',
-      );
+      final response = await api.get('$baseUrl/all/$userId');
 
       final responseData = response.data;
       if (responseData != null &&
@@ -27,15 +30,11 @@ class NotificationCubit extends Cubit<NotificationState> {
             data.map((notif) => AppNotification.fromJson(notif)).toList();
 
         notifications = loaded;
+        unreadNotifications = loaded.where((n) => n.isRead == false).toList();
+
         emit(NotificationLoaded(loaded));
-        //unread notification
-        int unread = 0;
-        for (int i = 0; i < notifications.length; i++) {
-          if (notifications[i].isRead == false) {
-            unread++;
-          }
-        }
-        return unread;
+
+        return unreadNotifications.length;
       } else {
         emit(
             NotificationError('فشل في تحميل الإشعارات أو البيانات غير مكتملة'));
@@ -48,32 +47,29 @@ class NotificationCubit extends Cubit<NotificationState> {
     }
   }
 
-  Future<List<AppNotification>> getunreadNotification() async {
-    for (int i = 0; i < notifications.length; i++) {
-      if (notifications[i].isRead == false) {
-        unreadNotifications.add(notifications[i]);
-      }
-    }
-    return unreadNotifications;
-  }
-
+  /// إرسال إشعار
   Future<void> sendNotification(
-      String userId, String userType, String title, String message) async {
+    String userId,
+    String userType,
+    String title,
+    String message, {
+    String type = 'general',
+  }) async {
     emit(NotificationSending());
 
     try {
       final response = await api.post(
-        'http://graduation-project-mmih.vercel.app/api/notifications/send',
+        '$baseUrl/send',
         data: {
           'userId': userId,
           'userType': userType,
           'title': title,
           'message': message,
+          'type': type,
         },
       );
 
-      print(
-          '✅Response Notification Sent: ${response}'); // طباعة استجابة الإشعار المرسل
+      print('✅Response Notification Sent: $response');
 
       if (response['status'] == true) {
         emit(NotificationSent());
@@ -85,44 +81,112 @@ class NotificationCubit extends Cubit<NotificationState> {
     }
   }
 
-  Future<void> markNotificationAsRead(String notificationId) async {
+  /// جلب تفاصيل إشعار واحد عبر ID
+  Future<AppNotification?> getNotificationById(String notificationId) async {
+    emit(NotificationLoading());
     try {
-      final response = await api.put(
-        'https://graduation-project-mmih.vercel.app/api/notifications/read/$notificationId',
-      );
+      final response = await api.get('$baseUrl/$notificationId');
 
-      if (response.data['isRead'] == true) {
-        print('the notification has been marked as read');
+      final responseData = response.data;
+      if (responseData != null && responseData['success'] == true) {
+        final AppNotification notification =
+            AppNotification.fromJson(responseData['notification']);
+        emit(NotificationLoaded([notification]));
+        return notification;
       } else {
-        print('Failed to mark notification as read');
+        emit(NotificationError('فشل في تحميل تفاصيل الإشعار'));
+        return null;
       }
     } catch (e) {
-      print('❌error: $e');
+      emit(NotificationError('❌Error loading notification by ID: $e'));
+      print('❌Error loading notification by ID: $e');
+      return null;
     }
   }
 
-  void markAsRead(int index) async {
+  /// تعليم إشعار واحد كمقروء
+  Future<void> markNotificationAsRead(String notificationId) async {
+    try {
+      final response = await api.put('$baseUrl/read/$notificationId');
+
+      if (response.data['isRead'] == true) {
+        print('✅Notification marked as read');
+      } else {
+        print('❌Failed to mark notification as read');
+      }
+    } catch (e) {
+      print('❌Error marking notification as read: $e');
+    }
+  }
+
+  /// تحديث إشعار واحد في الواجهة كمقروء
+  Future<void> markAsRead(int index) async {
     final notificationId = notifications[index].id;
     await markNotificationAsRead(notificationId);
 
-    // إنشاء نسخة جديدة من الإشعار مع التحديث
     final updatedNotification = notifications[index].copyWith(isRead: true);
-
-    // تحديث القائمة بالإشعار المعدل
     notifications[index] = updatedNotification;
+
+    unreadNotifications = notifications.where((n) => !n.isRead).toList();
 
     emit(NotificationLoaded(List.from(notifications)));
   }
 
-  void markAllAsRead(String userId) {
-    //get notification
-    getunreadNotification();
-    for (int i = 0; i < unreadNotifications.length; i++) {
-      markNotificationAsRead(notifications[i].id);
-          Duration(seconds: 3);
+  /// تعليم كل الإشعارات كمقروءة
+  Future<void> markAllNotificationsAsRead(String userId) async {
+    emit(NotificationLoading());
+    try {
+      final response = await api.put('$baseUrl/all/read/$userId');
+
+      if (response.data['success'] == true) {
+        print('✅All notifications marked as read');
+        await loadNotifications(userId);
+      } else {
+        emit(NotificationError('فشل في تعليم كل الإشعارات كمقروءة'));
+      }
+    } catch (e) {
+      emit(NotificationError('❌Error marking all notifications as read: $e'));
+      print('❌Error marking all notifications as read: $e');
     }
-    unreadNotifications = [];
-    Duration(seconds: 10);
-    loadNotifications(userId);
+  }
+
+  /// حذف إشعار واحد
+  Future<void> deleteNotification(String notificationId) async {
+    emit(NotificationLoading());
+    try {
+      final response = await api.delete('$baseUrl/$notificationId');
+
+      if (response.data['success'] == true) {
+        print('🗑️ Notification deleted');
+        notifications.removeWhere((n) => n.id == notificationId);
+        unreadNotifications = notifications.where((n) => !n.isRead).toList();
+        emit(NotificationLoaded(List.from(notifications)));
+      } else {
+        emit(NotificationError('فشل في حذف الإشعار'));
+      }
+    } catch (e) {
+      emit(NotificationError('❌Error deleting notification: $e'));
+      print('❌Error deleting notification: $e');
+    }
+  }
+
+  /// حذف كل الإشعارات لمستخدم
+  Future<void> deleteAllNotifications(String userId) async {
+    emit(NotificationLoading());
+    try {
+      final response = await api.delete('$baseUrl/all/$userId');
+
+      if (response.data['success'] == true) {
+        print('🗑️ All notifications deleted');
+        notifications.clear();
+        unreadNotifications.clear();
+        emit(NotificationLoaded([]));
+      } else {
+        emit(NotificationError('فشل في حذف كل الإشعارات'));
+      }
+    } catch (e) {
+      emit(NotificationError('❌Error deleting all notifications: $e'));
+      print('❌Error deleting all notifications: $e');
+    }
   }
 }

@@ -32,7 +32,7 @@ class Doctor {
       email: json["email"] ?? '',
       status: json["status"] ?? '',
       imageUrl: json["image"] ?? '',
-      numberOfReports: json["numberOfReports"] ?? [], // ✅ تم تصحيح الاسم
+      numberOfReports: json["numberOfReports"] ?? [],
     );
   }
 }

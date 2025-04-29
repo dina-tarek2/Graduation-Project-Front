@@ -4,6 +4,7 @@ import 'package:graduation_project_frontend/models/Doctor/records_list_model.dar
 import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
+import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -86,7 +87,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
               child: _buildSearchBox(),
             ),
             SizedBox(width: 12),
-            _buildStatusFilterChips(), 
+            _buildStatusFilterChips(),
           ],
         ),
       ),
@@ -245,12 +246,16 @@ class _DicomsListPageState extends State<DicomsListPage> {
         cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
         child: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => MedicalReportPage(
-                      reportId: reportid, Dicom_url: Dicom_url)),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => MedicalReportPage(
+            //           reportId: reportid, Dicom_url: Dicom_url)),
+            // );
+            Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
+              'reportId': reportid,
+              'url': Dicom_url,
+            });
           },
           child: child,
         ),

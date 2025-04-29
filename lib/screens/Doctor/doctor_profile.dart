@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,7 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 class DoctorProfile extends StatefulWidget {
   final String doctorId;
   final String role;
-  const DoctorProfile({super.key, required this.doctorId,required this.role});
+  const DoctorProfile({super.key, required this.doctorId, required this.role});
 
   @override
   _DoctorProfileState createState() => _DoctorProfileState();
@@ -104,11 +105,34 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   Text(doctor.email, style: TextStyle(color: grey)),
-                  Text("405.50 ج.م",
-                      style: TextStyle(
+
+                  //text file can be copying the user id
+
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: doctor.id));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Copied to clipboard"),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "ID: ${doctor.id}",                      
+                      style: const TextStyle(
                           color: blue,
                           fontSize: 14,
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline),
+                    ),
+                  ),
+
+                  // const SizedBox(height: 10),
+                  // Text("405.50 ج.م",
+                  //     style: TextStyle(
+                  //         color: blue,
+                  //         fontSize: 14,
+                  //         fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -135,9 +159,9 @@ class _DoctorProfileState extends State<DoctorProfile> {
                         doctor.specialization.join(", "),
                         "specialization",
                         doctor),
-                    _infoRow(Icons.assignment, "Number of Reports",
-                        doctor.numberOfReports.toString(),
-                        editable: false),
+                    // _infoRow(Icons.assignment, "Number of Reports",
+                    //     doctor.numberOfReports.toString(),
+                    //     editable: false),
                     _infoRow(
                       doctor.status == "online"
                           ? Icons.check_circle

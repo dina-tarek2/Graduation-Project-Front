@@ -105,11 +105,10 @@ class AdvancedNotification extends StatelessWidget {
     }
   }
 
-  void show(BuildContext context) {
-    if (sound != null && sound!.isNotEmpty) {
-      final player = AudioPlayer();
-      player.play(UrlSource(sound!));
-    }
+  void show(BuildContext context) async {
+    final player = AudioPlayer();
+    await player.play(AssetSource('sounds/notification.mp3'));
+
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final snackBar = _buildStyled(context);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -536,7 +535,6 @@ void showAdvancedNotification(
   DateTime? date,
   Icon? icon,
 }) {
-
   AdvancedNotification(
     message: message,
     title: title,
@@ -552,11 +550,11 @@ void showAdvancedNotification(
     date: date ?? DateTime.now(),
     icon: icon,
   ).show(context);
-final scaffoldState = context.findAncestorStateOfType<MainScaffoldState>();
+  final scaffoldState = context.findAncestorStateOfType<MainScaffoldState>();
 
-context.read<NotificationCubit>().loadNotifications(
-  context.read<CenterCubit>().state,
-);
+  context.read<NotificationCubit>().loadNotifications(
+        context.read<CenterCubit>().state,
+      );
 
-scaffoldState?.reloadNotifyIcon();
+  scaffoldState?.reloadNotifyIcon();
 }

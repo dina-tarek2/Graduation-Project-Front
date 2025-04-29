@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
@@ -15,46 +16,81 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   String searchQuery = '';
   String filter = 'All'; // All, Read, Unread
 
+  // GlobalKey to track the position of a widget
+  final GlobalKey _key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final role = context.read<UserCubit>().state;
+    final userId = context.read<CenterCubit>().state;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 2,
+        title:
+            const Text('Notifications', style: TextStyle(color: Colors.black)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_all, color: Colors.green),
+            tooltip: 'Mark all as Read',
+            onPressed: () {
+              BlocProvider.of<NotificationCubit>(context)
+                  .markAllNotificationsAsRead(userId);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_sweep, color: Colors.redAccent),
+            tooltip: 'Delete all Notifications',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Confirm Delete All'),
+                  content: const Text(
+                      'Are you sure you want to delete all notifications?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel')),
+                    ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Delete')),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                BlocProvider.of<NotificationCubit>(context)
+                    .deleteAllNotifications(userId);
+              }
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Back Button
+            // Search and Filters
             Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, size: 28),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => MainScaffold(role: role)),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // Search + Filter Row
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  // Search Field
                   Expanded(
                     child: TextField(
                       onChanged: (value) => setState(() => searchQuery = value),
                       decoration: InputDecoration(
-                        hintText: 'Search by Name or ID',
-                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search by Title or Message',
+                        prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -66,7 +102,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Filter Chips
                   FilterChipWidget(
                     label: 'All',
                     selected: filter == 'All',
@@ -77,7 +112,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   FilterChipWidget(
                     label: 'Unread',
                     selected: filter == 'Unread',
-                    color: Colors.orange.shade200,
+                    color: lightBlue,
                     onTap: () => setState(() => filter = 'Unread'),
                   ),
                   const SizedBox(width: 6),
@@ -91,7 +126,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
 
-            // Notifications
+            // Notifications List
             Expanded(
               child: BlocBuilder<NotificationCubit, NotificationState>(
                 builder: (context, state) {
@@ -132,94 +167,155 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       itemBuilder: (context, index) {
                         final notification = notifications[index];
 
-                        return GestureDetector(
-                          onTap: () {
-                            BlocProvider.of<NotificationCubit>(context)
-                                .markAsRead(index);
-                          },
-                          child: Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                        return Dismissible(
+                            key: Key(notification.id.toString()), // Unique key
+                            direction: DismissDirection.startToEnd,
+                            background: Container(
+                              color: Colors.redAccent,
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
                             ),
-                            color: notification.isRead
-                                ? Colors.white
-                                : Colors.yellow.shade100,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor:
-                                        Colors.blueAccent.withOpacity(0.1),
-                                    backgroundImage:
-                                        NetworkImage(notification.icon),
-                                    radius: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                            confirmDismiss: (direction) async {
+                              return await showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: const Text('Confirm Delete'),
+                                  content:
+                                      const Text('Delete this notification?'),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel')),
+                                    ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: const Text('Delete')),
+                                  ],
+                                ),
+                              );
+                            },
+                            onDismissed: (_) {
+                              BlocProvider.of<NotificationCubit>(context)
+                                  .deleteNotification(notification.id);
+                            },
+                            child: GestureDetector(
+                              onTap: () {
+                                BlocProvider.of<NotificationCubit>(context)
+                                    .markAsRead(index);
+                              },
+                              child: Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                color: notification.isRead
+                                    ? Colors.white70
+                                    : Colors.blue
+                                        .shade50, // استخدام darkBlue للـ Unread و sky للـ Read
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor:
+                                            Colors.blueAccent.withOpacity(0.1),
+                                        backgroundImage:
+                                            NetworkImage(notification.icon),
+                                        radius: 24,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Text(
-                                                notification.title,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    notification.title,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: darkBlue
+                                                          // لون النص عند القراءة
+                                                    ),
+                                                  ),
                                                 ),
+                                                Icon(
+                                                  notification.isRead
+                                                      ? Icons
+                                                          .mark_email_read_outlined
+                                                      : Icons
+                                                          .mark_email_unread_outlined,
+                                                  color: notification.isRead
+                                                      ? Colors.green
+                                                      : blue, // تغيير الأيقونة لـ Unread أو Read
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              notification.message,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color:grey // تغيير النص للقراءة/الغير مقروء
                                               ),
                                             ),
-                                            Icon(
-                                              notification.isRead
-                                                  ? Icons
-                                                      .mark_email_read_outlined
-                                                  : Icons
-                                                      .mark_email_unread_outlined,
-                                              color: notification.isRead
-                                                  ? Colors.green
-                                                  : Colors.orangeAccent,
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.access_time_filled,
+                                                  size: 16,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  notification.createdAt != null
+                                                      ? formatNotificationDate(
+                                                          notification
+                                                              .createdAt!)
+                                                      : '-',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors
+                                                        .grey, // لون الوقت
+                                                  ),
+                                                ),
+                                                Expanded(child: Container()),
+                                                const Text(
+                                                  "Scrolling Right to delete",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Color(
+                                                        0x86000000), // تعليمات الحذف
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          notification.message,
-                                          style: const TextStyle(fontSize: 14),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.access_time_filled,
-                                                size: 16, color: Colors.grey),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              notification.createdAt != null
-                                                  ? formatNotificationDate(
-                                                      notification.createdAt!)
-                                                  : '-',
-                                              style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
+                            ));
                       },
                     );
                   } else {
                     return const Center(
-                        child: Text('No notifications available'));
+                        child: Text('No notifications available.'));
                   }
                 },
               ),

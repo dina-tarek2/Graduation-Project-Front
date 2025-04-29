@@ -181,7 +181,7 @@ class MainScaffoldState extends State<MainScaffold> {
 // دالة للحصول على اللون المناسب لأيقونة الإشعارات
   Color _getIconBackgroundColor() {
     if (_unreadNotificationCount > 0 && selectedIndex != 11) {
-      return Colors.orangeAccent; // اللون إذا كانت هناك إشعارات غير مقروءة
+      return lightBlue; // اللون إذا كانت هناك إشعارات غير مقروءة
     }
     return sky;
   }
@@ -196,6 +196,7 @@ class MainScaffoldState extends State<MainScaffold> {
   }
 
   // Show the notifications popup overlay
+// Show the notifications popup overlay
   void _showNotificationsPopup() {
     _removeNotificationsPopup();
     final RenderBox renderBox =
@@ -207,11 +208,22 @@ class MainScaffoldState extends State<MainScaffold> {
       builder: (context) => Positioned(
         top: offset.dy + size.height + 5,
         left: offset.dx - (size.width * 7.5),
-        child: const NotificationsPopup(),
+        child: GestureDetector(
+          onTap: () {
+            // Close the popup if the user taps outside
+            _removeNotificationsPopup();
+          },
+          child: Material(
+            color:
+                Colors.transparent, // To ensure the background is transparent
+            child: const NotificationsPopup(),
+          ),
+        ),
       ),
     );
     Overlay.of(context)!.insert(_overlayEntry!);
   }
+  
 
   // Remove the notifications popup overlay
   void _removeNotificationsPopup() {
@@ -245,16 +257,23 @@ class MainScaffoldState extends State<MainScaffold> {
   }
 
   // Return the title based on the selected screen
+
   String _getScreenTitle() {
     switch (selectedIndex) {
       case 0:
         return 'Dashboard';
       case 1:
-        return widget.role == "RadiologyCenter" ? 'Upload Dicom' : 'Dicom List';
+        return widget.role == "RadiologyCenter"
+            ? 'Upload Dicom'
+            : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
       case 2:
-        return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Chat';
+        return widget.role == "RadiologyCenter"
+            ? 'Manage Doctors'
+            : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
       case 3:
-        return widget.role == "RadiologyCenter" ? 'Medical Reports' : '';
+        return widget.role == "RadiologyCenter"
+            ? 'Medical Reports'
+            : (widget.role == "Admin" ? 'Manage Doctors' : '');
       case 4:
         return 'Contact Us';
       case 5:
@@ -392,53 +411,4 @@ class MainScaffoldState extends State<MainScaffold> {
       ),
     );
   }
-<<<<<<< HEAD
-=======
-
-  Widget _getSelectedScreen() {
-    if (selectedIndex < screens.length) {
-      return screens[selectedIndex];
-    }
-
-    // Fallback for settings or other screens not in the main list
-    if (selectedIndex == 6) {
-      return const Center(child: Text("Settings Screen"));
-    }
-
-    if (selectedIndex == 10) {
-      return DoctorProfile(doctorId: context.read<CenterCubit>().state);
-    }
-
-    return screens[0];
-  }
-
-  String _getScreenTitle() {
-    switch (selectedIndex) {
-      case 0:
-        return 'Dashboard';
-      case 1:
-        return widget.role == "RadiologyCenter"
-            ? 'Upload Dicom'
-            : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
-      case 2:
-        return widget.role == "RadiologyCenter"
-            ? 'Manage Doctors'
-            : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
-      case 3:
-        return widget.role == "RadiologyCenter"
-            ? 'Medical Reports'
-            : (widget.role == "Admin" ? 'Manage Doctors' : '');
-      case 4:
-        return 'Contact Us';
-      case 5:
-        return 'Chat App';
-      case 6:
-        return 'Settings';
-      case 10:
-        return 'My Profile';
-      default:
-        return widget.title;
-    }
-  }
->>>>>>> dad68791135ccac6a7503397d7db3f025d44906c
 }
