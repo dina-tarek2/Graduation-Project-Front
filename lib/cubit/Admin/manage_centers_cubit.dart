@@ -87,4 +87,25 @@ class ManageCentersCubit extends Cubit<ManageCentersState> {
     stateController.dispose();
     return super.close();
   }
+
+  Future<void> removeCenter(String centerId) async {
+    try {
+      final response = await api.delete(EndPoints.removeCenter(centerId));
+
+      if (response.statusCode == 200) {
+        print("deleteeddd");
+        emit(DeletedSuccessfully());
+        // await fetchApprovedCenters();
+      }
+    } catch (error) {
+      if (error is DioException) {
+        print("DioException Error: ${error.message}");
+        print("DioException Response: ${error.response?.data}");
+        print("DioException Status Code: ${error.response?.statusCode}");
+      } else {
+        print("Unknown Error: $error");
+      }
+      emit(AddCenterFailure(error: "$error"));
+    }
+  }
 }

@@ -31,11 +31,18 @@ class EndPoints {
       "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId =
       "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
-  //Admin
+  //Admin - in center
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
   static String addCenterByAdmin = "admin/addRadiologyCenter";
   static String getNotApprovedCenters = "admin/getNotApprovedRadiologyCenters";
-
+  static String removeCenter(centerId) =>
+      "admin/removeRadiologyCenter/$centerId";
+  static String getCenterInfoByAdmin(centerId) =>
+      "admin/getRadiologyCenter/$centerId";
+  static String approveCenterAdmin(centerId) =>
+      "admin/approveRadiologyCenter/$centerId";
+  //admin -indoctor
+  static String getDoctorsByAdmin = "admin/getRadiologists";
   //Doctor List
   static String getCenterId(id) {
     return '/relations/radiologists/$id';
