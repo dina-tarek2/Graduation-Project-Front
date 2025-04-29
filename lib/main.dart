@@ -6,6 +6,8 @@ import 'package:graduation_project_frontend/cubit/Admin/doctors_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Admin/not_approved_centers_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
+
 import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:graduation_project_frontend/screens/Admin/add_center_page.dart';
@@ -15,6 +17,7 @@ import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.d
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
+
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:webview_windows/webview_windows.dart';
 
@@ -66,21 +69,24 @@ void main() {
         BlocProvider(
             //-
             create: (context) => //-
-                RecordsListCubit(DioConsumer(dio: Dio()))..fetchRecords()), //-
+                RecordsListCubit(DioConsumer(dio: Dio()))), //-
 
         BlocProvider(
           create: (context) => ReportPageCubit(DioConsumer(dio: Dio())),
           //..fetchReport(),
         ),
 
-          BlocProvider(create: (context) => CenterCubit()),
-          BlocProvider(create: (context) => UserCubit()),
+        BlocProvider(create: (context) => CenterCubit()),
+        BlocProvider(create: (context) => UserCubit()),
         BlocProvider<LoginCubit>(
-          create: (context) =>
-              LoginCubit(UserRepository(api: DioConsumer(dio: Dio()),centerCubit: context.read<CenterCubit>(),userCubit:context.read<UserCubit>() )),
+          create: (context) => LoginCubit(UserRepository(
+              api: DioConsumer(dio: Dio()),
+              centerCubit: context.read<CenterCubit>(),
+              userCubit: context.read<UserCubit>())),
         ),
-      //admin
-       BlocProvider(
+
+        //admin
+        BlocProvider(
           create: (context) => ManageCentersCubit(DioConsumer(dio: Dio())),
         ),
         BlocProvider(
@@ -90,39 +96,39 @@ void main() {
           create: (context) => DoctorsCubit(DioConsumer(dio: Dio())),
         ),
         //
+
         BlocProvider(
             create: (context) => DicomCubit(DioConsumer(dio: Dio()))), //-
         BlocProvider(
             create: (context) => MedicalReportsCubit(
-                repository: MedicalRepository(api: DioConsumer(dio: Dio()))
-            )
-        ),
-               BlocProvider(
+                repository: MedicalRepository(api: DioConsumer(dio: Dio())))),
+        BlocProvider(
           create: (context) => ContactCubit(DioConsumer(dio: Dio())),
-        ),   
-         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+        ),
+        BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
-    BlocProvider(
-      create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
-      
-    ),
-    BlocProvider(
-      create: (context) => UploadedDicomsCubit(DioConsumer(dio: Dio())),
-      
-    ),
-     BlocProvider(
+
+        BlocProvider(
+          create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
+          create: (context) => UploadedDicomsCubit(DioConsumer(dio: Dio())),
+        ),
+        BlocProvider(
             //-
-            create: (context) => UploadDicomCubit(DioConsumer(dio: Dio(),isdicom: true))),
-    BlocProvider(
             create: (context) =>
-                DoctorProfileCubit(DioConsumer(dio: Dio()))),
-                  BlocProvider(
-            create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
-    ], 
+                UploadDicomCubit(DioConsumer(dio: Dio(), isdicom: true))),
+        BlocProvider(
+            create: (context) => DoctorProfileCubit(DioConsumer(dio: Dio()))),
+        BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
+        BlocProvider(
+            create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
+      ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
   );
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -135,17 +141,20 @@ class MyApp extends StatelessWidget {
         SigninPage.id: (context) => SigninPage(),
         SignupPage.id: (context) => SignupPage(),
         DicomListPage.id: (context) => DicomListPage(),
-        DashboardContent.id:(context) => DashboardContent(),
+        DashboardContent.id: (context) => DashboardContent(),
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
         MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
-        ForgetPassword.id:(context) => ForgetPassword(),
+        ForgetPassword.id: (context) => ForgetPassword(),
         // ManageDoctorsPage.id :(context) => ManageDoctorsPage(),
-        OtpResetpassword.id :(context) => OtpResetpassword(),
-        ResetPassword.id :(context) => ResetPassword(),
-        ChatScreen.id :(context) => ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state,),
+        OtpResetpassword.id: (context) => OtpResetpassword(),
+        ResetPassword.id: (context) => ResetPassword(),
+        ChatScreen.id: (context) => ChatScreen(
+              userId: context.read<CenterCubit>().state,
+              userType: context.read<UserCubit>().state,
+            ),
         // MainScaffold.id :(context) => MainScaffold(),
 
-         //doctor
+        //doctor
         // HomePage.id: (context) => HomePage(role: "Radiologist"),
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),
         MedicalReportsScreen.id: (context) => MedicalReportsScreen(),
@@ -157,21 +166,23 @@ class MyApp extends StatelessWidget {
         //center
         UploadScreen.id: (context) => UploadScreen(),
         // UploadButtonScreen.id:(context) => UploadButtonScreen(),
-        DicomsListPage.id: (context) => DicomsListPage(), 
+
+        DicomsListPage.id: (context) => DicomsListPage(),
         // admin
-        ManageCentersPage.id: (context) => ManageCentersPage(), 
+        ManageCentersPage.id: (context) => ManageCentersPage(),
         AddCenterPage.id: (context) => AddCenterPage(),
+
         RequestsPage.id: (context)=> RequestsPage(),
         // ViewCenterProfilePage.id: (context) => ViewCenterProfilePage(centerId: "",),//???????
         ManageDoctorsaPage.id: (context) => ManageDoctorsaPage(),
+
         //
         DicomWebViewPage.id: (context) {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;
-          return DicomWebViewPage(url: args['url']);
+          return DicomWebViewPage(url: args['url'], reportId: args['reportId'],recordId: args['recordId']);
         },
       },
     );
   }
 }
-

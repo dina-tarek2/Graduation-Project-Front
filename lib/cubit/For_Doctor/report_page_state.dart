@@ -18,3 +18,7 @@ final class ReportPageFailure extends ReportPageState {
 
   ReportPageFailure({required this.errmessage});
 }
+final class ReportUpdateSuccess extends ReportPageState{
+  final String message;
+  ReportUpdateSuccess({this.message = "Report updated successfully"});
+}

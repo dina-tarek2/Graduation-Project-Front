@@ -19,7 +19,6 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
       final response = await dioConsumer.get(
         'https://graduation-project-mmih.vercel.app/api/radiologists/getRadiologistById/$doctorId',
       );
-
       if (response.data != null && response.data.isNotEmpty) {
         final doctor = Doctor.fromJson(response.data);
         emit(DoctorProfileSuccess(doctor));
@@ -28,9 +27,12 @@ class DoctorProfileCubit extends Cubit<DoctorProfileState> {
       }
     } catch (e) {
       emit(
+      
           DoctorProfileError("Faild ❌  ${e.toString()}"));
     }
   }
+  
+
 
   /// ✅ **تحديث بيانات الطبيب باستخدام `PATCH`**
   Future<void> updateDoctorProfile(

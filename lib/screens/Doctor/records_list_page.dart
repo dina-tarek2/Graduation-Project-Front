@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/models/reports_model.dart';
-import 'package:graduation_project_frontend/screens/Doctor/dicom_viewer_page.dart';
+
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
+import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
+
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 
 class RecordsListPage extends StatefulWidget {
@@ -24,11 +25,13 @@ class _RecordsListPageState extends State<RecordsListPage> {
   @override
   void initState() {
     super.initState();
-    context.read<RecordsListCubit>().fetchRecords();
+    final userId = context.read<CenterCubit>().state;
+    context.read<RecordsListCubit>().fetchRecords(userId);
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: Padding(
@@ -225,19 +228,25 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-  DataCell _clickableCell(
-      Widget child, BuildContext context, String reportid, String Dicom_url) {
+  DataCell _clickableCell(Widget child, BuildContext context, String reportid,
+      String Dicom_url, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
         child: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => MedicalReportPage(
-                      reportId: reportid, Dicom_url: Dicom_url)),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => MedicalReportPage(
+            //           reportId: reportid, Dicom_url: Dicom_url)),
+            // );
+            print('reportId: $reportid, Dicom_url: $Dicom_url');
+            Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
+              'reportId': reportid,
+              'url': Dicom_url,
+              'recordId': recordId
+            });
           },
           child: child,
         ),
@@ -252,9 +261,9 @@ class _RecordsListPageState extends State<RecordsListPage> {
     return DataRow(
       cells: [
         _clickableCell(_buildStatusIndicator(record.status), context,
-            record.reportId, record.Dicom_url),
+            record.reportId, record.Dicom_url, record.id),
         _clickableCell(Text(record.patientName), context, record.reportId,
-            record.Dicom_url),
+            record.Dicom_url, record.id),
         _clickableCell(
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +277,8 @@ class _RecordsListPageState extends State<RecordsListPage> {
             ),
             context,
             record.reportId,
-            record.Dicom_url),
+            record.Dicom_url,
+            record.id),
         DataCell(Text(record.age.toString())), // غير قابل للنقر
         DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
         // DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
@@ -286,11 +296,12 @@ class _RecordsListPageState extends State<RecordsListPage> {
             ),
             context,
             record.reportId,
-            record.Dicom_url),
-        _clickableCell(
-            Text(record.modality), context, record.reportId, record.Dicom_url),
+            record.Dicom_url,
+            record.id),
+        _clickableCell(Text(record.modality), context, record.reportId,
+            record.Dicom_url, record.id),
         _clickableCell(Text(record.centerName), context, record.reportId,
-            record.Dicom_url),
+            record.Dicom_url, record.id),
       ],
     );
   }

@@ -85,7 +85,7 @@ class DioConsumer extends ApiConsumer {
     }
   }
 
-  @override
+@override
   Future post(
     String path, {
     dynamic data,
@@ -102,6 +102,25 @@ class DioConsumer extends ApiConsumer {
         cancelToken: cancelToken,
         queryParameters: queryParameters,
         onSendProgress: onSendProgress,
+      );
+      return response;
+    } on DioException catch (e) {
+      print("DioException: ${e.message}");
+      throw (" ${e.response?.data['message'] ?? e.message}");
+    }
+  }
+  @override
+  Future put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool isFromData = false,
+  }) async {
+    try {
+      final response = await dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
       );
       return response;
     } on DioException catch (e) {

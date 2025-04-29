@@ -1,16 +1,21 @@
 part of 'records_list_cubit.dart';
 
 @immutable
-sealed class RecordsListState {}
+abstract class RecordsListState {}
 
-final class RecordsListInitial extends RecordsListState {}
+class RecordsListInitial extends RecordsListState {}
 
-final class RecordsListLoading extends RecordsListState {}
+class RecordsListLoading extends RecordsListState {}
 
-final class RecordsListSuccess extends RecordsListState {
+class RecordsListSuccess extends RecordsListState {
   final List<RecordsListModel> records;
 
-   RecordsListSuccess(this.records);
+  RecordsListSuccess(this.records);
+}
+
+class RecordLoaded extends RecordsListState {
+  final RecordsListModel record;
+  RecordLoaded(this.record);
 }
 
 class RecordsListFailure extends RecordsListState {
