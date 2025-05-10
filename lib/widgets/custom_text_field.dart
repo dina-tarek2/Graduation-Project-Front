@@ -15,11 +15,12 @@ class CustomFormTextField extends StatelessWidget {
     this.labelText,
     this.minLines,
     this.maxLines,
-
+    this.prefixIcon,
     this.validator, 
     this.width,
     this.height,
     this.onSubmitted,
+      this.decoration = const InputDecoration(),
   });
 
   TextEditingController? controller;
@@ -27,13 +28,14 @@ class CustomFormTextField extends StatelessWidget {
   IconData? icon;
   bool? obscureText;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   final VoidCallback? suffixIconOnPressed;
   final String? labelText;
   final int? minLines;
   final int? maxLines;
    Key? key;
  final FormFieldValidator<String>? validator;
-
+final InputDecoration decoration;
   final double? width;
   final double? height;
     final ValueChanged<String>? onSubmitted;
@@ -83,13 +85,14 @@ class CustomFormTextField extends StatelessWidget {
               prefixIcon: icon != null
                   ? Icon(
                       icon,
-                      color: sky,
+                      size:16,
+                      color:Colors.indigo
                     )
                   : null,
               suffixIcon:suffixIcon ?? (suffixIconOnPressed != null
     ? IconButton(
         onPressed: suffixIconOnPressed,
-        icon: Icon(Icons.visibility, color: Colors.blue), 
+        icon: Icon(Icons.visibility, color: Colors.indigo), 
       )
     : null),
              

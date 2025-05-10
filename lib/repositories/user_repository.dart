@@ -34,11 +34,11 @@ final UserCubit userCubit;
        SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString("userRole", role);
  if (response.statusCode== 200){
-   if (response.data["role"] == "Radiologist") {
-          String centerId = response.data["user"]["_id"];
+   if (response.data["role"] == "RadiologyCenter") {
+          String centerId = response.data["user"]["id"];
           centerCubit.setCenterId(centerId);
         }else{
-          String centerId = response.data["user"]["id"];
+          String centerId = response.data["user"]["_id"];
           centerCubit.setCenterId(centerId);
         }
         return Right(user);

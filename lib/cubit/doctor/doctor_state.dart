@@ -9,6 +9,15 @@ class DoctorListSuccess extends DoctorListState {
    final List<Doctor> doctors;
   DoctorListSuccess(this.doctors);  
 }
+class DoctorAddedSuccess extends DoctorListState {
+   final String message;
+  DoctorAddedSuccess(this.message);  
+}
+
+class DoctorDeletedSuccess extends DoctorListState {
+   final String message;
+  DoctorDeletedSuccess(this.message);  
+}
 
 class DoctorListError extends DoctorListState {
   final String error;

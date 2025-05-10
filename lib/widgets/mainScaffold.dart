@@ -6,6 +6,7 @@ import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.da
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
+import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
@@ -15,6 +16,7 @@ import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
+import 'package:intl/intl.dart';
 
 class MainScaffold extends StatefulWidget {
   final String role;
@@ -42,21 +44,26 @@ class MainScaffoldState extends State<MainScaffold> {
 
     if (widget.role == "RadiologyCenter") {
       screens = [
-        CenterDashboard(role: widget.role),
+        MedicalDashboardScreen(),
         DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
+ChatScreen(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),  
+  AboutUsPage(),
+    ];
+    
     } else{
       // Default screens for other roles
       screens = [
-        DashboardContent(),
+        DoctorDashboard(),
         RecordsListPage(),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
         ContactScreen(role: widget.role),
-ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),      ];
+ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),
+     AboutUsPage(),
+      ];
     }
   }
 
@@ -130,6 +137,11 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
 
   @override
   Widget build(BuildContext context) {
+    final DateTime now = DateTime.now();
+    final DateFormat dateFormat = DateFormat('EEEE, d MMMM yyyy');
+    final DateFormat timeFormat = DateFormat('h:mm a');
+    final String formattedDate = dateFormat.format(now);
+    final String formattedTime = timeFormat.format(now);
     return Scaffold(
       body: Row(
         children: [
@@ -142,6 +154,12 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
             child: Column(
               children: [
                 Container(
+                  decoration:BoxDecoration(
+                            color: Colors.white70,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(width: 0.5,color: blue),
+                              // boxShadow: ,
+                            ) ,
                   height: 70,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -152,17 +170,27 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Blue,
+                          color: sky,
                         ),
                       ),
                       Row(
                         children: [
+                            Text(
+                          '$formattedDate | $formattedTime',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                     
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: sky,
                               borderRadius: BorderRadius.circular(12),
                             ),
+                           
                             child: const Icon(
                               Icons.notifications_none_rounded,
                               color: Color(0xFF073042),
@@ -208,10 +236,10 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     }
     
     // Fallback for settings or other screens not in the main list
-    if (selectedIndex == 6) {
+    // if (selectedIndex == 6) {
    
-      return const Center(child: Text("Settings Screen"));
-    }
+    //   return const Center(child: Text("Settings Screen"));
+    // }
 
     if (selectedIndex == 10) {
       return DoctorProfile(doctorId: context.read<CenterCubit>().state);
@@ -223,7 +251,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
   String _getScreenTitle() {
     switch (selectedIndex) {
       case 0:
-        return 'Dashboard';
+        return widget.role == "RadiologyCenter" ? 'Medical Center Dashboard':'Medical Doctor Dashboard';
       case 1:
         return widget.role == "RadiologyCenter" ? 'Upload Dicom' : 'Dicom List';
       case 2:
@@ -235,7 +263,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
       case 5:
         return 'Chat App';
         case 6:
-        return 'Settings';
+        return 'About Us';
       case 10:
         return 'My Profile';
       default:
