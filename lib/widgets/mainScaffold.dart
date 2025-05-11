@@ -19,6 +19,7 @@ import 'package:graduation_project_frontend/screens/Notifications/notifications_
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
+import 'package:graduation_project_frontend/screens/dicom.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
@@ -250,9 +251,9 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-    if (selectedIndex == 6) {
-      return const Center(child: Text("Settings Screen"));
-    }
+    // if (selectedIndex == 6) {
+    //   return const Center(child: Text("Settings Screen"));
+    // }
     if (selectedIndex == 10) {
       return DoctorProfile(
           doctorId: context.read<CenterCubit>().state,
@@ -287,7 +288,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
       case 5:
         return 'Chat App';
       case 6:
-        return 'Settings';
+        return 'About Us';
       case 10:
         return 'My Profile';
       case 11:
@@ -353,7 +354,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                               color: sky,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                           
+                          ),
                           GestureDetector(
                             key: _notificationIconKey,
                             onTap: () {
@@ -406,7 +407,8 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                                           ),
                                         ),
                                       ),
-                                ],
+                                )  ],
+                              
                               ),
                             ),
                           ),
@@ -445,47 +447,6 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
         ],
       ),
     );
-  }
-
-  Widget _getSelectedScreen() {
-    if (selectedIndex < screens.length) {
-      return screens[selectedIndex];
-    }
-    
-    // Fallback for settings or other screens not in the main list
-    // if (selectedIndex == 6) {
-   
-    //   return const Center(child: Text("Settings Screen"));
-    // }
-
-    if (selectedIndex == 10) {
-      return DoctorProfile(doctorId: context.read<CenterCubit>().state);
-    }
-
-    return screens[0];
-  }
-
-  String _getScreenTitle() {
-    switch (selectedIndex) {
-      case 0:
-        return widget.role == "RadiologyCenter" ? 'Medical Center Dashboard':'Medical Doctor Dashboard';
-      case 1:
-        return widget.role == "RadiologyCenter" ? 'Upload Dicom' : 'Dicom List';
-      case 2:
-        return widget.role == "RadiologyCenter" ? 'Manage Doctors' : 'Chat';
-      case 3:
-        return widget.role == "RadiologyCenter" ? 'Medical Reports' : '';
-      case 4:
-        return 'Contact Us';
-      case 5:
-        return 'Chat App';
-        case 6:
-        return 'About Us';
-      case 10:
-        return 'My Profile';
-      default:
-        return widget.title;
-    }
   }
 
 }

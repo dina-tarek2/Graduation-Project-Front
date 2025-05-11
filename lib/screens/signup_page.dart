@@ -74,58 +74,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                 ),
-                //right side
-                Expanded(
-                  flex: 4,
-                  child: Container
-                  (
-                     decoration: BoxDecoration(
-                       border: Border.all(
-                  color: blue, 
-                 width: 2, 
-                       ),
-                        borderRadius: BorderRadius.only(
-                      // topRight: Radius.circular(45.0),
-                      bottomLeft: Radius.circular(45.0),
-                      topLeft: Radius.circular(45.0),
-                      // bottomRight: Radius.circular(45.0),
-                    ),
-                    ),
-                    // decoration: BoxDecoration(
-                    //   color: sky,
-                    //   image: DecorationImage(
-                    //     image: AssetImage("assets/images/image 5.png",),
-                    //     fit: BoxFit.fill,
-      
-                    //   ),
-                    // ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 46),
-                      child: ListView(
-                        children: [
-                          const SizedBox(
-                            height: 75,
-                          ),
-                          Text("Get Started Now",
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold)),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Column(
-                            children: [
-                              //if i want to show word above box
-                              // Container(
-                              //   alignment:
-                              //       Alignment.centerLeft, // Align text to the left
-                              //   child: Text(
-                              //     'Email',
-                              //     style: TextStyle(
-                              //       fontSize: 24,
-                              //       color: Colors.black,
-                              //     ),
-                              //   ),
-                              // ),
+                
                   //right side
                   Expanded(
                       flex: 4,
@@ -251,10 +200,10 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                             ],
 
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          // ),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
                           // Dropdown for Role Selection
 //                           Padding(
 //                             // padding: EdgeInsets.only(bottom: 10),
@@ -405,7 +354,7 @@ class _SignupPageState extends State<SignupPage> {
                                     .changeRegisterPasswordSuffixIcon();
                               },
                             ),
-                          ),
+                          // ),
 //                           // Conditional fields based on selected role
 //                           if (selectedRole == "Doctor") ...[
 //                             CustomFormTextField(
@@ -633,6 +582,7 @@ class _SignupPageState extends State<SignupPage> {
               ],
             ),
           );
+          
         },
       ),
     );

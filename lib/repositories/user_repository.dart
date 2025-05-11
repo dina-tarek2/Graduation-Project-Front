@@ -36,8 +36,6 @@ final UserCubit userCubit;
  if (response.statusCode== 200){
    if (response.data["role"] == "RadiologyCenter") {
           String centerId = response.data["user"]["id"];
-   if (response.data["role"] == "Radiologist" || response.data["role"] == "Admin") {
-          String centerId = response.data["user"]["_id"];
           centerCubit.setCenterId(centerId);
         }else{
           String centerId = response.data["user"]["_id"];

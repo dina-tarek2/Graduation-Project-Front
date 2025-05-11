@@ -31,13 +31,6 @@ bool isSocketListenersInitialized = false;
     }
   );
 
-
-  IO.Socket socket =
-      IO.io("https://graduation-project--xohomg.fly.dev/", <String, dynamic>{
-    "transports": ["websocket"],
-    "autoConnect": false,
-  });
-
   void initSocket() {
     _setupSocketListeners();
 
@@ -176,7 +169,8 @@ bool isSocketListenersInitialized = false;
           currentUserId = userId;
        connectToSocket(userId);
          
-
+     });
+    }
 
   @override
   Future<void> close() {
