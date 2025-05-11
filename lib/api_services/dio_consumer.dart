@@ -55,7 +55,7 @@ class DioConsumer extends ApiConsumer {
     try {
       final Response = await dio.get(
         path,
-        data: data,
+        // data: data,
         queryParameters: queryParameters,
       );
       return Response;

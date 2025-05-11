@@ -29,63 +29,128 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       //padding from left and right to make form in middle of right side
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: BlocConsumer<RegisterCubit, RegisterState>(
-          listener: (context, state) {
-            // TODO: implement listener
-            if (state is OtpVerfication) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+      body: BlocConsumer<RegisterCubit, RegisterState>(
+        listener: (context, state) {
+          // TODO: implement listener
+          if (state is OtpVerfication) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: VerifyOtpPage(
+                      message: state.message,
+                      role: selectedRole!,
                     ),
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      child: VerifyOtpPage(
-                        message: state.message,
-                        role: selectedRole!,
-                      ),
-                    ),
-                  );
-                },
-              );
-            } else if (state is RegisterFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.error)),
-              );
-            }
-          },
-          builder: (context, state) {
-            return Form(
-              key: formKey,
-              child: Row(
-                children: [
-                  //left side which is photo
-                  Expanded(
-                    child: Container(
-                      color: sky,
-                      child: Center(
-                        child: Image.asset("assets/images/Doctor-bro.png",
-                            width: 700),
+                  ),
+                );
+              },
+            );
+          } else if (state is RegisterFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error)),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Form(
+            key: formKey,
+            child: Row(
+              children: [
+                //left side which is photo
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                     decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/signInDoc2.jpg"),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
+                ),
+                //right side
+                Expanded(
+                  flex: 4,
+                  child: Container
+                  (
+                     decoration: BoxDecoration(
+                       border: Border.all(
+                  color: blue, 
+                 width: 2, 
+                       ),
+                        borderRadius: BorderRadius.only(
+                      // topRight: Radius.circular(45.0),
+                      bottomLeft: Radius.circular(45.0),
+                      topLeft: Radius.circular(45.0),
+                      // bottomRight: Radius.circular(45.0),
+                    ),
+                    ),
+                    // decoration: BoxDecoration(
+                    //   color: sky,
+                    //   image: DecorationImage(
+                    //     image: AssetImage("assets/images/image 5.png",),
+                    //     fit: BoxFit.fill,
+      
+                    //   ),
+                    // ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 46),
+                      child: ListView(
+                        children: [
+                          const SizedBox(
+                            height: 75,
+                          ),
+                          Text("Get Started Now",
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold)),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Column(
+                            children: [
+                              //if i want to show word above box
+                              // Container(
+                              //   alignment:
+                              //       Alignment.centerLeft, // Align text to the left
+                              //   child: Text(
+                              //     'Email',
+                              //     style: TextStyle(
+                              //       fontSize: 24,
+                              //       color: Colors.black,
+                              //     ),
+                              //   ),
+                              // ),
                   //right side
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: sky,
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/images/image 5.png",
-                          ),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
+                      flex: 4,
+                  child: Container
+                  (
+                     decoration: BoxDecoration(
+                       border: Border.all(
+                  color: blue, 
+                 width: 2, 
+                       ),
+                        borderRadius: BorderRadius.only(
+                      // topRight: Radius.circular(45.0),
+                      bottomLeft: Radius.circular(45.0),
+                      topLeft: Radius.circular(45.0),
+                      // bottomRight: Radius.circular(45.0),
+                    ),
+                    ),
+                    // decoration: BoxDecoration(
+                    //   color: sky,
+                    //   image: DecorationImage(
+                    //     image: AssetImage("assets/images/image 5.png",),
+                    //     fit: BoxFit.fill,
+      
+                    //   ),
+                    // ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 46),
                         child: ListView(
@@ -178,13 +243,42 @@ class _SignupPageState extends State<SignupPage> {
                                     .lastNameController,
                               ),
                               CustomFormTextField(
-                                hintText: 'Enter your contact no.',
-                                icon: Icons.work,
+                                hintText: 'Enter your email',
+                                icon: Icons.email,
                                 controller: context
                                     .read<RegisterCubit>()
-                                    .contactNumberController,
+                                    .emailController,
                               ),
                             ],
+
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          // Dropdown for Role Selection
+//                           Padding(
+//                             // padding: EdgeInsets.only(bottom: 10),
+//                             padding: EdgeInsets.symmetric(
+//                                 horizontal: 16.0, vertical: 8.0),
+//                             child: DropdownButtonFormField<String>(
+//                               value: selectedRole,
+//                               decoration: InputDecoration(
+//                                 labelText: "Role",
+//                                 border: OutlineInputBorder(
+//                                   borderRadius: BorderRadius.circular(12),
+//                                 ),
+//                               ),
+//                               items: ["Doctor", "Technician"].map((role) {
+//                                 return DropdownMenuItem<String>(
+//                                   value: role,
+//                                   child: Text(role),
+//                                 );
+//                               }).toList(),
+//                               onChanged: (value) {
+//                                 setState(() {
+//                                   selectedRole = value;
+//                                 });
+
                             if (selectedRole == "Technician") ...[
                               CustomFormTextField(
                                 hintText: "Center Name",
@@ -310,158 +404,236 @@ class _SignupPageState extends State<SignupPage> {
                                 BlocProvider.of<RegisterCubit>(context)
                                     .changeRegisterPasswordSuffixIcon();
                               },
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .passwordController,
                             ),
-                            // const SizedBox(
-                            //   height: 20,
-                            // ),
-                            CustomFormTextField(
-                              hintText: "Confirm Password",
-                              icon: Icons.lock,
-                              suffixIcon: Icon(
-                                  BlocProvider.of<RegisterCubit>(context)
-                                      .suffixIcon),
-                              suffixIconOnPressed: () {
-                                BlocProvider.of<RegisterCubit>(context)
-                                    .changeRegisterPasswordSuffixIcon();
-                              },
-                              obscureText:
-                                  BlocProvider.of<RegisterCubit>(context)
-                                      .isRegisterPasswordShowing,
-                            ),
+                          ),
+//                           // Conditional fields based on selected role
+//                           if (selectedRole == "Doctor") ...[
+//                             CustomFormTextField(
+//                               hintText: 'Enter your specialization',
+//                               icon: Icons.medical_services,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .passwordController,
+//                             ),
+//                             // const SizedBox(
+//                             //   height: 20,
+//                             // ),
+//                             CustomFormTextField(
+//                               hintText: 'Enter your first name',
+//                               icon: Icons.medical_services,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .firstNameController,
+//                             ),
+//                             const SizedBox(
+//                               height: 10,
+//                             ),
+//                             CustomFormTextField(
+//                               hintText: 'Enter your last name',
+//                               icon: Icons.medical_services,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .lastNameController,
 
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            // Checkbox for agree to terms
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: isChecked,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      isChecked = value!;
-                                    });
-                                  },
-                                  //to change default color of checkbox from purple to blue
-                                  fillColor:
-                                      WidgetStateProperty.resolveWith<Color>(
-                                          (Set<WidgetState> states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return blue; //when click on it
-                                    }
-                                    return Colors.white; //on default
-                                  }),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isChecked = !isChecked;
-                                    });
-                                  },
-                                  child: Text("I agree to Term & Condition"),
-                                ),
-                              ],
-                            ),
-
-                            state is RegisterLoading
-                                ? Center(child: CircularProgressIndicator())
-                                : CustomButton(
-                                    onTap: () async {
-                                      if (formKey.currentState!.validate()) {
-                                        if (selectedRole == null) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content:
-                                                    Text("Please choose role")),
-                                          );
-                                          return;
-                                        }
-                                        final registerCubit =
-                                            context.read<RegisterCubit>();
-                                        registerCubit.register(selectedRole!);
+//                             ),
+//                             CustomFormTextField(
+//                               hintText: 'Enter your contact no.',
+//                               icon: Icons.work,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .contactNumberController,
+//                             ),
+//                           ],
+//                           if (selectedRole == "Technician") ...[
+//                             CustomFormTextField(
+//                               hintText: "Center Name",
+//                               icon: Icons.person,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .centerNameController,
+//                             ),
+//                             CustomFormTextField(
+//                               hintText: 'Enter your address',
+//                               icon: Icons.work,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .addressController,
+//                             ),
+//                             CustomFormTextField(
+//                               hintText: 'Enter your contact no.',
+//                               icon: Icons.work,
+//                               controller: context
+//                                   .read<RegisterCubit>()
+//                                   .contactNumberController,
+//                             ),
+//                           ],
+//                           SizedBox(height: 20),
+//                           CustomFormTextField(
+//                             obscureText:
+//                                 BlocProvider.of<RegisterCubit>(context)
+//                                     .isRegisterPasswordShowing,
+//                             //to hide password
+//                             hintText: 'Set your password',
+//                             icon: Icons.lock,
+//                             suffixIcon: Icon(
+//                                 BlocProvider.of<RegisterCubit>(context)
+//                                     .suffixIcon),
+//                             suffixIconOnPressed: () {
+//                               BlocProvider.of<RegisterCubit>(context)
+//                                   .changeRegisterPasswordSuffixIcon();
+//                             },
+//                             controller: context
+//                                 .read<RegisterCubit>()
+//                                 .passwordController,
+//                           ),
+//                           const SizedBox(
+//                             height: 20,
+//                           ),
+//                           CustomFormTextField(
+//                             hintText: "Confirm Password",
+//                             icon: Icons.lock,
+//                             suffixIcon: Icon(
+//                                 BlocProvider.of<RegisterCubit>(context)
+//                                     .suffixIcon),
+//                             suffixIconOnPressed: () {
+//                               BlocProvider.of<RegisterCubit>(context)
+//                                   .changeRegisterPasswordSuffixIcon();
+//                             },
+//                             obscureText:
+//                                 BlocProvider.of<RegisterCubit>(context)
+//                                     .isRegisterPasswordShowing,
+//                           ),
+      
+//                           const SizedBox(
+//                             height: 20,
+//                           ),
+                          // Checkbox for agree to terms
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: isChecked,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    isChecked = value!;
+                                  });
+                                },
+                                //to change default color of checkbox from purple to blue
+                                fillColor:
+                                    WidgetStateProperty.resolveWith<Color>(
+                                        (Set<WidgetState> states) {
+                                  if (states
+                                      .contains(WidgetState.selected)) {
+                                    return blue; //when click on it
+                                  }
+                                  return Colors.white; //on default
+                                }),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isChecked = !isChecked;
+                                  });
+                                },
+                                child: Text("I agree to Term & Condition"),
+                              ),
+                            ],
+                          ),
+      
+                          state is RegisterLoading
+                              ? Center(child: CircularProgressIndicator())
+                              : CustomButton(
+                                  onTap: () async {
+                                    if (formKey.currentState!.validate()) {
+                                      if (selectedRole == null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content:
+                                                  Text("Please choose role")),
+                                        );
+                                        return;
                                       }
-                                    },
-                                    text: 'Sign up',
-                                  ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.grey,
-                                    thickness: 1, // thickness
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal:
-                                          8.0), // distance between line and text
-                                  child: Text(
-                                    'or',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: Colors.grey,
-                                    thickness: 1,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(
-                              height: 10,
-                            ),
-
-                            CustomButton(text: "Sign up with Google"),
-                            const SizedBox(
-                              height: 10,
-                            ),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Already have an account? ',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                //navigation
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, SigninPage.id);
+                                      final registerCubit =
+                                          context.read<RegisterCubit>();
+                                      registerCubit.register(selectedRole!);
+                                    }
                                   },
-                                  child: const Text(
-                                    ' Sign In',
-                                    style: TextStyle(
-                                      color: blue,
-                                    ),
+                                  text: 'Sign up',
+                                ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+      
+                          // Row(
+                          //   children: [
+                          //     Expanded(
+                          //       child: Divider(
+                          //         color: Colors.grey,
+                          //         thickness: 1, // thickness
+                          //       ),
+                          //     ),
+                          //     Padding(
+                          //       padding: EdgeInsets.symmetric(
+                          //           horizontal:
+                          //               8.0), // distance between line and text
+                          //       child: Text(
+                          //         'or',
+                          //         style: TextStyle(
+                          //           fontSize: 24,
+                          //           color: Colors.black,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     Expanded(
+                          //       child: Divider(
+                          //         color: Colors.grey,
+                          //         thickness: 1,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+      
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+      
+                          // CustomButton(text: "Sign up with Google"),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
+      
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Already have an account? ',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              //navigation
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(context, SigninPage.id);
+                                },
+                                child: const Text(
+                                  ' Sign In',
+                                  style: TextStyle(
+                                    color: blue,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

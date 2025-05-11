@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/chat/chat_cubit.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 

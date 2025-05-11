@@ -2,6 +2,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graduation_project_frontend/cubit/login_state.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -15,11 +16,21 @@ class LoginCubit extends Cubit<LoginState> {
   final UserRepository userRepository;
   final GlobalKey<FormState> loginKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool isLoginPasswordShowing = true;
-  IconData suffixIcon = Icons.visibility_off;
-  String? currentUserId;
-  bool isSocketListenersInitialized = false;
+
+  final TextEditingController passwordController = TextEditingController();  bool isLoginPasswordShowing = true;
+  IconData suffixIcon = FontAwesomeIcons.eyeSlash;
+String? currentUserId;
+bool isSocketListenersInitialized = false;
+
+
+  IO.Socket socket = IO.io(
+    "https://graduation-project--xohomg.fly.dev", 
+    <String, dynamic>{
+      "transports": ["websocket"],
+      "autoConnect": false,
+    }
+  );
+
 
   IO.Socket socket =
       IO.io("https://graduation-project--xohomg.fly.dev/", <String, dynamic>{
@@ -140,7 +151,7 @@ class LoginCubit extends Cubit<LoginState> {
   void changeLoginPasswordSuffixIcon() {
     isLoginPasswordShowing = !isLoginPasswordShowing;
     suffixIcon =
-        isLoginPasswordShowing ? Icons.visibility : Icons.visibility_off;
+        isLoginPasswordShowing ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye;
     emit(ChangeLoginPasswordSuffixIcon());
   }
 
@@ -155,16 +166,17 @@ class LoginCubit extends Cubit<LoginState> {
       emit(LoginError(errorMassage));
     }, (SignInModel) {
       emit(LoginSuccess(SignInModel.role));
-      final userId = SignInModel.id;
-      if (userId == null || userId.isEmpty) {
-        print(userId);
-        emit(LoginError("Invalid user ID received"));
-        return;
-      }
-      currentUserId = userId;
-      connectToSocket(userId);
-    });
-  }
+
+         final userId = SignInModel.id;
+           if (userId == null || userId.isEmpty) {
+            print(userId);
+            // emit(LoginError("Invalid user ID received"));
+            return;
+          }
+          currentUserId = userId;
+       connectToSocket(userId);
+         
+
 
   @override
   Future<void> close() {

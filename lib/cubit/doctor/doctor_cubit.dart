@@ -9,6 +9,7 @@ class DoctorCubit extends Cubit<DoctorListState> {
   DoctorCubit(this.api) : super(DoctorListInitial());
   final ApiConsumer api ;
   List<Doctor> doctors = [];
+  
   Future<void> fetchDoctors(String centerId) async {
     try {
       final response = await api.get(
@@ -16,9 +17,8 @@ class DoctorCubit extends Cubit<DoctorListState> {
       );
       if (response.statusCode==200) {
         List<dynamic> doctorJson =  response.data["data"]["radiologists"] ?? [];
-       
           doctors =
-              doctorJson.map((json) => Doctor.fromJson(json  as Map<String, dynamic>)).toList();
+              doctorJson.map((json) => Doctor.fromJson(json)).toList();
           emit(DoctorListSuccess(doctors));
       }else {
         emit(DoctorListError("Invalid response format."));
@@ -29,24 +29,39 @@ class DoctorCubit extends Cubit<DoctorListState> {
     }
   }
 Future<void>AddDoctor(String DoctorId, String centerId)async{
-  emit(DoctorListLoading());
 try {
    final response =await api.post('https://graduation-project-mmih.vercel.app/api/relations/radiologists/$centerId'
    ,data: {'radiologistId':DoctorId});
-   if (response is Map &&response.containsKey('data')) {
+   if (response.statusCode ==201) {
     await fetchDoctors(centerId);
-      final newDoctor = Doctor.fromJson(response['data']);
-      doctors.add(newDoctor);
-      emit(DoctorListSuccess(List.from(doctors)));
+      // final newDoctor = Doctor.fromJson(response.data['data']);
+      // doctors.add(newDoctor);
+      // emit(DoctorListSuccess(List.from(doctors)));
+     emit( DoctorAddedSuccess("the Doctor Added Successfuly"));
+   }else{
+    emit(DoctorListError("Failed to Add doctor"));
    }
 } catch (e) {
    print("Error adding doctor: ${e.toString()}");
       emit(DoctorListError("Error adding doctor: ${e.toString()}"));
     }
 }
-void deleteDoctors(int index){
-   doctors.removeAt(index);
-  emit(DoctorListSuccess(doctors));
+Future deleteDoctors(String id, String centerId) async {
+  try {
+    final response = await api.delete(
+      'https://graduation-project-mmih.vercel.app/api/relations/removeRadiologistFromCenter/$centerId',
+    data:{'radiologistId':id});
+
+    if (response.statusCode == 200) {
+       emit( DoctorDeletedSuccess("The Doctor is Deleted Successfuly"));
+      await fetchDoctors(centerId);
+    } else {
+      emit(DoctorListError("Failed to delete doctor"));
+    }
+  } catch (e) {
+    print("Error deleting doctor: ${e.toString()}");
+    
+    emit(DoctorListError("Error deleting doctor: ${e.toString()}"));
+  }
 }
 }
- 
