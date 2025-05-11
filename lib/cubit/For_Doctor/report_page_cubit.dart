@@ -25,15 +25,10 @@ class ReportPageCubit extends Cubit<ReportPageState> {
     emit(ReportPageLoading());
 
     try {
-      final response = await api.post(
-        EndPoints.
-        analyzeImage
-        (reportId), data: {
-        "imageUrl":
-            "https://www.aleqt.com/sites/default/files/a/506265_149401.jpg"
-      });
+      final response = await api.get(
+          "https://graduation-project-mmih.vercel.app/api/AIReports/getOneAIReport/$reportId");
 
-      final reportModel = ReportModel.fromJson(response);
+      final reportModel = ReportModel.fromJson(response.data);
 
       if (reportModel.error == null) {
         impressionController.text = reportModel.diagnosisReportImpression ?? "";
@@ -56,4 +51,23 @@ class ReportPageCubit extends Cubit<ReportPageState> {
       // emit(RegisterFailure(error: response.data["message"]));
     }
   }
+Future<void> updateReportOrRecord({
+    required String id,
+    required bool isReport,
+    required Map<String, dynamic> body,
+  }) async {
+    print(
+        "Updating ${isReport ? 'report' : 'record'} with ID $id and body $body");
+    final url = isReport
+        ? 'https://graduation-project-mmih.vercel.app/api/AIReports/updateAIReport/$id'
+        : 'https://graduation-project-mmih.vercel.app/api/Record/updateRecordById/$id';
+
+    try {
+      final response = await api.put(url, data: body);
+      print("Update success: ${response.data}");
+    } catch (e) {
+      print("Update failed: $e");
+    }
+  }
+
 }

@@ -8,7 +8,9 @@ class Doctor {
   final String email;
   final String status;
   final String imageUrl;
+
   final int experience;
+
   final Map<String, dynamic> numberOfReports;
 
   Doctor({
@@ -37,6 +39,7 @@ class Doctor {
       experience: json["experience"] ?? '',
       numberOfReports: (json["numberOfReports"] ?? []
 ),
+
     );
   }
 

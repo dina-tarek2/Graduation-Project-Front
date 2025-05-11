@@ -10,26 +10,18 @@ class RecordsListCubit extends Cubit<RecordsListState> {
   RecordsListCubit(this.api) : super(RecordsListInitial());
 
   final ApiConsumer api;
+  RecordsListModel? currentRecord;
 
-  Future<void> fetchRecords() async {
+  Future<void> fetchRecords(String id) async {
     emit(RecordsListLoading());
     try {
-      final response = await api.get(EndPoints.GetRecordsByRadiologistId);
-
-      print("Response received: $response.data");
+      final response = await api.get(EndPoints.GetRecordsByRadiologistId(id));
 
       if (response.data is List) {
-        print("List received successfully");
-
-        // List<RecordsListModel> records = response.data
-        //     .cast<
-        //         Map<String,
-        //             dynamic>>() // check data is a Map<String, dynamic>
-        //     .map((e) => RecordsListModel.fromJson(e))
-        //     .toList();
-       List<RecordsListModel> records = (response.data as List)
-    .map((item) => RecordsListModel.fromJson(item as Map<String, dynamic>))
-    .toList();
+        List<RecordsListModel> records = (response.data as List)
+            .map((item) =>
+                RecordsListModel.fromJson(item as Map<String, dynamic>))
+            .toList();
 
         emit(RecordsListSuccess(records));
       } else {
@@ -37,7 +29,27 @@ class RecordsListCubit extends Cubit<RecordsListState> {
             "Unexpected response format: Expected a list but got something else");
       }
     } catch (e) {
-      print("Error fetching records: $e");
+      emit(RecordsListFailure(e.toString()));
+    }
+  }
+
+  Future<void> getRecordById(String id) async {
+    emit(RecordsListLoading());
+    try {
+      final response =
+          await api.get('${EndPoints.baseUrl}Record/getOneRecordById/$id');
+
+      if (response.data is Map<String, dynamic>) {
+        print(
+            'Response data: ${response.data}'); // طباعة البيانات للحصول على التفاصيل
+        currentRecord = RecordsListModel.fromJson(response.data);
+        emit(RecordLoaded(currentRecord!));
+        print("Record loaded successfully: ${response.data}");
+      } else {
+        throw Exception("Unexpected response format: Expected a map");
+      }
+    } catch (e) {
+      print('Error: $e'); // طباعة الخطأ إذا حدث
       emit(RecordsListFailure(e.toString()));
     }
   }
