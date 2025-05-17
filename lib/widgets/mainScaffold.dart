@@ -11,7 +11,6 @@ import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.da
 import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
-import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
@@ -19,7 +18,6 @@ import 'package:graduation_project_frontend/screens/Notifications/notifications_
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
-import 'package:graduation_project_frontend/screens/dicom.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
@@ -75,7 +73,7 @@ class MainScaffoldState extends State<MainScaffold> {
       screens = [
 
         MedicalDashboardScreen(),
-        DicomListPage(),
+        DicomsListPage(),
         // UploadButtonScreen(),
         // DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
