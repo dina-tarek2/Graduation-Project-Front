@@ -11,10 +11,10 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
 
   final ApiConsumer api;
 
-  Future<void> fetchUploadedDicoms() async {
+  Future<void> fetchUploadedDicoms(String centerid) async {
     emit(UploadedDicomsLoading());
     try {
-      final response = await api.get(EndPoints.GetRecordsByCenterId);
+      final response = await api.get(EndPoints.GetRecordsByCenterId(centerid));
 
       print("Response received: ${response.data}");
 
@@ -22,7 +22,6 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
         print("Valid response format");
 
         // تحويل الـ JSON إلى Model
-        // UploadedDicom uploadedDicom = UploadedDicom.fromJson(response);
         UploadedDicomModel dicomsModel = UploadedDicomModel.fromJson(response.data);
         emit(UploadedDicomsSuccess(dicomsModel.records));
       } else {
