@@ -1,71 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -74,9 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
-
 
 class UploadScreen extends StatelessWidget {
   static final id = "UploadScreen";
@@ -122,15 +51,20 @@ class UploadScreen extends StatelessWidget {
                       RichText(
                         text: TextSpan(
                           text: "Drop your file here, or ",
-                          style: customTextStyle(14, FontWeight.normal, Colors.black87),
+                          style: customTextStyle(
+                              14, FontWeight.normal, Colors.black87),
                           children: [
                             TextSpan(
                               text: "Browse",
-                              style: customTextStyle(14, FontWeight.bold, Colors.blue),
+                              style: customTextStyle(
+                                  14, FontWeight.bold, Colors.blue),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
-                                  final userId = context.read<CenterCubit>().state;
-                                  context.read<UploadDicomCubit>().pickFiles(userId);
+                                  final userId =
+                                      context.read<CenterCubit>().state;
+                                  context
+                                      .read<UploadDicomCubit>()
+                                      .pickFiles(userId);
                                 },
                             ),
                           ],
@@ -139,7 +73,8 @@ class UploadScreen extends StatelessWidget {
                       SizedBox(height: 4),
                       Text(
                         "Supported files are .dcm",
-                        style: customTextStyle(12, FontWeight.normal, Colors.black54),
+                        style: customTextStyle(
+                            12, FontWeight.normal, Colors.black54),
                       ),
                     ],
                   ),
@@ -166,14 +101,18 @@ class UploadScreen extends StatelessWidget {
                   } else if (state is UploadDicomSuccess) {
                     return Text(
                       "File Uploaded Successfully.",
-                      style: customTextStyle(14, FontWeight.normal, Colors.green),
+                      style:
+                          customTextStyle(14, FontWeight.normal, Colors.green),
                     );
                   } else if (state is UploadDicomSummary) {
                     final userId = context.read<CenterCubit>().state;
-                    context.read<UploadedDicomsCubit>().fetchUploadedDicoms(userId);
+                    context
+                        .read<UploadedDicomsCubit>()
+                        .fetchUploadedDicoms(userId);
                     return Text(
                       "Total Files Uploaded: ${state.successCount} & Failed Files : ${state.failCount}",
-                      style: customTextStyle(14, FontWeight.normal, Colors.black87),
+                      style: customTextStyle(
+                          14, FontWeight.normal, Colors.black87),
                     );
                   } else {
                     return const Text("");
@@ -226,7 +165,8 @@ class UploadScreen extends StatelessWidget {
                     SizedBox(width: 10),
                     Text(
                       "$percentage%",
-                      style: customTextStyle(12, FontWeight.normal, Colors.black54),
+                      style: customTextStyle(
+                          12, FontWeight.normal, Colors.black54),
                     ),
                   ],
                 ),
