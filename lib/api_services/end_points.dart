@@ -31,7 +31,9 @@ class EndPoints {
   static String showImages(id) =>
       "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId(String id) =>
-      "/Record/getRecordsByCenterId/$id"; 
+      "/Record/getRecordsByCenterId/$id";
+  static String RedirectToDoctorFromRadintal(String id) =>
+      "/Record/redirectToOurRadiologist/$id";     
   static String getReviewedReport(String reportId) => "AIReports/getOneAIReport/$reportId";
   //Admin - in center
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
