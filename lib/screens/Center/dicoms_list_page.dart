@@ -12,6 +12,8 @@ import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DicomsListPage extends StatefulWidget {
   static final id = "DicomsListPage";
@@ -25,6 +27,8 @@ class DicomsListPage extends StatefulWidget {
 class _DicomsListPageState extends State<DicomsListPage> {
   String searchQuery = "";
   String selectedStatus = "All";
+  Map<String, bool> emergencyStates = {};
+
   bool cancelflag = false;
 
   Timer? _timer;
@@ -53,8 +57,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      // backgroundColor: sky,
+      backgroundColor: Colors.grey[200],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -104,7 +107,9 @@ class _DicomsListPageState extends State<DicomsListPage> {
             ),
             SizedBox(width: 12),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width *
+                  0.348, // controls search width
+
               child: _buildSearchBox(),
             ),
             SizedBox(width: 12),
@@ -189,126 +194,141 @@ class _DicomsListPageState extends State<DicomsListPage> {
           showAdvancedNotification(
             context,
             message: "Failed to reassign: ${state.error}",
-            type: NotificationType.success,
+            type: NotificationType.error,
             style: AnimationStyle.card,
           );
         }
       },
       builder: (context, state) {
-        return BlocBuilder<UploadedDicomsCubit, UploadedDicomsState>(
-          builder: (context, state) {
-            if (state is UploadedDicomsLoading) {
-              return Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
+        if (state is UploadedDicomsLoading) {
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[700]!),
+            ),
+          );
+        } else if (state is UploadedDicomsFailure) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, color: Colors.red, size: 60),
+                SizedBox(height: 16),
+                Text(
+                  "Error Loading Data",
+                  style: customTextStyle(18, FontWeight.normal, Colors.red),
                 ),
-              );
-            } else if (state is UploadedDicomsFailure) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red, size: 60),
-                    SizedBox(height: 16),
-                    Text(
-                      "Error Loading Data",
-                      style: customTextStyle(18, FontWeight.normal, Colors.red),
-                    ),
-                    Text(
-                      state.error,
-                      style:
-                          customTextStyle(14, FontWeight.normal, Colors.grey),
-                    ),
-                  ],
+                Text(
+                  state.error,
+                  style: customTextStyle(14, FontWeight.normal, Colors.grey),
                 ),
-              );
-            } else if (state is UploadedDicomsSuccess) {
-              List<RecordModel> filteredRecords = state.dicoms.where((record) {
-                bool matchesSearch =
-                    record.patientName.toLowerCase().contains(searchQuery) ||
-                        record.id.contains(searchQuery);
-                bool matchesStatus =
-                    selectedStatus == "All" || record.status == selectedStatus;
-                return matchesSearch && matchesStatus;
-              }).toList();
+              ],
+            ),
+          );
+        } else if (state is UploadedDicomsSuccess) {
+          List<RecordModel> filteredRecords = state.dicoms.where((record) {
+            bool matchesSearch =
+                record.patientName.toLowerCase().contains(searchQuery) ||
+                    record.id.contains(searchQuery);
+            bool matchesStatus =
+                selectedStatus == "All" || record.status == selectedStatus;
+            return matchesSearch && matchesStatus;
+          }).toList();
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  //color: sky,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 30,
-                      columns: [
-                        DataColumn(
-                            label: Text("Action", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Status", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Patient Name", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Study Date", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Body Part", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Deadline", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Modality", style: _columnStyle())),
-                        DataColumn(
-                            label: Text("Doctor", style: _columnStyle())),
-                      ],
-                      rows: filteredRecords
-                          .map((record) => _buildDataRow(record, context))
-                          .toList(),
-                    ),
+          if (filteredRecords.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.list_alt, color: Colors.blue[700], size: 60),
+                  SizedBox(height: 16),
+                  Text(
+                    "No Data Available",
+                    style: customTextStyle(
+                        18, FontWeight.normal, Colors.grey[700]!),
                   ),
+                ],
+              ),
+            );
+          }
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
                 ),
-              );
-            } else {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.list_alt, color: Colors.blue[700], size: 60),
-                    SizedBox(height: 16),
-                    Text(
-                      "No Data Available",
-                      style: customTextStyle(
-                          18, FontWeight.normal, Colors.grey[700]!),
-                    ),
+              ],
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columnSpacing: 30,
+                  columns: [
+                    DataColumn(label: Text("Action", style: _columnStyle())),
+                    DataColumn(label: Text("Emergency", style: _columnStyle())),
+                    DataColumn(label: Text("Status", style: _columnStyle())),
+                    DataColumn(label: Text("Patient Name", style: _columnStyle())),
+                    DataColumn(label: Text("Study Date", style: _columnStyle())),
+                    DataColumn(label: Text("Deadline", style: _columnStyle())),
+                    // DataColumn(label: Text("Body Part", style: _columnStyle())),
+                    
+                    DataColumn(label: Text("Modality", style: _columnStyle())),
+                    DataColumn(label: Text("Doctor", style: _columnStyle())),
+                    DataColumn(label: Text("QR Code", style: _columnStyle())),
                   ],
+                  rows: filteredRecords
+                      .map((record) => _buildDataRow(record, context))
+                      .toList(),
                 ),
-              );
-            }
-          },
-        );
+              ),
+            ),
+          );
+        } else {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.list_alt, color: Colors.blue[700], size: 60),
+                SizedBox(height: 16),
+                Text(
+                  "No Data Available",
+                  style:
+                      customTextStyle(18, FontWeight.normal, Colors.grey[700]!),
+                ),
+              ],
+            ),
+          );
+        }
       },
     );
   }
 
-  DataCell _clickableCell(
-      Widget child, BuildContext context, String reportid, String Dicom_url) {
+  DataCell _clickableCell(Widget child, BuildContext context, String reportid,
+      String Dicom_url, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: () {
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //       builder: (context) => MedicalReportPage(
+            //           reportId: reportid, Dicom_url: Dicom_url)),
+            // );
+            print('reportId: $reportid, Dicom_url: $Dicom_url');
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
               'url': Dicom_url,
+              'recordId': recordId
             });
           },
           child: child,
@@ -320,67 +340,230 @@ class _DicomsListPageState extends State<DicomsListPage> {
   DataRow _buildDataRow(RecordModel record, BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('HH:mm');
-
+    final String LINK =
+        "https://abanoubsamaan5.github.io/my-react-app/#/showReport/${record.id}" ??
+            "This QR not found";
+    void _launchURL() async {
+      final Uri url = Uri.parse(LINK);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        throw 'Could not launch $LINK';
+      }
+    }
     return DataRow(
       cells: [
-        // Action Column (Reassign button when status is "Cancled")
+            // Reassign Button if status == "Cancled"
         DataCell(
           record.status.toLowerCase() == "cancled"
               ? _buildRedirectButton(record, context)
-              : Container(), // Empty container when no action is available
+              : Container(),
         ),
-        // Status Column (Always shows the status indicator)
+        // Emergency toggle switch
+        DataCell(
+          Switch(
+            value: emergencyStates[record.id] ?? record.flag ?? false,
+            
+            onChanged: (val) {
+              setState(() {
+                emergencyStates[record.id] = val;
+              });
+              context.read<UploadedDicomsCubit>().updateDicomflag(
+                context,
+                record.id,
+                {"flag": val.toString()},
+              );
+              print('Emergency toggled to $val for report: ${record.id}');
+            },
+            activeColor: Colors.red[700],
+            activeTrackColor: Colors.red[100],
+            inactiveThumbColor: Colors.grey[400],
+            inactiveTrackColor: Colors.grey[100],
+            splashRadius: 20,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
+              if (states.contains(MaterialState.selected)) {
+                return Colors.red[700]!;
+              }
+              return Colors.grey[400]!;
+            }),
+            trackOutlineColor:
+                MaterialStateProperty.resolveWith<Color?>((states) {
+              if (states.contains(MaterialState.selected)) {
+                return Colors.red[300];
+              }
+              return Colors.grey[300];
+            }),
+          ),
+        ),
+
+        // Status
         _clickableCell(
           _buildStatusIndicator(record.status),
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
+
+        // Patient Name
         _clickableCell(
-            Text(record.patientName,
-                style: customTextStyle(14, FontWeight.w600, Colors.black87)),
+          Text(
+            record.patientName,
+            style: customTextStyle(14, FontWeight.w600, Colors.black87),
+          ),
+          context,
+          record.reportId,
+          record.dicomUrl,
+          record.id,
+        ),
+
+        // _clickableCell(
+        //     Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         Text(
+        //           dateFormat.format(record.studyDate!),
+        //           style: customTextStyle(14, FontWeight.bold, Colors.black),
+        //         ),
+        //         Text(
+        //           timeFormat.format(record.studyDate!),
+        //           style: customTextStyle(12, FontWeight.normal, Colors.grey),
+        //         ),
+        //       ],
+        //     ),
+        //     context,
+        //     record.reportId,
+        //     record.dicomUrl,
+        //     record.id),
+
+        // // Created Date & Time
+        _clickableCell(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                dateFormat.format(record.createdAt!),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                timeFormat.format(record.createdAt!),
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+          context,
+          record.reportId,
+          record.dicomUrl,
+          record.id,
+        ),
+
+        // Deadline Date & Time
+          _clickableCell(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  dateFormat.format(record.deadline!),
+                  style: customTextStyle(14, FontWeight.bold, Colors.black),
+                ),
+                Text(
+                  timeFormat.format(record.deadline!),
+                  style: customTextStyle(12, FontWeight.normal, Colors.grey),
+                ),
+              ],
+            ),
             context,
             record.reportId,
-            record.dicomUrl),
-        _clickableCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(dateFormat.format(record.studyDate!),
-                  style: customTextStyle(14, FontWeight.bold, Colors.black)),
-              Text(timeFormat.format(record.studyDate!),
-                  style: customTextStyle(12, FontWeight.normal, Colors.grey)),
-            ],
+            record.dicomUrl,
+            record.id
           ),
+
+        // Modality
+        _clickableCell(
+          Text(record.modality),
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
-        DataCell(Text(record.bodyPartExamined ?? "N/A",
-            style: customTextStyle(14, FontWeight.normal, Colors.black))),
+
+        // Radiologist Name
         _clickableCell(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(dateFormat.format(record.deadline!),
-                  style: customTextStyle(14, FontWeight.bold, Colors.black)),
-              Text(timeFormat.format(record.deadline!),
-                  style: customTextStyle(12, FontWeight.normal, Colors.grey)),
-            ],
-          ),
-          context,
-          record.reportId,
-          record.dicomUrl,
-        ),
-        DataCell(Text(record.modality ?? "N/A",
-            style: customTextStyle(14, FontWeight.normal, Colors.black))),
-        DataCell(Text(
+          Text(
             record.radiologistName == "Unknown"
                 ? "Not assigned to Doctor yet"
                 : record.radiologistName,
-            style: customTextStyle(14, FontWeight.normal, Colors.black))),
+          ),
+          context,
+          record.reportId,
+          record.dicomUrl,
+          record.id,
+        ),
+
+        // QR Code Viewer
+        DataCell(
+          SizedBox(
+            width: 50,
+            height: 50,
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      color: Colors.white,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          QrImageView(
+                            data: LINK,
+                            version: QrVersions.auto,
+                            size: 300,
+                          ),
+                          SizedBox(height: 10),
+                          GestureDetector(
+                            onTap: _launchURL,
+                            child: Text(
+                              'Go to the webSite',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                                overflow: TextOverflow.clip,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: QrImageView(
+                data: LINK,
+                version: QrVersions.auto,
+                size: 80.0,
+              ),
+            ),
+          ),
+        ),
+
+        // Study Date & Time
+
+        // Body Part
+        // DataCell(
+        //   Text(
+        //     record.bodyPartExamined ,
+        //     style: customTextStyle(14, FontWeight.normal, Colors.black),
+        //   ),
+        // ),
+
+       
       ],
     );
   }
@@ -443,7 +626,6 @@ class _DicomsListPageState extends State<DicomsListPage> {
                   onPressed: () {
                     // Close dialog
                     Navigator.of(context).pop();
-
                     // Call the reassign function
                     context.read<UploadedDicomsCubit>().reassign(record.id);
                   },

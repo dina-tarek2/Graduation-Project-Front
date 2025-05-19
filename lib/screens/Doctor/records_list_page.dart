@@ -31,7 +31,6 @@ class _RecordsListPageState extends State<RecordsListPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: Padding(
@@ -103,7 +102,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   Widget _buildStatusFilterChips() {
-    List<String> statusOptions = ["All", "Available", "Pending", "Reviewed"];
+    List<String> statusOptions = ["All", "Available", "Pending", "Completed"];
     return Wrap(
       spacing: 8,
       children: statusOptions.map((status) {
@@ -183,20 +182,21 @@ class _RecordsListPageState extends State<RecordsListPage> {
                 ),
               ],
             ),
+            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
-                  columnSpacing: 60,
+                  columnSpacing: 70,
                   columns: [
                     DataColumn(label: Text("Status", style: _columnStyle())),
                     DataColumn(
                         label: Text("Patient Name", style: _columnStyle())),
                     DataColumn(
-                        label: Text("Study Date", style: _columnStyle())),
-                    DataColumn(label: Text("Age", style: _columnStyle())),
-                    DataColumn(label: Text("Body Part", style: _columnStyle())),
+                        label: Text("Created Date", style: _columnStyle())),
+                    // DataColumn(label: Text("Age", style: _columnStyle())),
+                    // DataColumn(label: Text("Body Part", style: _columnStyle())),
                     // DataColumn(label: Text("Series", style: _columnStyle())),
                     DataColumn(label: Text("Deadline", style: _columnStyle())),
                     DataColumn(label: Text("Modality", style: _columnStyle())),
@@ -269,9 +269,9 @@ class _RecordsListPageState extends State<RecordsListPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(dateFormat.format(record.studyDate),
+                Text(dateFormat.format(record.createdAt),
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(timeFormat.format(record.studyDate),
+                Text(timeFormat.format(record.createdAt),
                     style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
@@ -279,8 +279,8 @@ class _RecordsListPageState extends State<RecordsListPage> {
             record.reportId,
             record.Dicom_url,
             record.id),
-        DataCell(Text(record.age.toString())), // غير قابل للنقر
-        DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
+        // DataCell(Text(record.age.toString())), // غير قابل للنقر
+        // DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
         // DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
         _clickableCell(
             Column(
@@ -342,7 +342,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
         return Colors.green;
       case "pending":
         return Colors.orange;
-      case "reviewed":
+      case "completed":
         return Colors.blue;
       default:
         return Colors.grey;

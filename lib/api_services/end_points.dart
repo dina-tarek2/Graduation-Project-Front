@@ -26,6 +26,7 @@ class EndPoints {
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
+
   static String upload(String id) =>
       "upload_dicom?centerId=$id"; 
   static String showImages(id) =>

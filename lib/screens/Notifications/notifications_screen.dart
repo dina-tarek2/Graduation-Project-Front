@@ -205,7 +205,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             child: GestureDetector(
                               onTap: () {
                                 BlocProvider.of<NotificationCubit>(context)
-                                    .markAsRead(index);
+                                    .markAsRead(index, userId);
                               },
                               child: Card(
                                 elevation: 2,

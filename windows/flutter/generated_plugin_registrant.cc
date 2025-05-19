@@ -12,6 +12,7 @@
 #include <flutter_inappwebview_windows/flutter_inappwebview_windows_plugin_c_api.h>
 #include <record_windows/record_windows_plugin_c_api.h>
 #include <rive_common/rive_plugin.h>
+#include <url_launcher_windows/url_launcher_windows.h>
 #include <webview_windows/webview_windows_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
@@ -27,6 +28,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("RecordWindowsPluginCApi"));
   RivePluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("RivePlugin"));
+  UrlLauncherWindowsRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WebviewWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WebviewWindowsPlugin"));
 }

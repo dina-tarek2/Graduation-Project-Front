@@ -15,6 +15,6 @@ String formatNotificationDate(DateTime dateTime) {
       now.month == dateTime.month) {
     return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
   } else {
-    return DateFormat('MMM d at h:mm a').format(dateTime);
+    return DateFormat('MMM d At h:mm a').format(dateTime);
   }
 }

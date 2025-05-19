@@ -177,7 +177,7 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                                 if (!n.isRead) {
                                   context
                                       .read<NotificationCubit>()
-                                      .markAsRead(index);
+                                      .markAsRead(index,userId);
                                 }
                               },
                             ),

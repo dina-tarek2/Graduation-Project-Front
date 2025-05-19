@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/api_services/api_consumer.dart';
 import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
@@ -8,7 +9,7 @@ part 'records_list_state.dart';
 
 class RecordsListCubit extends Cubit<RecordsListState> {
   RecordsListCubit(this.api) : super(RecordsListInitial());
-
+  final TextEditingController bodyPartsController = TextEditingController();
   final ApiConsumer api;
   RecordsListModel? currentRecord;
 
@@ -43,6 +44,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
         print(
             'Response data: ${response.data}'); // طباعة البيانات للحصول على التفاصيل
         currentRecord = RecordsListModel.fromJson(response.data);
+        bodyPartsController.text = currentRecord!.bodyPartExamined ?? "-";
         emit(RecordLoaded(currentRecord!));
         print("Record loaded successfully: ${response.data}");
       } else {

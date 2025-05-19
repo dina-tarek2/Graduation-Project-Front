@@ -18,8 +18,7 @@ class ReportPageCubit extends Cubit<ReportPageState> {
   final TextEditingController impressionController = TextEditingController();
   final TextEditingController findingsController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
-  final TextEditingController recommendationsController =
-      TextEditingController();
+  final TextEditingController resultController = TextEditingController();
 
   Future<void> fetchReport(String reportId) async {
     emit(ReportPageLoading());
@@ -34,7 +33,7 @@ class ReportPageCubit extends Cubit<ReportPageState> {
         impressionController.text = reportModel.diagnosisReportImpression ?? "";
         findingsController.text = reportModel.diagnosisReportFinding ?? "";
         commentsController.text = reportModel.diagnosisReportComment ?? "";
-        recommendationsController.text = "???????";
+        resultController.text = reportModel.result ?? "";
         emit(ReportPageSuccess(report: reportModel));
       } else {
         emit(ReportPageFailure(errmessage: reportModel.error!));
@@ -51,7 +50,8 @@ class ReportPageCubit extends Cubit<ReportPageState> {
       // emit(RegisterFailure(error: response.data["message"]));
     }
   }
-Future<void> updateReportOrRecord({
+
+  Future<void> updateReportOrRecord({
     required String id,
     required bool isReport,
     required Map<String, dynamic> body,
@@ -69,5 +69,4 @@ Future<void> updateReportOrRecord({
       print("Update failed: $e");
     }
   }
-
 }
