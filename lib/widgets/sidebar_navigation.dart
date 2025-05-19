@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
@@ -117,17 +118,18 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
               ),
 
               // Menu header
-              if (isExpanded)
-                Padding(
-                  padding: const EdgeInsets.only(left: 25, bottom: 10),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'MAIN MENU',
-                      style: customTextStyle(12, FontWeight.w600, darkBabyBlue),
-                    ),
-                  ),
-                ),
+              // if (isExpanded)
+              //   Padding(
+              //     padding: const EdgeInsets.only(left: 25, bottom: 10),
+              //     child: Align(
+              //       alignment: Alignment.centerLeft,
+              //       child: Text(
+              //         'MAIN MENU',
+              //        style: customTextStyle(12, FontWeight.w600, darkBabyBlue),
+              //       ),
+              //     ),
+              //   ),
+        
 
               // Navigation items
               Expanded(
@@ -177,39 +179,40 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
     }
 
     // Settings divider and header
-    if (isExpanded) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Divider(
-            color: darkBabyBlue,
-            thickness: 1,
-            height: 1,
-          ),
-        ),
-      );
-
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'SETTINGS',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: darkBabyBlue,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    // if (isExpanded) {
+    //   items.add(
+    //     Padding(
+    //       padding: const EdgeInsets.symmetric(vertical: 15),
+    //       child: Divider(
+    //         color: darkBabyBlue,
+    //         thickness: 1,
+    //         height: 1,
+    //       ),
+    //     ),
+    //   );
+      
+    //   items.add(
+    //     Padding(
+    //       padding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
+    //       child: Align(
+    //         alignment: Alignment.centerLeft,
+    //         child: Text(
+    //           'SETTINGS',
+    //           style: TextStyle(
+    //             fontSize: 12,
+    //             fontWeight: FontWeight.w600,
+    //             color: darkBabyBlue,
+    //             letterSpacing: 1.2,
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // }
+    
 
     // Settings and Logout
-    items.add(buildNavItem(6, Icons.settings_rounded, 'Settings'));
+    items.add(buildNavItem(6, FontAwesomeIcons.infoCircle, 'AboutUs'));
     items.add(const SizedBox(height: 20));
     items.add(buildNavItem(7, Icons.logout_rounded, 'Log Out'));
 

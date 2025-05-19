@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "D:/U lec/finalProject/Graduation-Project-Front/windows"
+    "cmake.sourceDirectory": "D:/U lec/finalProject/Graduation-Project-Front/windows",
+    "files.associations": {
+        "optional": "cpp"
+    }
 }

@@ -40,7 +40,6 @@ class NotificationCubit extends Cubit<NotificationState> {
         emit(NotificationLoaded(loaded,
             totalNotifications: totalNotifications,
             unreadNotifications: unreadNotificationsCount));
-
       } else {
         emit(
             NotificationError('فشل في تحميل الإشعارات أو البيانات غير مكتملة'));
@@ -124,13 +123,15 @@ class NotificationCubit extends Cubit<NotificationState> {
   }
 
   /// تحديث إشعار واحد في الواجهة كمقروء
-  Future<void> markAsRead(int index) async {
+  Future<void> markAsRead(int index, String userId) async {
     final notificationId = notifications[index].id;
     await markNotificationAsRead(notificationId);
     final updatedNotification = notifications[index].copyWith(isRead: true);
     notifications[index] = updatedNotification;
     unreadNotifications = notifications.where((n) => !n.isRead).toList();
-    emit(NotificationLoaded(List.from(notifications)));
+    emit(NotificationLoaded(List.from(notifications),
+        totalNotifications: totalNotifications,
+        unreadNotifications: unreadNotifications.length));
   }
 
   /// تعليم كل الإشعارات كمقروءة
@@ -162,7 +163,9 @@ class NotificationCubit extends Cubit<NotificationState> {
         print('🗑️ Notification deleted');
         notifications.removeWhere((n) => n.id == notificationId);
         unreadNotifications = notifications.where((n) => !n.isRead).toList();
-        emit(NotificationLoaded(List.from(notifications)));
+        emit(NotificationLoaded(List.from(notifications),
+            totalNotifications: totalNotifications,
+            unreadNotifications: unreadNotifications.length));
       } else {
         emit(NotificationError('فشل في حذف الإشعار'));
       }

@@ -8,6 +8,9 @@ class Doctor {
   final String email;
   final String status;
   final String imageUrl;
+
+  final int experience;
+
   final Map<String, dynamic> numberOfReports;
 
   Doctor({
@@ -19,6 +22,7 @@ class Doctor {
     required this.email,
     required this.status,
     required this.imageUrl,
+    required this.experience,
     required this.numberOfReports,
   });
 
@@ -32,7 +36,19 @@ class Doctor {
       email: json["email"] ?? '',
       status: json["status"] ?? '',
       imageUrl: json["image"] ?? '',
-      numberOfReports: json["numberOfReports"] ?? [],
+      experience: json["experience"] ?? '',
+      numberOfReports: (json["numberOfReports"] ?? []
+),
+
     );
+  }
+
+    String get fullName => '$firstName $lastName';
+  num get totalReports {
+    num count = 0;
+    numberOfReports.forEach((key, value) {
+      count += value.length;
+    });
+    return count;
   }
 }

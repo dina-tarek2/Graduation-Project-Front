@@ -14,6 +14,7 @@ import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
+import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
 import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
@@ -27,6 +28,7 @@ import 'package:graduation_project_frontend/widgets/custom_toast.dart'
     as custom_toast;
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
+import 'package:intl/intl.dart';
 
 class MainScaffold extends StatefulWidget {
   final String role;
@@ -71,26 +73,32 @@ class MainScaffoldState extends State<MainScaffold> {
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
-        CenterDashboard(role: widget.role),
+
+        MedicalDashboardScreen(),
         DicomsListPage(),
         // UploadButtonScreen(),
         // DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-        ChatScreen(
-          userId: context.read<CenterCubit>().state,
-          userType: context.read<UserCubit>().state,
-        ),
-      ];
-    } else if (widget.role == "Radiologist") {
+ChatScreen(userId: context.read<CenterCubit>().state,
+           userType: context.read<UserCubit>().state ,),  
+  AboutUsPage(),
+    ];
+    
+    }  else if (widget.role == "Radiologist") {
+
       // Default screens for other roles
       screens = [
-        DashboardContent(),
+        DoctorDashboard(),
         RecordsListPage(),
         MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-        ContactScreen(role: widget.role),
+//         ContactScreen(role: widget.role),
+
+ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),
+     AboutUsPage(),
+
         ChatScreenToDoctor(
           userId: context.read<CenterCubit>().state,
           userType: context.read<UserCubit>().state,
@@ -233,9 +241,9 @@ class MainScaffoldState extends State<MainScaffold> {
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-    if (selectedIndex == 6) {
-      return const Center(child: Text("Settings Screen"));
-    }
+    // if (selectedIndex == 6) {
+    //   return const Center(child: Text("Settings Screen"));
+    // }
     if (selectedIndex == 10) {
       if (widget.role == "Radiologist") {
         return DoctorProfile(
@@ -276,7 +284,7 @@ class MainScaffoldState extends State<MainScaffold> {
       case 5:
         return 'Chat App';
       case 6:
-        return 'Settings';
+        return 'About Us';
       case 10:
         return 'My Profile';
       case 11:
@@ -288,6 +296,11 @@ class MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final DateTime now = DateTime.now();
+    final DateFormat dateFormat = DateFormat('EEEE, d MMMM yyyy');
+    final DateFormat timeFormat = DateFormat('h:mm a');
+    final String formattedDate = dateFormat.format(now);
+    final String formattedTime = timeFormat.format(now);
     return Scaffold(
       body: Row(
         children: [
@@ -300,6 +313,12 @@ class MainScaffoldState extends State<MainScaffold> {
             child: Column(
               children: [
                 Container(
+                  decoration:BoxDecoration(
+                            color: Colors.white70,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(width: 0.5,color: blue),
+                              // boxShadow: ,
+                            ) ,
                   height: 70,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -310,11 +329,28 @@ class MainScaffoldState extends State<MainScaffold> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: darkblue,
+                          color: sky,
+
                         ),
                       ),
                       Row(
                         children: [
+                            Text(
+                          '$formattedDate | $formattedTime',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                     
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: sky,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           GestureDetector(
                             key: _notificationIconKey,
                             onTap: () {
@@ -368,8 +404,8 @@ class MainScaffoldState extends State<MainScaffold> {
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
+                                )  ],
+                              
                               ),
                             ),
                           ),
@@ -408,4 +444,5 @@ class MainScaffoldState extends State<MainScaffold> {
       ),
     );
   }
+
 }

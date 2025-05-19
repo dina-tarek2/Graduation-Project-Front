@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 
 class CustomFormTextField extends StatelessWidget {
-  CustomFormTextField({
-    super.key,
+  const CustomFormTextField({
+    Key? key,
     this.hintText,
     this.controller,
     this.obscureText = false,
@@ -13,19 +13,22 @@ class CustomFormTextField extends StatelessWidget {
     this.labelText,
     this.minLines,
     this.maxLines,
+    this.prefixIcon,
     this.validator,
     this.width,
     this.height,
     this.onSubmitted,
     this.readOnly = false,
-    this.isMultiline = false, // ← إضافة جديدة
-  });
+    this.isMultiline = false,
+    this.decoration = const InputDecoration(),
+  }) : super(key: key);
 
   final TextEditingController? controller;
   final String? hintText;
   final IconData? icon;
   final bool obscureText;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   final VoidCallback? suffixIconOnPressed;
   final String? labelText;
   final int? minLines;
@@ -35,7 +38,8 @@ class CustomFormTextField extends StatelessWidget {
   final double? height;
   final ValueChanged<String>? onSubmitted;
   final bool readOnly;
-  final bool isMultiline; // ← إضافة جديدة
+  final bool isMultiline;
+  final InputDecoration decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +47,7 @@ class CustomFormTextField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: SizedBox(
         width: width,
+        height: height,
         child: TextFormField(
           readOnly: readOnly,
           obscureText: obscureText,
@@ -78,7 +83,8 @@ class CustomFormTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               borderSide: const BorderSide(color: Colors.blue, width: 2),
             ),
-            prefixIcon: icon != null ? Icon(icon, color: sky) : null,
+            prefixIcon: prefixIcon ??
+                (icon != null ? Icon(icon, size: 16, color: sky) : null),
             suffixIcon: suffixIcon ??
                 (suffixIconOnPressed != null
                     ? IconButton(
@@ -88,6 +94,9 @@ class CustomFormTextField extends StatelessWidget {
                     : null),
             filled: true,
             fillColor: readOnly ? const Color(0xFFF4F4F4) : Colors.white,
+            iconColor: Colors.white,
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 40, minHeight: 40),
           ),
         ),
       ),

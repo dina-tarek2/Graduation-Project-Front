@@ -1,20 +1,22 @@
 part of 'upload_page_cubit.dart';
 
-// @immutable
 sealed class UploadDicomState {}
 
 final class UploadDicomInitial extends UploadDicomState {}
 
 class UploadDicomLoading extends UploadDicomState {
-  final double progress;
+  final List<UploadingFile> uploads;
+
+  UploadDicomLoading({required this.uploads});
+}
+
+class UploadingFile {
   final String fileName;
   final String fileSize;
+  final double progress;
 
-  UploadDicomLoading({
-    required this.progress,
-    required this.fileName,
-    required this.fileSize,
-  });
+  UploadingFile(
+      {required this.fileName, required this.fileSize, required this.progress});
 }
 
 final class UploadDicomSuccess extends UploadDicomState {}
@@ -30,7 +32,7 @@ class UploadDicomSummary extends UploadDicomState {
 }
 
 final class UploadDicomFailure extends UploadDicomState {
- final String error;
+  final String error;
 
   UploadDicomFailure({required this.error});
 }

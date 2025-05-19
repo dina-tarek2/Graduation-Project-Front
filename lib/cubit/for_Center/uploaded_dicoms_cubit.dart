@@ -14,18 +14,15 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
 
   final ApiConsumer api;
 
-  Future<void> fetchUploadedDicoms() async {
+  Future<void> fetchUploadedDicoms(String centerid) async {
     emit(UploadedDicomsLoading());
     try {
-      final response = await api.get(EndPoints.GetRecordsByCenterId);
+      final response = await api.get(EndPoints.GetRecordsByCenterId(centerid));
 
       // print("Response received: ${response.data}");
 
       if (response.data != null && response.data is Map<String, dynamic>) {
         print("Valid response format");
-
-        // تحويل الـ JSON إلى Model
-        // UploadedDicom uploadedDicom = UploadedDicom.fromJson(response);
         UploadedDicomModel dicomsModel =
             UploadedDicomModel.fromJson(response.data);
         emit(UploadedDicomsSuccess(dicomsModel.records));
@@ -66,6 +63,21 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
         message: e.toString(),
         type: NotificationType.error,
       ); // ⬅️ Step 4: Emit failure
+    }
+  }
+
+  Future<void> reassign(String recordId) async {
+    try {
+      final response =
+          await api.post(EndPoints.RedirectToDoctorFromRadintal(recordId));
+
+      if (response.statusCode == 200 &&
+          response.data['message'] == "Record redirected successfully") {
+        emit((ReassignedSuccessfully()));
+      }
+    } on Exception catch (e) {
+      print("Error reassigning cancled records: ${e.toString()}");
+      emit(ReassignFailure(e.toString()));
     }
   }
 }

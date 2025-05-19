@@ -1,14 +1,22 @@
-
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
+import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
+import 'package:graduation_project_frontend/widgets/custom_toast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:graduation_project_frontend/widgets/loading.dart';
+
 @immutable
 class ManageDoctorsPage extends StatefulWidget {
-  String centerId ;
+  String centerId;
+  List<dynamic> filteredDoctors = [];
+  String searchText = '';
+  String selectedSpeciality = 'All';
   ManageDoctorsPage({super.key, required this.centerId});
 
   @override
@@ -17,113 +25,510 @@ class ManageDoctorsPage extends StatefulWidget {
 
 class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
   TextEditingController idRadiologist = TextEditingController();
+  TextEditingController searchController = TextEditingController();
+  final DoctorCubit _doctorCubit = DoctorCubit(DioConsumer(dio: Dio()));
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          DoctorCubit(DioConsumer(dio: Dio()))..fetchDoctors(widget.centerId),
-      child: Scaffold(
-        body: BlocBuilder<DoctorCubit, DoctorListState>(
-          builder: (context, state) {
-            if (state is DoctorListLoading) {
-              return Center(
-                child: CircularProgressIndicator(
-                  // color: Theme.of(context).primaryColor,
-                ),
-              );
-            } else if (state is DoctorListSuccess) {
-              final doctors = state.doctors;
-              return doctors.isEmpty
-                  ? _buildEmptyState(context)
-                  : _buildDoctorsList(context, doctors);
-            } else if (state is DoctorListError) {
-              return _buildErrorState(context, state.error);
-            }
-            return _buildEmptyState(context);
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              
-                context: context,
-                builder: (context) {
-                   return BlocProvider.value(
-          value: context.read<DoctorCubit>(),
-                  child:  AlertDialog(
-                    shape : RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-                    title: Text('Add Doctor'),
-                    content: CustomFormTextField(
-                      controller: idRadiologist,
-                      hintText: 'Enter Doctor Id',
-                    ),
-                    actions: [
-                      TextButton(onPressed: () {
-                        Navigator.of(context).pop();},
-                       child: Text("Cancel",style: TextStyle(color: Colors.redAccent),)),
-                      TextButton(
-                          onPressed: ()async {
-                              final doctorsCubit =context.read<DoctorCubit>();
-                          
-                              await doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
-                               doctorsCubit.emit(DoctorListLoading());
-                               await  doctorsCubit.fetchDoctors(widget.centerId);
-                                setState(() {});
-                            Navigator.of(context).pop();
-                              idRadiologist.clear();
-                             
-                            
-                          },
-                          child: Text('Ok',style: TextStyle(color: darkBlue),))
-                    ],
-                  )
-                  );
-                });
-          },
-          tooltip: "Add New Doctor",
-          child: Icon(Icons.add),
+  void initState() {
+    super.initState();
+    _doctorCubit.fetchDoctors(widget.centerId);
+  }
+
+  @override
+  void dispose() {
+    idRadiologist.dispose();
+    searchController.dispose();
+    _doctorCubit.close();
+    super.dispose();
+  }
+
+  Future<void> _refreshDoctorsList() async {
+    if (!mounted) return;
+    await _doctorCubit.fetchDoctors(widget.centerId);
+  }
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (_) => Center(
+        child: Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              CircularProgressIndicator(color: Colors.blueAccent),
+              SizedBox(height: 15),
+              Text("Please wait...", style: TextStyle(fontSize: 16)),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  void _showAddDoctorDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 12,
+            backgroundColor: Colors.white,
+            titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            actionsPadding: EdgeInsets.only(bottom: 10, right: 10),
+            title: Row(
+              children: [
+                Icon(Icons.person_add_alt_1_rounded, color: Colors.blueAccent),
+                SizedBox(width: 12),
+                Text(
+                  'Add Doctor',
+                  style: customTextStyle(30, FontWeight.w600, Colors.black),
+                ),
+              ],
+            ),
+            content: CustomFormTextField(
+              controller: idRadiologist,
+              hintText: 'Enter Doctor Id',
+              width: 45,
+              icon: Icons.badge_outlined,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[200],
+                // validator:,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                hintStyle: TextStyle(color: Colors.grey.shade600),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+              ),
+            ),
+            actions: [
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  idRadiologist.clear();
+                },
+                icon: Icon(Icons.cancel, color: Colors.redAccent),
+                label: Text(
+                  "Cancel",
+                  style: customTextStyle(15, FontWeight.w300, Colors.redAccent),
+                ),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  elevation: 4,
+                ),
+                onPressed: () async {
+                  final doctorId = idRadiologist.text.trim();
+
+                  final existingDoctors = _doctorCubit.doctors
+                      .where((doctor) => doctor.id == doctorId)
+                      .toList();
+
+                  if (existingDoctors.isNotEmpty) {
+                    showAdvancedNotification(
+                      context,
+                      message: "Radiologist is already assigned to this center",
+                      type: NotificationType.warning,
+                      style: AnimationStyle.card,
+                    );
+                    Navigator.of(dialogContext).pop();
+                    idRadiologist.clear();
+                    return;
+                  }
+                  Navigator.of(dialogContext).pop();
+                  await _doctorCubit.AddDoctor(doctorId, widget.centerId);
+                  idRadiologist.clear();
+                },
+                icon: Icon(Icons.check_circle_outline),
+                label: Text('Ok'),
+              )
+            ],
+          );
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+        value: _doctorCubit,
+        child: Builder(builder: (context) {
+          return BlocListener<DoctorCubit, DoctorListState>(
+            listener: (context, state) {
+              if (state is DoctorAddedSuccess) {
+                showAdvancedNotification(
+                  context,
+                  message: state.message,
+                  type: NotificationType.success,
+                  style: AnimationStyle.card,
+                );
+                // Only refresh the doctors list, not the entire page
+                _refreshDoctorsList();
+              } else if (state is DoctorDeletedSuccess) {
+                // Show success notification if needed
+                showAdvancedNotification(
+                  context,
+                  message: state.message,
+                  type: NotificationType.success,
+                  style: AnimationStyle.card,
+                );
+              } else if (state is DoctorListError) {
+                // Show success notification if needed
+                showAdvancedNotification(
+                  context,
+                  message: state.error,
+                  type: NotificationType.error,
+                  style: AnimationStyle.card,
+                );
+                // Only refresh the doctors list, not the entire page
+                // _refreshDoctorsList();
+              }
+            },
+            child: RefreshIndicator(
+              onRefresh: _refreshDoctorsList,
+              child: Scaffold(
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Your Medical Team",
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                BlocBuilder<DoctorCubit, DoctorListState>(
+                                  builder: (context, state) {
+                                    if (state is DoctorListSuccess) {
+                                      return Text(
+                                          "${state.doctors.length} doctors available",
+                                          style: customTextStyle(
+                                              20,
+                                              FontWeight.w500,
+                                              Colors.grey.shade600));
+                                    }
+                                    return Text("Loading doctors...",
+                                        style: customTextStyle(
+                                            20,
+                                            FontWeight.w500,
+                                            Colors.grey.shade600));
+                                  },
+                                ),
+                                SizedBox(height: 16),
+                                _buildSearchAndFilter(),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: CustomButton(
+                              text: 'Invite',
+                              width: 100,
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    elevation: 12,
+                                    backgroundColor: Colors.white,
+                                    titlePadding: EdgeInsets.only(
+                                        top: 20, left: 20, right: 20),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    actionsPadding:
+                                        EdgeInsets.only(bottom: 10, right: 10),
+                                    title: Row(
+                                      children: [
+                                        Icon(FontAwesomeIcons.userDoctor,
+                                            color: Colors.blueAccent),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          'Enter the email of the doctor you wish to invite',
+                                          style: customTextStyle(
+                                              18,
+                                              FontWeight.w500,
+                                              Colors.grey[700]!),
+                                        ),
+                                      ],
+                                    ),
+                                    content: CustomFormTextField(
+                                      controller: idRadiologist,
+                                      hintText: 'Enter Doctor Email',
+                                      icon: FontAwesomeIcons.user,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey[200],
+                                        // validator:,
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        hintStyle: TextStyle(
+                                            color: Colors.grey.shade600),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 18, horizontal: 12),
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          idRadiologist.clear();
+                                        },
+                                        icon: Icon(Icons.cancel,
+                                            color: Colors.redAccent),
+                                        label: Text(
+                                          "Cancel",
+                                          style: customTextStyle(
+                                              18,
+                                              FontWeight.w300,
+                                              Colors.redAccent),
+                                        ),
+                                      ),
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blueAccent,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12)),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 12),
+                                          elevation: 5,
+                                        ),
+                                        onPressed: () async {
+                                          showAdvancedNotification(
+                                            context,
+                                            message:
+                                                'Invitation sent successfully to the doctor!',
+                                            type: NotificationType.success,
+                                            style: AnimationStyle.card,
+                                          );
+                                          Navigator.of(context).pop();
+                                          idRadiologist.clear();
+                                        },
+                                        icon: Icon(FontAwesomeIcons.paperPlane),
+                                        label: Text('Send',style: customTextStyle(18, FontWeight.w400, blue),),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<DoctorCubit, DoctorListState>(
+                        builder: (context, state) {
+                          if (state is DoctorListLoading) {
+                            return Center(
+                              child: LoadingOverlay(),
+                            );
+                          } else if (state is DoctorListSuccess) {
+                            final doctors = state.doctors;
+                            final filteredDoctors = _filterDoctors(doctors);
+                            return filteredDoctors.isEmpty
+                                ? _buildEmptyState(context)
+                                : _buildDoctorsList(context, filteredDoctors);
+                          }
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    _showAddDoctorDialog(context);
+                  },
+                  tooltip: "Add New Doctor",
+                  backgroundColor: blue,
+                  elevation: 8,
+                  child: Icon(
+                    FontAwesomeIcons.plus,
+                    size: 30,
+                    color: sky,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }));
+  }
+
+  List<dynamic> _filterDoctors(List<dynamic> doctors) {
+    String searchText = searchController.text.toLowerCase();
+    String selectedSpeciality = widget.selectedSpeciality;
+
+    return doctors.where((doctor) {
+      bool matchesSearch =
+          doctor.firstName.toLowerCase().contains(searchText) ||
+              doctor.lastName.toLowerCase().contains(searchText);
+      bool matchesSpeciality = selectedSpeciality == 'All' ||
+          doctor.specialization.contains(selectedSpeciality);
+
+      return matchesSearch && matchesSpeciality;
+    }).toList();
+  }
+
+  Widget _buildSearchAndFilter() {
+    return Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: EdgeInsets.symmetric(vertical: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 3,
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search by Name',
+                    prefixIcon: Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {});
+                  },
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: EdgeInsets.only(left: 12),
+                  decoration: BoxDecoration(
+                    color: blue,
+                    border: Border.all(color: blue),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButton<String>(
+                    value: widget.selectedSpeciality,
+                    isExpanded: true,
+                    underline: SizedBox(),
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: sky,
+                    ),
+                    dropdownColor: blue,
+                    style: customTextStyle(20, FontWeight.w500, sky),
+                    onChanged: (value) {
+                      setState(() {
+                        widget.selectedSpeciality = value!;
+                      });
+                    },
+                    items: [
+                      'All',
+                      'Chest Radiology',
+                      'Abdominal Radiology',
+                      'Head and Neck Radiology',
+                      'Neuroradiology',
+                      'Musculoskeletal Radiology',
+                      'Thoracic Radiology',
+                      'Cardiovascular Radiology'
+                    ].map((speciality) {
+                      return DropdownMenuItem<String>(
+                        value: speciality,
+                        child: Text(speciality),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
   Widget _buildDoctorsList(BuildContext context, List<dynamic> doctors) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Your Medical Team",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: DoctorTable(
+        doctors: doctors,
+        onDelete: (doctor) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+                  SizedBox(width: 8),
+                  Text("Confirm Deletion",
+                      style: customTextStyle(
+                          26, FontWeight.w600, Colors.grey.shade600)),
+                ],
+              ),
+              content: Text("Do you want to delete Dr. ${doctor.firstName}?",
+                  style: customTextStyle(20, FontWeight.w400, Colors.black)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel",
+                      style: customTextStyle(
+                          14, FontWeight.w400, Colors.grey.shade700)),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                  ),
+                  icon: Icon(Icons.delete_outline, size: 20),
+                  label: Text("Delete"),
+                  onPressed: () async {
+                    final doctorsCubit = context.read<DoctorCubit>();
+                    Navigator.pop(context);
+                    await doctorsCubit.deleteDoctors(
+                        doctor.id, widget.centerId);
+                  },
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            "${doctors.length} doctors available",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 24),
-          Expanded(
-            child: ListView.separated(
-              itemCount: doctors.length,
-              separatorBuilder: (context, index) => SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final doctor = doctors[index];
-                return DoctorCard(doctor: doctor,index: index,);
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -141,108 +546,27 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
           SizedBox(height: 16),
           Text(
             "No doctors found",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-            ),
+            style: customTextStyle(18, FontWeight.w500, Colors.grey.shade600),
           ),
           SizedBox(height: 8),
           Text(
             "Add doctors to your medical center",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: customTextStyle(14, FontWeight.w500, Colors.grey.shade600),
           ),
           SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                   return BlocProvider.value(
-          value: context.read<DoctorCubit>(),
-                  child:  AlertDialog(
-                    title: Text('Add Doctor'),
-                    content: CustomFormTextField(
-                      controller: idRadiologist,
-                      hintText: 'Enter Id For Radiologist You Want Add him',
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            final doctorsCubit = context.read<DoctorCubit>();
-                          
-                                doctorsCubit.AddDoctor(idRadiologist.text, widget.centerId);
-                         
-                             doctorsCubit.fetchDoctors(widget.centerId);
-                                Navigator.of(context).pop();
-                                idRadiologist.clear();
-                          },
-                          child: Text('Ok'))
-                    ],
-                  )
-                  );
-                });
+              _showAddDoctorDialog(context);
             },
             icon: Icon(Icons.add),
             label: Text("Add Doctor"),
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(BuildContext context, String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 60,
-            color: Colors.red[300],
-          ),
-          SizedBox(height: 16),
-          Text(
-            "Something went wrong",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[800],
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            error,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              BlocProvider.of<DoctorCubit>(context).fetchDoctors(widget.centerId);
-            },
-            icon: Icon(Icons.refresh),
-            label: Text("Try Again"),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              backgroundColor: Colors.red[400],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                shadowColor: Colors.blueGrey,
+                textStyle: customTextStyle(16, FontWeight.w500, Colors.white)),
           ),
         ],
       ),
@@ -250,78 +574,132 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
   }
 }
 
-class DoctorCard extends StatelessWidget {
-  final dynamic doctor;
-  final int index;
-  const DoctorCard({super.key, required this.doctor, required this.index});
+class DoctorTable extends StatelessWidget {
+  final List<dynamic> doctors;
+  final Function(dynamic) onDelete;
+  DoctorTable({
+    Key? key,
+    required this.doctors,
+    required this.onDelete,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.grey[200],
-              child: Text(
-                "${doctor.firstName[0]}${doctor.lastName[0]}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  // color: Theme.of(context).primaryColor,
-                ),
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Dr. ${doctor.firstName} ${doctor.lastName}",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      // color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      doctor.specialization.join(", "),
-                      style: TextStyle(
-                        fontSize: 12,
-                        // color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Container(
+        width: double.infinity,
+        child: DataTable(
+          columnSpacing: 24,
+          headingRowColor: WidgetStateProperty.all<Color>(darkBlue),
+          dataRowMinHeight: 60,
+          dataRowMaxHeight: 70,
+          headingTextStyle: customTextStyle(18, FontWeight.bold, Colors.white),
+          columns: [
+            DataColumn(
+                label: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                       context
-                                .read<DoctorCubit>()
-                                .deleteDoctors(index);
-                  },
-                  tooltip: "Delete",
+                Icon(FontAwesomeIcons.userDoctor, size: 19, color: sky),
+                SizedBox(width: 8),
+                Text(
+                  'Doctor',
+                  style: customTextStyle(20, FontWeight.w600, sky),
                 ),
               ],
-            ),
+            )),
+            DataColumn(
+                label: Row(
+              children: [
+                Icon(FontAwesomeIcons.stethoscope, size: 18, color: sky),
+                SizedBox(width: 8),
+                Text(
+                  'Speciality',
+                  style: customTextStyle(20, FontWeight.w600, sky),
+                ),
+              ],
+            )),
+            DataColumn(
+                label: Row(
+              children: [
+                Icon(FontAwesomeIcons.addressBook, size: 18, color: sky),
+                SizedBox(width: 8),
+                Text(
+                  'Contact',
+                  style: customTextStyle(20, FontWeight.w600, sky),
+                ),
+              ],
+            )),
+            DataColumn(
+                label: Row(
+              children: [
+                Icon(FontAwesomeIcons.sliders, size: 18, color: sky),
+                SizedBox(width: 8),
+                Text(
+                  'Action',
+                  style: customTextStyle(20, FontWeight.w600, sky),
+                ),
+              ],
+            )),
           ],
+          rows: doctors.map((doctor) {
+            return DataRow(
+              color: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                if (states.contains(WidgetState.hovered)) return sky;
+                return sky;
+              }),
+              cells: [
+                DataCell(Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(doctor.imageUrl),
+                      radius: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Dr. ${doctor.firstName} ${doctor.lastName}",
+                      style: customTextStyle(18, FontWeight.w500, Colors.black),
+                    ),
+                  ],
+                )),
+                DataCell(Text(
+                  doctor.specialization.join(", "),
+                  style: customTextStyle(18, FontWeight.w500, blue),
+                )),
+                DataCell(
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.chat_rounded, size: 25, color: blue),
+                        tooltip: 'Chat',
+                        onPressed: () {
+                          // Navigate to chat screen
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.phone_in_talk_rounded,
+                            size: 25, color: Colors.green.shade400),
+                        tooltip: 'Call',
+                        onPressed: () {
+                          // Start voice call
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                DataCell(
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded,
+                        size: 25, color: Colors.red.shade300),
+                    tooltip: "Delete",
+                    onPressed: () {
+                      onDelete(doctor);
+                    },
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
         ),
       ),
     );
