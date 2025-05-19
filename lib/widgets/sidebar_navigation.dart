@@ -37,6 +37,10 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           width: isExpanded ? 250 : 80,
+           constraints: BoxConstraints(
+            maxWidth: isExpanded ? 250 : 80,
+            minWidth: 80,
+          ),
           decoration: BoxDecoration(
               color: darkblue,
               borderRadius: const BorderRadius.all(
@@ -65,6 +69,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                   children: [
                     if (isExpanded)
                       Row(
+                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
                             width: 30,
@@ -93,6 +98,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                               color: darkBabyBlue,
                               letterSpacing: 0.5,
                             ),
+                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -163,9 +169,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Dicom List'),
         // buildNavItem(2, Icons.person_rounded, 'Patients'),
-        buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
-        buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
+        // buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
+        buildNavItem(2, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(3, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     } else if (widget.role == "Admin") {
       items.addAll([
@@ -174,7 +180,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(2, Icons.person_rounded, 'Manage Centers'),
         buildNavItem(3, Icons.medical_information_rounded, 'Manage Doctors'),
         // buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     }
 
@@ -212,9 +218,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
     
 
     // Settings and Logout
-    items.add(buildNavItem(6, FontAwesomeIcons.infoCircle, 'AboutUs'));
+    items.add(buildNavItem(4, FontAwesomeIcons.circleInfo, 'About Us'));
     items.add(const SizedBox(height: 20));
-    items.add(buildNavItem(7, Icons.logout_rounded, 'Log Out'));
+    items.add(buildNavItem(5, Icons.logout_rounded, 'Log Out'));
 
     return items;
   }
@@ -262,7 +268,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                 ),
               if (isExpanded && isSelected)
                 Container(
-                  width: 5,
+                  width: 4,
                   height: 25,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(

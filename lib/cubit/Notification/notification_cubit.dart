@@ -189,4 +189,11 @@ class NotificationCubit extends Cubit<NotificationState> {
       print('❌Error deleting all notifications: $e');
     }
   }
+  // دالة لحساب عدد الإشعارات غير المقروءة
+ int get unreadNotificationCount {
+    if (state is NotificationLoaded) {
+      return notifications.where((notif) => !notif.isRead).length;
+    }
+    return 0;
+  }
 }

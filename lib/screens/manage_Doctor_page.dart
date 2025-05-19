@@ -72,6 +72,127 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
     );
   }
 
+  void _showAddDoctorDialogByEmail(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 12,
+        backgroundColor: Colors.white,
+        titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        actionsPadding: EdgeInsets.only(bottom: 10, right: 10),
+        title: Row(
+          children: [
+            Icon(FontAwesomeIcons.userDoctor, color: Colors.blueAccent),
+            SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                'You Can Added Doctor By email',
+                style: customTextStyle(18, FontWeight.w500, Colors.grey[700]!),
+              ),
+            ),
+          ],
+        ),
+        content: CustomFormTextField(
+          controller: idRadiologist,
+          hintText: 'Enter Doctor Email',
+          validator: (value) {
+            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value!)) {
+              return "Please write a valid email";
+            }
+            return null;
+          },
+          icon: FontAwesomeIcons.user,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+            contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              idRadiologist.clear();
+            },
+            icon: Icon(Icons.cancel, color: Colors.redAccent),
+            label: Text(
+              "Cancel",
+              style: customTextStyle(18, FontWeight.w300, Colors.redAccent),
+            ),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              elevation: 5,
+            ),
+             onPressed: () async {
+              final email = idRadiologist.text.trim();
+              if (email.isEmpty ||
+                  !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                showAdvancedNotification(
+                  dialogContext,
+                  message: "Please enter a valid email address.",
+                  type: NotificationType.warning,
+                  style: AnimationStyle.card,
+                );
+                return;
+              }
+              
+              // Close the dialog first
+              Navigator.of(dialogContext).pop();
+              
+              // Store the email before clearing the controller
+              final doctorEmail = email;
+              idRadiologist.clear();
+           
+              try {
+                // Use the cubit directly through the instance variable
+                await _doctorCubit.AddDoctorByEmail(doctorEmail, widget.centerId);
+                
+                // Show success notification
+                showAdvancedNotification(
+                  context,
+                  message: "Doctor invitation sent successfully!",
+                  type: NotificationType.success,
+                  style: AnimationStyle.card,
+                );
+                
+                // Manually refresh the list
+                await _refreshDoctorsList();
+              } catch (e) {
+                
+                // Show error notification
+                showAdvancedNotification(
+                  context,
+                  message: "Failed to add doctor: ${e.toString()}",
+                  type: NotificationType.error,
+                  style: AnimationStyle.card,
+                );
+              }
+            },
+            icon: Icon(FontAwesomeIcons.paperPlane),
+            label: Text(
+              'Send',
+              style: customTextStyle(18, FontWeight.w400, blue),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   void _showAddDoctorDialog(BuildContext context) {
     showDialog(
         context: context,
@@ -89,9 +210,11 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
               children: [
                 Icon(Icons.person_add_alt_1_rounded, color: Colors.blueAccent),
                 SizedBox(width: 12),
-                Text(
-                  'Add Doctor',
-                  style: customTextStyle(30, FontWeight.w600, Colors.black),
+                Flexible(
+                  child: Text(
+                    'Add Doctor',
+                    style: customTextStyle(30, FontWeight.w600, Colors.black),
+                  ),
                 ),
               ],
             ),
@@ -165,6 +288,10 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 768 && screenWidth < 1024;
+    final isMobile = screenWidth < 768;
+    
     return BlocProvider.value(
         value: _doctorCubit,
         child: Builder(builder: (context) {
@@ -206,7 +333,7 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(isMobile ? 12.0 : 16.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -217,7 +344,7 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                                 Text(
                                   "Your Medical Team",
                                   style: TextStyle(
-                                    fontSize: 26,
+                                    fontSize: isMobile ? 22 : 26,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black,
                                   ),
@@ -229,123 +356,23 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                                       return Text(
                                           "${state.doctors.length} doctors available",
                                           style: customTextStyle(
-                                              20,
+                                              isMobile ? 16 : 20,
                                               FontWeight.w500,
                                               Colors.grey.shade600));
                                     }
                                     return Text("Loading doctors...",
                                         style: customTextStyle(
-                                            20,
+                                            isMobile ? 16 : 20,
                                             FontWeight.w500,
                                             Colors.grey.shade600));
                                   },
                                 ),
                                 SizedBox(height: 16),
-                                _buildSearchAndFilter(),
+                                _buildSearchAndFilter(isMobile, isTablet),
                               ],
                             ),
                           ),
                           SizedBox(width: 12),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: CustomButton(
-                              text: 'Invite',
-                              width: 100,
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 12,
-                                    backgroundColor: Colors.white,
-                                    titlePadding: EdgeInsets.only(
-                                        top: 20, left: 20, right: 20),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 10),
-                                    actionsPadding:
-                                        EdgeInsets.only(bottom: 10, right: 10),
-                                    title: Row(
-                                      children: [
-                                        Icon(FontAwesomeIcons.userDoctor,
-                                            color: Colors.blueAccent),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          'Enter the email of the doctor you wish to invite',
-                                          style: customTextStyle(
-                                              18,
-                                              FontWeight.w500,
-                                              Colors.grey[700]!),
-                                        ),
-                                      ],
-                                    ),
-                                    content: CustomFormTextField(
-                                      controller: idRadiologist,
-                                      hintText: 'Enter Doctor Email',
-                                      icon: FontAwesomeIcons.user,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        // validator:,
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        hintStyle: TextStyle(
-                                            color: Colors.grey.shade600),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 18, horizontal: 12),
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton.icon(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          idRadiologist.clear();
-                                        },
-                                        icon: Icon(Icons.cancel,
-                                            color: Colors.redAccent),
-                                        label: Text(
-                                          "Cancel",
-                                          style: customTextStyle(
-                                              18,
-                                              FontWeight.w300,
-                                              Colors.redAccent),
-                                        ),
-                                      ),
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blueAccent,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12)),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 12),
-                                          elevation: 5,
-                                        ),
-                                        onPressed: () async {
-                                          showAdvancedNotification(
-                                            context,
-                                            message:
-                                                'Invitation sent successfully to the doctor!',
-                                            type: NotificationType.success,
-                                            style: AnimationStyle.card,
-                                          );
-                                          Navigator.of(context).pop();
-                                          idRadiologist.clear();
-                                        },
-                                        icon: Icon(FontAwesomeIcons.paperPlane),
-                                        label: Text('Send',style: customTextStyle(18, FontWeight.w400, blue),),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -360,8 +387,8 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                             final doctors = state.doctors;
                             final filteredDoctors = _filterDoctors(doctors);
                             return filteredDoctors.isEmpty
-                                ? _buildEmptyState(context)
-                                : _buildDoctorsList(context, filteredDoctors);
+                                ? _buildEmptyState(context, isMobile)
+                                : _buildDoctorsList(context, filteredDoctors, isMobile, isTablet);
                           }
                           return Center(
                             child: CircularProgressIndicator(),
@@ -373,14 +400,14 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                 ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
-                    _showAddDoctorDialog(context);
+                    _showAddDoctorDialogByEmail(context);
                   },
                   tooltip: "Add New Doctor",
                   backgroundColor: blue,
                   elevation: 8,
                   child: Icon(
                     FontAwesomeIcons.plus,
-                    size: 30,
+                    size: isMobile ? 24 : 30,
                     color: sky,
                   ),
                 ),
@@ -405,88 +432,152 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
     }).toList();
   }
 
-  Widget _buildSearchAndFilter() {
+  Widget _buildSearchAndFilter(bool isMobile, bool isTablet) {
     return Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: EdgeInsets.symmetric(vertical: 12),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search by Name',
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
+          child: isMobile 
+              ? Column(
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search by Name',
+                        prefixIcon: Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {});
+                      },
                     ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: EdgeInsets.only(left: 12),
-                  decoration: BoxDecoration(
-                    color: blue,
-                    border: Border.all(color: blue),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: DropdownButton<String>(
-                    value: widget.selectedSpeciality,
-                    isExpanded: true,
-                    underline: SizedBox(),
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: sky,
+                    SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.only(left: 12),
+                      decoration: BoxDecoration(
+                        color: blue,
+                        border: Border.all(color: blue),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButton<String>(
+                        value: widget.selectedSpeciality,
+                        isExpanded: true,
+                        underline: SizedBox(),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                        dropdownColor: blue,
+                        style: customTextStyle(isMobile ? 16 : 20, FontWeight.w500, Colors.white),
+                        onChanged: (value) {
+                          setState(() {
+                            widget.selectedSpeciality = value!;
+                          });
+                        },
+                        items: [
+                          'All',
+                          'Chest Radiology',
+                          'Abdominal Radiology',
+                          'Head and Neck Radiology',
+                          'Neuroradiology',
+                          'Musculoskeletal Radiology',
+                          'Thoracic Radiology',
+                          'Cardiovascular Radiology'
+                        ].map((speciality) {
+                          return DropdownMenuItem<String>(
+                            value: speciality,
+                            child: Text(speciality),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                    dropdownColor: blue,
-                    style: customTextStyle(20, FontWeight.w500, sky),
-                    onChanged: (value) {
-                      setState(() {
-                        widget.selectedSpeciality = value!;
-                      });
-                    },
-                    items: [
-                      'All',
-                      'Chest Radiology',
-                      'Abdominal Radiology',
-                      'Head and Neck Radiology',
-                      'Neuroradiology',
-                      'Musculoskeletal Radiology',
-                      'Thoracic Radiology',
-                      'Cardiovascular Radiology'
-                    ].map((speciality) {
-                      return DropdownMenuItem<String>(
-                        value: speciality,
-                        child: Text(speciality),
-                      );
-                    }).toList(),
-                  ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search by Name',
+                          prefixIcon: Icon(Icons.search),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        padding: EdgeInsets.only(left: 12),
+                        decoration: BoxDecoration(
+                          color: blue,
+                          border: Border.all(color: blue),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: DropdownButton<String>(
+                          value: widget.selectedSpeciality,
+                          isExpanded: true,
+                          underline: SizedBox(),
+                          icon: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.white,
+                          ),
+                          dropdownColor: blue,
+                          style: customTextStyle(isTablet ? 18 : 20, FontWeight.w500, Colors.white),
+                          onChanged: (value) {
+                            setState(() {
+                              widget.selectedSpeciality = value!;
+                            });
+                          },
+                          items: [
+                            'All',
+                            'Chest Radiology',
+                            'Abdominal Radiology',
+                            'Head and Neck Radiology',
+                            'Neuroradiology',
+                            'Musculoskeletal Radiology',
+                            'Thoracic Radiology',
+                            'Cardiovascular Radiology'
+                          ].map((speciality) {
+                            return DropdownMenuItem<String>(
+                              value: speciality,
+                              child: Text(speciality),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ));
   }
 
-  Widget _buildDoctorsList(BuildContext context, List<dynamic> doctors) {
+  Widget _buildDoctorsList(BuildContext context, List<dynamic> doctors, bool isMobile, bool isTablet) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 8.0 : 16.0),
       child: DoctorTable(
         doctors: doctors,
+        isMobile: isMobile,
+        isTablet: isTablet,
         onDelete: (doctor) {
           showDialog(
             context: context,
@@ -498,13 +589,15 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                 children: [
                   Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
                   SizedBox(width: 8),
-                  Text("Confirm Deletion",
-                      style: customTextStyle(
-                          26, FontWeight.w600, Colors.grey.shade600)),
+                  Flexible(
+                    child: Text("Confirm Deletion",
+                        style: customTextStyle(
+                            isMobile ? 22 : 26, FontWeight.w600, Colors.grey.shade600)),
+                  ),
                 ],
               ),
               content: Text("Do you want to delete Dr. ${doctor.firstName}?",
-                  style: customTextStyle(20, FontWeight.w400, Colors.black)),
+                  style: customTextStyle(isMobile ? 16 : 20, FontWeight.w400, Colors.black)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -533,25 +626,25 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, bool isMobile) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.group_off_outlined,
-            size: 80,
+            size: isMobile ? 60 : 80,
             color: Colors.grey[400],
           ),
           SizedBox(height: 16),
           Text(
             "No doctors found",
-            style: customTextStyle(18, FontWeight.w500, Colors.grey.shade600),
+            style: customTextStyle(isMobile ? 16 : 18, FontWeight.w500, Colors.grey.shade600),
           ),
           SizedBox(height: 8),
           Text(
             "Add doctors to your medical center",
-            style: customTextStyle(14, FontWeight.w500, Colors.grey.shade600),
+            style: customTextStyle(isMobile ? 12 : 14, FontWeight.w500, Colors.grey.shade600),
           ),
           SizedBox(height: 24),
           ElevatedButton.icon(
@@ -577,129 +670,248 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
 class DoctorTable extends StatelessWidget {
   final List<dynamic> doctors;
   final Function(dynamic) onDelete;
+  final bool isMobile;
+  final bool isTablet;
+  
   DoctorTable({
     Key? key,
     required this.doctors,
     required this.onDelete,
+    required this.isMobile,
+    required this.isTablet,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Container(
-        width: double.infinity,
-        child: DataTable(
-          columnSpacing: 24,
-          headingRowColor: WidgetStateProperty.all<Color>(darkBlue),
-          dataRowMinHeight: 60,
-          dataRowMaxHeight: 70,
-          headingTextStyle: customTextStyle(18, FontWeight.bold, Colors.white),
-          columns: [
-            DataColumn(
-                label: Row(
+    if (isMobile) {
+      return _buildMobileLayout();
+    } else {
+      return _buildDesktopLayout();
+    }
+  }
+
+  Widget _buildMobileLayout() {
+    return ListView.builder(
+      itemCount: doctors.length,
+      padding: EdgeInsets.symmetric(vertical: 8),
+      itemBuilder: (context, index) {
+        final doctor = doctors[index];
+        return Card(
+          margin: EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(FontAwesomeIcons.userDoctor, size: 19, color: sky),
-                SizedBox(width: 8),
-                Text(
-                  'Doctor',
-                  style: customTextStyle(20, FontWeight.w600, sky),
-                ),
-              ],
-            )),
-            DataColumn(
-                label: Row(
-              children: [
-                Icon(FontAwesomeIcons.stethoscope, size: 18, color: sky),
-                SizedBox(width: 8),
-                Text(
-                  'Speciality',
-                  style: customTextStyle(20, FontWeight.w600, sky),
-                ),
-              ],
-            )),
-            DataColumn(
-                label: Row(
-              children: [
-                Icon(FontAwesomeIcons.addressBook, size: 18, color: sky),
-                SizedBox(width: 8),
-                Text(
-                  'Contact',
-                  style: customTextStyle(20, FontWeight.w600, sky),
-                ),
-              ],
-            )),
-            DataColumn(
-                label: Row(
-              children: [
-                Icon(FontAwesomeIcons.sliders, size: 18, color: sky),
-                SizedBox(width: 8),
-                Text(
-                  'Action',
-                  style: customTextStyle(20, FontWeight.w600, sky),
-                ),
-              ],
-            )),
-          ],
-          rows: doctors.map((doctor) {
-            return DataRow(
-              color: WidgetStateProperty.resolveWith<Color>(
-                  (Set<WidgetState> states) {
-                if (states.contains(WidgetState.hovered)) return sky;
-                return sky;
-              }),
-              cells: [
-                DataCell(Row(
+                Row(
                   children: [
                     CircleAvatar(
                       backgroundImage: NetworkImage(doctor.imageUrl),
-                      radius: 18,
+                      radius: 25,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Dr. ${doctor.firstName} ${doctor.lastName}",
-                      style: customTextStyle(18, FontWeight.w500, Colors.black),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Dr. ${doctor.firstName} ${doctor.lastName}",
+                            style: customTextStyle(16, FontWeight.w600, Colors.black),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            doctor.email,
+                            style: customTextStyle(14, FontWeight.w400, Colors.grey),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete_outline_rounded,
+                          size: 24, color: Colors.red.shade300),
+                      onPressed: () => onDelete(doctor),
                     ),
                   ],
-                )),
-                DataCell(Text(
-                  doctor.specialization.join(", "),
-                  style: customTextStyle(18, FontWeight.w500, blue),
-                )),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.chat_rounded, size: 25, color: blue),
-                        tooltip: 'Chat',
-                        onPressed: () {
-                          // Navigate to chat screen
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.phone_in_talk_rounded,
-                            size: 25, color: Colors.green.shade400),
-                        tooltip: 'Call',
-                        onPressed: () {
-                          // Start voice call
-                        },
-                      ),
-                    ],
-                  ),
                 ),
-                DataCell(
-                  IconButton(
-                    icon: Icon(Icons.delete_outline_rounded,
-                        size: 25, color: Colors.red.shade300),
-                    tooltip: "Delete",
-                    onPressed: () {
-                      onDelete(doctor);
-                    },
-                  ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(FontAwesomeIcons.stethoscope, size: 14, color: blue),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        doctor.specialization.join(", "),
+                        style: customTextStyle(14, FontWeight.w500, blue),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(FontAwesomeIcons.fileLines, size: 14, color: blue),
+                    SizedBox(width: 8),
+                    Text(
+                      "Reports: ${doctor.totalReports}",
+                      style: customTextStyle(14, FontWeight.w500, blue),
+                    ),
+                  ],
                 ),
               ],
-            );
-          }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDesktopLayout() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: 800),
+          child: DataTable(
+            columnSpacing: isTablet ? 16 : 24,
+            headingRowColor: WidgetStateProperty.all<Color>(darkBlue),
+            dataRowMinHeight: 60,
+            dataRowMaxHeight: 70,
+            headingTextStyle: customTextStyle(isTablet ? 16 : 18, FontWeight.bold, Colors.white),
+            columns: [
+              DataColumn(
+                  label: Row(
+                children: [
+                  Icon(FontAwesomeIcons.userDoctor, size: isTablet ? 16 : 19, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Doctor',
+                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                  ),
+                ],
+              )),
+              DataColumn(
+                  label: Row(
+                children: [
+                  Icon(FontAwesomeIcons.stethoscope, size: isTablet ? 15 : 18, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Speciality',
+                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                  ),
+                ],
+              )),
+              DataColumn(
+                  label: Row(
+                children: [
+                  Icon(FontAwesomeIcons.fileLines, size: isTablet ? 15 : 18, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Reports',
+                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                  ),
+                ],
+              )),
+              DataColumn(
+                  label: Row(
+                children: [
+                  Icon(FontAwesomeIcons.sliders, size: isTablet ? 15 : 18, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Action',
+                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                  ),
+                ],
+              )),
+            ],
+            rows: doctors.map((doctor) {
+              return DataRow(
+                color: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.hovered)) return Colors.white;
+                  return Colors.white;
+                }),
+                cells: [
+                  DataCell(
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(doctor.imageUrl),
+                            radius: isTablet ? 16 : 18,
+                          ),
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                            Text(
+                              "Dr. ${doctor.firstName} ${doctor.lastName}",
+                              style: customTextStyle(
+                                  isTablet ? 16 : 18, FontWeight.w500, Colors.black),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          
+                        Text(
+                          "${doctor.email}",
+                          style: customTextStyle(isTablet ? 14 : 18, FontWeight.w300, Colors.grey),
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      ],
+                    ),
+                  ),
+                  ],
+                      ),
+                      ),
+                  DataCell(
+                    Flexible(
+                      child: Text(
+                        doctor.specialization.join(", "),
+                        style: customTextStyle(isTablet ? 16 : 18, FontWeight.w500, blue),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                    DataCell(
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                     
+                      child: Text(
+                        "${doctor.totalReports}",
+                        style: customTextStyle(isTablet ? 18 : 21, FontWeight.w600, blue),
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      icon: Icon(Icons.delete_outline_rounded,
+                          size: isTablet ? 22 : 25, color: Colors.red.shade300),
+                      tooltip: "Delete",
+                      onPressed: () {
+                        onDelete(doctor);
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );
