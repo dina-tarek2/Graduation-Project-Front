@@ -20,9 +20,9 @@ Widget buildFilterButtons(BuildContext context) {
           ),
           SizedBox(width: 8),
           FilterChip(
-            label: Text('Reviewed'),
+            label: Text('Completed'),
             onSelected: (_) => context.read<MedicalReportsCubit>().filterReportss
-            ('Reviewed'),
+            ('Completed'),
             selected: context.watch<MedicalReportsCubit>().state.currentFilter == 'completed',
           ),
         ],

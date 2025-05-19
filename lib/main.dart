@@ -7,6 +7,7 @@ import 'package:graduation_project_frontend/cubit/Admin/not_approved_centers_cub
 import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
+import 'package:graduation_project_frontend/cubit/for_Center/center_profile_cubit.dart';
 
 import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
@@ -15,6 +16,7 @@ import 'package:graduation_project_frontend/screens/Admin/center_info_page.dart'
 import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
+import 'package:graduation_project_frontend/screens/Center/center_profile.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 
@@ -120,6 +122,8 @@ void main() {
                 UploadDicomCubit(DioConsumer(dio: Dio(), isdicom: true))),
         BlocProvider(
             create: (context) => DoctorProfileCubit(DioConsumer(dio: Dio()))),
+        BlocProvider(
+            create: (context) => CenterProfileCubit(DioConsumer(dio: Dio()))),
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         BlocProvider(
             create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),

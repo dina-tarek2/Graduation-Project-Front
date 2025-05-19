@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/models/doctors_model.dart';

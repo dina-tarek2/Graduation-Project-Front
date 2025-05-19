@@ -11,7 +11,10 @@ class DicomWebViewPage extends StatefulWidget {
   static const String id = "dicom_webview_page";
 
   const DicomWebViewPage(
-      {super.key, required this.url, required this.reportId,required this.recordId});
+      {super.key,
+      required this.url,
+      required this.reportId,
+      required this.recordId});
 
   @override
   State<DicomWebViewPage> createState() => _DicomWebViewPageState();
@@ -40,7 +43,9 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => MedicalReportPage(
-                        reportId: widget.reportId, Dicom_url: widget.url,recordId:widget.recordId)),
+                        reportId: widget.reportId,
+                        Dicom_url: widget.url,
+                        recordId: widget.recordId)),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -70,7 +75,7 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'http://localhost:5000/upload-dicom',
+        'https://ab55-156-222-147-61.ngrok-free.app/upload',
         data: {'dicom_url': dicomUrl},
         options: Options(headers: {'Content-Type': 'application/json'}),
       );

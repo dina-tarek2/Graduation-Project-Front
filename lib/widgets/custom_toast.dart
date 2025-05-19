@@ -555,6 +555,6 @@ void showAdvancedNotification(
   context.read<NotificationCubit>().loadNotifications(
         context.read<CenterCubit>().state,
       );
-
   scaffoldState?.reloadNotifyIcon();
+  
 }

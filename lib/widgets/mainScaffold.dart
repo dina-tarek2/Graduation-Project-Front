@@ -5,13 +5,13 @@ import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
+import 'package:graduation_project_frontend/cubit/for_Center/center_profile_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Admin/dashboard_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/manage_centers_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.dart';
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
-import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
@@ -22,6 +22,7 @@ import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
 import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
+import 'package:graduation_project_frontend/screens/Center/center_profile.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart'
     as custom_toast;
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
@@ -46,27 +47,27 @@ class MainScaffold extends StatefulWidget {
 class MainScaffoldState extends State<MainScaffold> {
   late final List<Widget> screens;
   File? _imageFile;
-
   // GlobalKey to locate the notifications icon for overlay positioning
   final GlobalKey _notificationIconKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   late int selectedIndex;
-
   @override
   void initState() {
     super.initState();
     selectedIndex = widget.Index;
     // Fetch doctor profile if role is Radiologist
-    context.read<DoctorProfileCubit>().fetchDoctorProfile(
-          context.read<CenterCubit>().state,
-        );
-    // Fetch notifications>
-    context.read<NotificationCubit>().loadNotifications(
-          context.read<CenterCubit>().state,
-        );
-    print(
-        "////////////////////////////////////// ${context.read<CenterCubit>().state}");
-    custom_toast.AdvancedNotification.setContext(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DoctorProfileCubit>().fetchDoctorProfile(
+            context.read<CenterCubit>().state,
+          );
+
+      context.read<NotificationCubit>().loadNotifications(
+            context.read<CenterCubit>().state,
+          );
+
+      custom_toast.AdvancedNotification.setContext(context);
+      reloadNotifyIcon();
+    });
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
@@ -84,7 +85,6 @@ class MainScaffoldState extends State<MainScaffold> {
       ];
     } else if (widget.role == "Radiologist") {
       // Default screens for other roles
-
       screens = [
         DashboardContent(),
         RecordsListPage(),
@@ -125,20 +125,32 @@ class MainScaffoldState extends State<MainScaffold> {
 
   // Build the profile avatar widget
   Widget buildProfileAvatar() {
-    final state;
-    state = context.watch<DoctorProfileCubit>().state;
+    final state = widget.role == "Radiologist"
+        ? context.watch<DoctorProfileCubit>().state
+        : context.watch<CenterProfileCubit>().state;
+
     String? imageUrl;
-    String? doctorName;
-    String? doctorName1;
+    String displayInitials = '';
 
     if (state is DoctorProfileSuccess) {
       imageUrl = state.doctor.imageUrl;
-      doctorName = state.doctor.firstName;
-      doctorName1 = state.doctor.lastName;
-    } else {
-      imageUrl = '';
-      doctorName = '';
-      doctorName1 = '';
+      final firstName = state.doctor.firstName;
+      final lastName = state.doctor.lastName;
+      if (firstName.isNotEmpty || lastName.isNotEmpty) {
+        displayInitials =
+            '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
+                .toUpperCase();
+      }
+    } else if (state is CenterProfileSuccess) {
+      imageUrl = state.center.imageUrl;
+      final nameParts = state.center.centerName.trim().split(' ');
+      if (nameParts.isNotEmpty) {
+        final first = nameParts.isNotEmpty ? nameParts[0] : '';
+        final second = nameParts.length > 1 ? nameParts[1] : '';
+        displayInitials =
+            '${first.isNotEmpty ? first[0] : ''}${second.isNotEmpty ? second[0] : ''}'
+                .toUpperCase();
+      }
     }
 
     return GestureDetector(
@@ -157,13 +169,7 @@ class MainScaffoldState extends State<MainScaffold> {
                 : null) as ImageProvider<Object>?,
         child: (_imageFile == null && (imageUrl == null || imageUrl.isEmpty))
             ? Text(
-                (doctorName != null &&
-                        doctorName.isNotEmpty &&
-                        doctorName1 != null &&
-                        doctorName1.isNotEmpty)
-                    ? doctorName.substring(0, 1).toUpperCase() +
-                        doctorName1.substring(0, 1).toUpperCase()
-                    : '',
+                displayInitials,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               )
             : null,
@@ -171,26 +177,12 @@ class MainScaffoldState extends State<MainScaffold> {
     );
   }
 
-  IconData _getNotificationIcon() {
-    if (_unreadNotificationCount > 0 && selectedIndex != 11) {
-      return Icons.notifications_active_rounded;
-    }
-    return Icons.notifications_none_rounded;
-  }
-
-// دالة للحصول على اللون المناسب لأيقونة الإشعارات
-  Color _getIconBackgroundColor() {
-    if (_unreadNotificationCount > 0 && selectedIndex != 11) {
-      return lightBlue; // اللون إذا كانت هناك إشعارات غير مقروءة
-    }
-    return sky;
-  }
 
 // دالة لحساب عدد الإشعارات غير المقروءة
   int get _unreadNotificationCount {
-    final state = context.read<NotificationCubit>().state;
-    if (state is NotificationLoaded) {
-      return state.notifications.where((notif) => !notif.isRead).length;
+    final stateNot = context.watch<NotificationCubit>().state;
+    if (stateNot is NotificationLoaded) {
+      return stateNot.unreadNotifications;
     }
     return 0;
   }
@@ -221,9 +213,8 @@ class MainScaffoldState extends State<MainScaffold> {
         ),
       ),
     );
-    Overlay.of(context)!.insert(_overlayEntry!);
+    Overlay.of(context).insert(_overlayEntry!);
   }
-  
 
   // Remove the notifications popup overlay
   void _removeNotificationsPopup() {
@@ -246,9 +237,15 @@ class MainScaffoldState extends State<MainScaffold> {
       return const Center(child: Text("Settings Screen"));
     }
     if (selectedIndex == 10) {
-      return DoctorProfile(
-          doctorId: context.read<CenterCubit>().state,
-          role: context.read<CenterCubit>().state);
+      if (widget.role == "Radiologist") {
+        return DoctorProfile(
+            doctorId: context.read<CenterCubit>().state,
+            role: context.read<CenterCubit>().state);
+      } else {
+        return CenterProfile(
+            centerId: context.read<CenterCubit>().state,
+            role: context.read<CenterCubit>().state);
+      }
     }
     if (selectedIndex == 11) {
       return NotificationsScreen();
@@ -330,8 +327,9 @@ class MainScaffoldState extends State<MainScaffold> {
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color:
-                                    _getIconBackgroundColor(), // تغيير اللون بناءً على الحالة
+                                color: _unreadNotificationCount > 0
+                                    ? lightBlue
+                                    : sky, // تغيير اللون بناءً على الحالة
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Stack(
@@ -339,13 +337,13 @@ class MainScaffoldState extends State<MainScaffold> {
                                     Clip.none, // لتجنب تجاوز العداد للحدود
                                 children: [
                                   Icon(
-                                    _getNotificationIcon(), // تغيير الأيقونة بناءً على الحالة
+                                    _unreadNotificationCount > 0
+                                        ? Icons.notifications_active_rounded
+                                        : Icons.notifications_none_rounded,
                                     color: Color(0xFF073042),
                                     size: 20,
                                   ),
-                                  if (_unreadNotificationCount > 0 &&
-                                      selectedIndex !=
-                                          11) // عرض العداد إذا كان هناك إشعارات غير مقروءة
+                                  if (_unreadNotificationCount > 0 )
                                     Positioned(
                                       right: 16,
                                       top: -15,
@@ -377,12 +375,11 @@ class MainScaffoldState extends State<MainScaffold> {
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: buildProfileAvatar(),
-                          ),
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: buildProfileAvatar()),
                         ],
                       ),
                     ],

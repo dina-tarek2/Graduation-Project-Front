@@ -63,8 +63,8 @@ class MedicalReportsScreen extends StatelessWidget {
                       ),
                       buildStatsCard(
                         icon: Icons.check_circle_outline,
-                        title: 'Reports Reviewed',
-                        value: '${state.reports.where((r) => r.status == "Reviewed").length}',
+                        title: 'Completed Reports',
+                        value: '${state.reports.where((r) => r.status == "Completed").length}',
                         color: Colors.green.shade100,
                         // actionText: 'Download all',
                       ),
@@ -104,9 +104,9 @@ class MedicalReportsScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 8),
                   FilterChip(
-                    label: Text('Reviewed'),
-                    selected: state.currentFilter == 'Reviewed',
-                    onSelected: (_) => context.read<MedicalReportsCubit>().filterReportss('Reviewed'),
+                    label: Text('Completed'),
+                    selected: state.currentFilter == 'Completed',
+                    onSelected: (_) => context.read<MedicalReportsCubit>().filterReportss('Completed'),
                     selectedColor: Colors.green.shade100,
                   ),
                 ],

@@ -26,11 +26,11 @@ class EndPoints {
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
-  static String upload = "upload_dicom?centerId=67fea9142e0c58da5a1b3619";
+  static String upload = "upload_dicom?centerId=68135192a9d8d429e412bc58";
   static String showImages(id) =>
       "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId =
-      "/Record/getRecordsByCenterId/67fea9142e0c58da5a1b3619";
+      "/Record/getRecordsByCenterId/68135192a9d8d429e412bc58";
   //Admin - in center
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
   static String addCenterByAdmin = "admin/addRadiologyCenter";

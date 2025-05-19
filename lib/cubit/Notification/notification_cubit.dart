@@ -9,41 +9,45 @@ class NotificationCubit extends Cubit<NotificationState> {
 
   final String baseUrl =
       'https://graduation-project--xohomg.fly.dev/api/notifications';
-
   List<AppNotification> notifications = [];
   List<AppNotification> unreadNotifications = [];
+  int totalNotifications = 0;
+  int unreadNotificationsCount = 0;
 
   /// تحميل كل الإشعارات لمستخدم
-  Future<int> loadNotifications(String userId) async {
+  Future<void> loadNotifications(String userId) async {
     emit(NotificationLoading());
 
     try {
       final response = await api.get('$baseUrl/all/$userId');
-
+      final response0 = await api.get('$baseUrl/$userId');
       final responseData = response.data;
+      final responseData0 = response0.data;
+
       if (responseData != null &&
           responseData['success'] == true &&
-          responseData['notifications'] != null) {
+          responseData['notifications'] != null &&
+          responseData0 != null &&
+          responseData0['success'] == true &&
+          responseData0['notifications'] != null) {
         final List<dynamic> data = responseData['notifications'];
-
         final List<AppNotification> loaded =
             data.map((notif) => AppNotification.fromJson(notif)).toList();
-
         notifications = loaded;
-        unreadNotifications = loaded.where((n) => n.isRead == false).toList();
+        totalNotifications = responseData['count'];
+        unreadNotificationsCount = responseData0['count'];
 
-        emit(NotificationLoaded(loaded));
+        emit(NotificationLoaded(loaded,
+            totalNotifications: totalNotifications,
+            unreadNotifications: unreadNotificationsCount));
 
-        return unreadNotifications.length;
       } else {
         emit(
             NotificationError('فشل في تحميل الإشعارات أو البيانات غير مكتملة'));
-        return 0;
       }
     } catch (e) {
       emit(NotificationError('❌Error loading notifications: $e'));
       print('❌Error loading notifications: $e');
-      return 0;
     }
   }
 
@@ -91,7 +95,7 @@ class NotificationCubit extends Cubit<NotificationState> {
       if (responseData != null && responseData['success'] == true) {
         final AppNotification notification =
             AppNotification.fromJson(responseData['notification']);
-        emit(NotificationLoaded([notification]));
+        emit(Notificationload(notification));
         return notification;
       } else {
         emit(NotificationError('فشل في تحميل تفاصيل الإشعار'));
@@ -123,12 +127,9 @@ class NotificationCubit extends Cubit<NotificationState> {
   Future<void> markAsRead(int index) async {
     final notificationId = notifications[index].id;
     await markNotificationAsRead(notificationId);
-
     final updatedNotification = notifications[index].copyWith(isRead: true);
     notifications[index] = updatedNotification;
-
     unreadNotifications = notifications.where((n) => !n.isRead).toList();
-
     emit(NotificationLoaded(List.from(notifications)));
   }
 
@@ -143,6 +144,7 @@ class NotificationCubit extends Cubit<NotificationState> {
         await loadNotifications(userId);
       } else {
         emit(NotificationError('فشل في تعليم كل الإشعارات كمقروءة'));
+        loadNotifications(userId);
       }
     } catch (e) {
       emit(NotificationError('❌Error marking all notifications as read: $e'));

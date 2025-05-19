@@ -64,8 +64,8 @@ Future<void> fetchReports() async {
     switch (filter) {
       case 'pending':
         return reports.where((report) => report.status == 'Pending').toList();
-      case 'Reviewed':
-        return reports.where((report) => report.status == 'Reviewed').toList();
+      case 'Completed':
+        return reports.where((report) => report.status == 'Completed').toList();
       case 'all':
       default:
         return reports;

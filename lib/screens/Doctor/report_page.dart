@@ -1,15 +1,19 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
+import 'package:graduation_project_frontend/models/Doctor/report_page_model.dart';
+import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 
 class MedicalReportPage extends StatefulWidget {
   const MedicalReportPage(
       {super.key, this.reportId, this.Dicom_url, this.recordId});
   static final id = "MedicalReportPage";
+
   final String? reportId;
   final String? Dicom_url;
   final String? recordId;
@@ -20,12 +24,188 @@ class MedicalReportPage extends StatefulWidget {
 
 class _MedicalReportPageState extends State<MedicalReportPage> {
   bool _isEditing = false;
-
+  final List<String> reportTitles = ["Normal", "Critical", "Follow-up"];
+  String? _selectedStatus;
   @override
   void initState() {
     super.initState();
     context.read<ReportPageCubit>().fetchReport(widget.reportId!);
-    context.read<RecordsListCubit>().getRecordById(widget.recordId!); // NEW
+    context.read<RecordsListCubit>().getRecordById(widget.recordId!);
+    _selectedStatus =
+        context.read<ReportPageCubit>().resultController.text.trim();
+  }
+
+  Widget _buildTopInfo(RecordsListModel record, ReportModel report) {
+    final studyDate = record.studyDate != null
+        ? record.studyDate!.toLocal().toString().split(' ').first
+        : '-';
+    final List<Map<String, dynamic>> items = [
+      {
+        'title': 'Patient Name',
+        'value': record.patientName ?? '-',
+        'readOnly': true
+      },
+      {
+        'title': 'Age',
+        'value': record.age?.toString() ?? '-',
+        'readOnly': true
+      },
+      {'title': 'Gender', 'value': record.sex ?? '-', 'readOnly': true},
+      {'title': 'Study Date', 'value': studyDate ?? '-', 'readOnly': true},
+    ];
+// العناوين (التسميات) الخاصة بالخيارات
+
+    // Calculate each card width to fit 3 per row with spacing
+    final totalPadding = 18.0 * 2; // outer padding
+    final totalSpacing = 16.0 * 2; // between items
+    final cardWidth =
+        (MediaQuery.of(context).size.width - totalPadding - totalSpacing) / 3;
+
+    return Wrap(spacing: 16, runSpacing: 8, children: [
+      ...items.map((item) {
+        return SizedBox(
+          width: cardWidth,
+          child: _buildReportCard(
+            title: item['title']!,
+            child: CustomFormTextField(
+              controller: TextEditingController(text: item['value']),
+              labelText: item['title'],
+              readOnly: item['readOnly']!,
+            ),
+          ),
+        );
+      }).toList(),
+      SizedBox(
+          width: cardWidth,
+          child: _buildReportCard(
+            title: "Body Part",
+            child: CustomFormTextField(
+              controller: context.read<RecordsListCubit>().bodyPartsController,
+              labelText: "Body Part",
+              readOnly: !_isEditing,
+            ),
+          )),
+      SizedBox(
+          width: cardWidth,
+          child: !_isEditing
+              ? _buildReportCard(
+                  title: "result",
+                  child: CustomFormTextField(
+                    controller:
+                        context.read<ReportPageCubit>().resultController,
+                    labelText: "result",
+                    readOnly: true,
+                  ),
+                )
+              : GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // This makes 3 columns
+                    crossAxisSpacing:
+                        10, // Optional: adds spacing between columns
+                    mainAxisSpacing: 10, // Optional: adds spacing between rows
+                  ),
+                  itemCount: reportTitles.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return _buildChoseCard(reportTitles[index]);
+                  },
+                ))
+    ]);
+  }
+
+  Widget _buildChoseCard(String value) {
+    return Card(
+      elevation: 5,
+      margin: const EdgeInsets.symmetric(vertical: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(115, 115, 115, 1),
+                ),
+              ),
+            ),
+            // 2. Radio for selection (يتم اختيار واحد فقط)
+            Radio<String>(
+              value: reportTitles.contains(value) ? value : "Normal",
+              activeColor: blue,
+              groupValue: reportTitles.contains(_selectedStatus)
+                  ? _selectedStatus
+                  : "Normal",
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedStatus =
+                      reportTitles.contains(newValue) ? newValue! : "Normal";
+                });
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportCard({required String title, required Widget child}) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(VoidCallback onSave, VoidCallback onCancel) {
+    if (_isEditing) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton.icon(
+            onPressed: onSave,
+            icon: const Icon(Icons.save),
+            label: const Text('Save'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton.icon(
+            onPressed: onCancel,
+            icon: const Icon(Icons.cancel, color: Colors.red),
+            label: const Text('Cancel', style: TextStyle(color: Colors.red)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.red),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      );
+    }
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton.icon(
+        onPressed: () => setState(() => _isEditing = true),
+        icon: const Icon(Icons.edit),
+        label: const Text('Edit'),
+      ),
+    );
   }
 
   @override
@@ -50,20 +230,20 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
               if (reportState is ReportPageSuccess) {
                 return BlocBuilder<RecordsListCubit, RecordsListState>(
                   builder: (context, recordState) {
-                    bool isReviewed = false;
+                    bool isCompleted = false;
                     if (recordState is RecordLoaded &&
                         recordState.record != null) {
-                      isReviewed = recordState.record!.status == "Reviewed";
+                      isCompleted = recordState.record!.status == "Completed";
                       print("Record status: ${recordState.record!.status}");
                     }
-                    print("isReviewed: $isReviewed");
+                    print("isCompleted: $isCompleted");
 
                     return Row(
                       children: [
                         // زر Edit
                         if (!_isEditing)
                           TextButton.icon(
-                            onPressed: isReviewed
+                            onPressed: isCompleted
                                 ? null
                                 : () {
                                     setState(() {
@@ -72,11 +252,11 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                   },
                             icon: Icon(Icons.edit,
                                 color:
-                                    isReviewed ? Colors.grey : Colors.black87),
+                                    isCompleted ? Colors.grey : Colors.black87),
                             label: Text(
                               'Edit',
                               style: TextStyle(
-                                  color: isReviewed
+                                  color: isCompleted
                                       ? Colors.grey
                                       : Colors.black87),
                             ),
@@ -85,24 +265,24 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                         if (_isEditing) ...[
                           // زر Cancel
                           TextButton.icon(
-                            onPressed: isReviewed
+                            onPressed: isCompleted
                                 ? null
                                 : _showCancelConfirmationDialog,
                             icon: Icon(Icons.cancel,
-                                color: isReviewed
+                                color: isCompleted
                                     ? Colors.grey
                                     : Colors.redAccent),
                             label: Text(
                               'Cancel',
                               style: TextStyle(
-                                  color: isReviewed
+                                  color: isCompleted
                                       ? Colors.grey
                                       : Colors.redAccent),
                             ),
                           ),
                           // زر Save
                           TextButton.icon(
-                            onPressed: isReviewed
+                            onPressed: isCompleted
                                 ? null
                                 : () async {
                                     final impression = context
@@ -120,7 +300,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                         .commentsController
                                         .text
                                         .trim();
-
+                                    final result = _selectedStatus;
                                     await context
                                         .read<ReportPageCubit>()
                                         .updateReportOrRecord(
@@ -139,11 +319,36 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                             comments.isNotEmpty
                                                 ? comments
                                                 : " ",
+                                        "result": result,
+                                      },
+                                    );
+                                    final newBodyPart = context
+                                        .read<RecordsListCubit>()
+                                        .bodyPartsController
+                                        .text
+                                        .trim();
+                                    '';
+                                    await context
+                                        .read<ReportPageCubit>()
+                                        .updateReportOrRecord(
+                                      id: widget.recordId!,
+                                      isReport: false,
+                                      body: {
+                                        'body_part_examined':
+                                            newBodyPart.isNotEmpty
+                                                ? newBodyPart
+                                                : ' '
                                       },
                                     );
 
                                     setState(() {
                                       _isEditing = false;
+                                      context
+                                          .read<ReportPageCubit>()
+                                          .fetchReport(widget.reportId!);
+                                      context
+                                          .read<RecordsListCubit>()
+                                          .getRecordById(widget.recordId!);
                                     });
 
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -153,12 +358,13 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                     );
                                   },
                             icon: Icon(Icons.save,
-                                color: isReviewed ? Colors.grey : Colors.green),
+                                color:
+                                    isCompleted ? Colors.grey : Colors.green),
                             label: Text(
                               'Save',
                               style: TextStyle(
                                   color:
-                                      isReviewed ? Colors.grey : Colors.green),
+                                      isCompleted ? Colors.grey : Colors.green),
                             ),
                           ),
                         ],
@@ -166,7 +372,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: ElevatedButton(
-                            onPressed: isReviewed
+                            onPressed: isCompleted
                                 ? null
                                 : () async {
                                     await context
@@ -174,13 +380,13 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                         .updateReportOrRecord(
                                       id: widget.recordId!,
                                       isReport: false,
-                                      body: {"status": "Reviewed"},
+                                      body: {"status": "Completed"},
                                     );
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                           content: Text(
-                                              "Report sent and marked as Reviewed.")),
+                                              "Report sent and marked as Completed.")),
                                     );
 
                                     Navigator.pushReplacement(
@@ -192,7 +398,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  isReviewed ? Colors.grey : Colors.indigo,
+                                  isCompleted ? Colors.grey : Colors.indigo,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(6),
@@ -213,109 +419,89 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
         ],
       ),
       body: BlocBuilder<ReportPageCubit, ReportPageState>(
-        builder: (context, state) {
-          if (state is ReportPageLoading) {
+        builder: (context, reportState) {
+          if (reportState is ReportPageLoading)
             return const Center(child: CircularProgressIndicator());
-          } else if (state is ReportPageFailure) {
-            return Center(child: Text("Error: ${state.errmessage}"));
-          } else if (state is ReportPageSuccess) {
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: ListView(
-                children: [
-                  _buildReportSection(
-                    title: "Impression",
-                    controller:
-                        context.read<ReportPageCubit>().impressionController,
-                  ),
-                  _buildReportSection(
-                    title: "Findings",
-                    controller:
-                        context.read<ReportPageCubit>().findingsController,
-                  ),
-                  _buildReportSection(
-                    title: "Comments & Recommendations",
-                    controller:
-                        context.read<ReportPageCubit>().commentsController,
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return const Center(child: Text("Unexpected state"));
-          }
+          if (reportState is ReportPageFailure)
+            return Center(child: Text('Error: \${reportState.errmessage}'));
+          final report = (reportState as ReportPageSuccess).report;
+          return BlocBuilder<RecordsListCubit, RecordsListState>(
+            builder: (context, recordState) {
+              if (recordState is! RecordLoaded || recordState.record == null) {
+                return const Center(child: Text('Loading record...'));
+              }
+              final record = recordState.record!;
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView(
+                  children: [
+                    _buildTopInfo(record, report),
+                    const SizedBox(height: 15),
+                    // Findings
+                    _buildReportCard(
+                      title: 'Findings',
+                      child: CustomFormTextField(
+                        controller:
+                            context.read<ReportPageCubit>().findingsController,
+                        minLines: 3,
+                        maxLines: 50,
+                        labelText: 'Findings',
+                        readOnly: !_isEditing,
+                        isMultiline: true,
+                      ),
+                    ),
+                    // Impression
+                    _buildReportCard(
+                      title: 'Impression',
+                      child: CustomFormTextField(
+                        controller: context
+                            .read<ReportPageCubit>()
+                            .impressionController,
+                        minLines: 3,
+                        maxLines: 50,
+                        labelText: 'Impression',
+                        readOnly: !_isEditing,
+                        isMultiline: true,
+                      ),
+                    ),
+                    // Comment
+                    _buildReportCard(
+                      title: 'Comments',
+                      child: CustomFormTextField(
+                        controller:
+                            context.read<ReportPageCubit>().commentsController,
+                        minLines: 2,
+                        maxLines: 50,
+                        labelText: 'Comments',
+                        readOnly: !_isEditing,
+                        isMultiline: true,
+                      ),
+                    ),
+                    // Report Status Dropdown
+                  ],
+                ),
+              );
+            },
+          );
         },
       ),
     );
   }
 
-  Widget _buildReportSection({
-    required String title,
-    required TextEditingController controller,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _isEditing
-              ? TextField(
-                  controller: controller,
-                  maxLines: null,
-                  style: const TextStyle(fontSize: 15),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(12),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                  ),
-                )
-              : Text(
-                  controller.text.trim().isNotEmpty ? controller.text : "-",
-                  style: const TextStyle(
-                    fontSize: 15,
-                    height: 1.5,
-                    color: Colors.black87,
-                  ),
-                ),
-        ],
-      ),
-    );
-  }
-
+  // Section 4: Cancel Confirmation Dialog
   Future<void> _showCancelConfirmationDialog() async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text("Cancel Editing?"),
-        content: const Text("Are you sure you want to discard your changes?"),
+        content: const Text("Discard changes to this report?"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("No"),
-          ),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('No')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Yes"),
-          ),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Yes')),
         ],
       ),
     );
@@ -323,14 +509,21 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
     if (confirm == true) {
       final report =
           (context.read<ReportPageCubit>().state as ReportPageSuccess).report;
+      final record =
+          (context.read<RecordsListCubit>().state as RecordLoaded).record;
       setState(() {
         _isEditing = false;
-        context.read<ReportPageCubit>().impressionController.text =
-            report.diagnosisReportImpression ?? "";
+
         context.read<ReportPageCubit>().findingsController.text =
-            report.diagnosisReportFinding ?? "";
+            report.diagnosisReportFinding ?? '-';
+        context.read<ReportPageCubit>().impressionController.text =
+            report.diagnosisReportImpression ?? '-';
         context.read<ReportPageCubit>().commentsController.text =
-            report.diagnosisReportComment ?? "";
+            report.diagnosisReportComment ?? '-';
+        context.read<ReportPageCubit>().resultController.text =
+            report.result ?? '-';
+        context.read<RecordsListCubit>().bodyPartsController.text =
+            record.bodyPartExamined ?? '-';
       });
     }
   }

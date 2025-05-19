@@ -51,6 +51,7 @@ class RecordModel {
     required this.v,
     required this.reportId,
     required this.radiologistName,
+    required this.flag,
   });
 
   final String id;
@@ -77,6 +78,7 @@ class RecordModel {
   final int v;
   final String reportId;
   final String radiologistName;
+  final bool flag;
 
   factory RecordModel.fromJson(Map<String, dynamic> json) {
     return RecordModel(
@@ -104,6 +106,7 @@ class RecordModel {
       v: json["__v"] as int? ?? 0,
       reportId: json["reportId"] as String? ?? "",
       radiologistName: json["radiologistName"] as String? ?? "Unknown",
+      flag: json["flag"] as bool? ?? false,
     );
   }
 
@@ -133,6 +136,7 @@ class RecordModel {
       "__v": v,
       "reportId": reportId,
       "radiologistName": radiologistName,
+      "flag": flag
     };
   }
 }

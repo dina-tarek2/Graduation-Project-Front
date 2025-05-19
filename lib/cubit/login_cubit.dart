@@ -2,6 +2,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graduation_project_frontend/api_services/api_consumer.dart';
+import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_state.dart';
 import 'package:graduation_project_frontend/repositories/user_repository.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -116,9 +118,7 @@ class LoginCubit extends Cubit<LoginState> {
         message: notification['message'],
         title: notification['title'],
         image: isImageUrl ? iconData : null,
-        icon: !isImageUrl
-            ? Icon(Icons.notifications)
-            : null, 
+        icon: !isImageUrl ? Icon(Icons.notifications) : null,
         sound: notification['sound'],
         date: DateTime.parse(notification['createdAt']),
         type: custom_toast.NotificationType.notify,
