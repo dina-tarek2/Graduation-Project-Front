@@ -21,9 +21,9 @@ import 'package:graduation_project_frontend/screens/chatScreenToDoctor.dart';
 import 'package:graduation_project_frontend/screens/contact_us_page.dart';
 import 'package:graduation_project_frontend/screens/doctor_home_page.dart';
 import 'package:graduation_project_frontend/screens/manage_Doctor_page.dart';
-import 'package:graduation_project_frontend/screens/medical_report_list.dart';
 import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
 import 'package:graduation_project_frontend/screens/Center/center_profile.dart';
+import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart'
     as custom_toast;
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
@@ -70,39 +70,35 @@ class MainScaffoldState extends State<MainScaffold> {
       custom_toast.AdvancedNotification.setContext(context);
       reloadNotifyIcon();
     });
+
     // Initialize screens based on role
     if (widget.role == "RadiologyCenter") {
       screens = [
-
         MedicalDashboardScreen(),
         DicomsListPage(),
         // UploadButtonScreen(),
         // DicomListPage(),
         ManageDoctorsPage(centerId: context.read<CenterCubit>().state),
-        MedicalReportsScreen(),
+        // MedicalReportsScreen(),
         ContactScreen(role: widget.role),
-ChatScreen(userId: context.read<CenterCubit>().state,
-           userType: context.read<UserCubit>().state ,),  
-  AboutUsPage(),
-    ];
-    
-    }  else if (widget.role == "Radiologist") {
-
+        ChatScreen(
+          userId: context.read<CenterCubit>().state,
+          userType: context.read<UserCubit>().state,
+        ),
+        AboutUsPage(),
+      ];
+    } else if (widget.role == "Radiologist") {
       // Default screens for other roles
       screens = [
         DoctorDashboard(),
         RecordsListPage(),
-        MedicalReportsScreen(),
         ContactScreen(role: widget.role),
 //         ContactScreen(role: widget.role),
-
-ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.read<UserCubit>().state ,),
-     AboutUsPage(),
-
         ChatScreenToDoctor(
           userId: context.read<CenterCubit>().state,
           userType: context.read<UserCubit>().state,
         ),
+        AboutUsPage(),
       ];
     } else {
       screens = [
@@ -120,7 +116,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
 
   // Handle navigation from the sidebar
   void onItemSelected(int index) {
-    if (index == 7) {
+    if (index == 5) {
       context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
       Navigator.pushReplacementNamed(context, 'SigninPage');
       return;
@@ -136,7 +132,6 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     final state = widget.role == "Radiologist"
         ? context.watch<DoctorProfileCubit>().state
         : context.watch<CenterProfileCubit>().state;
-
     String? imageUrl;
     String displayInitials = '';
 
@@ -168,7 +163,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
         });
       },
       child: CircleAvatar(
-        radius: 15,
+        radius: 12,
         backgroundColor: blue,
         backgroundImage: _imageFile != null
             ? FileImage(_imageFile!)
@@ -185,8 +180,6 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
     );
   }
 
-
-// دالة لحساب عدد الإشعارات غير المقروءة
   int get _unreadNotificationCount {
     final stateNot = context.watch<NotificationCubit>().state;
     if (stateNot is NotificationLoaded) {
@@ -271,19 +264,21 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
         return widget.role == "RadiologyCenter"
             ? 'Upload Dicom'
             : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
+      // case 2:
+      //   return widget.role == "RadiologyCenter"
+      //       ? 'Manage Doctors'
+      //       : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
+      // case 3:
+      //   return widget.role == "RadiologyCenter"
+      //       ? 'Medical Reports'
+      //       : (widget.role == "Admin" ? 'Manage Doctors' : '');
       case 2:
         return widget.role == "RadiologyCenter"
             ? 'Manage Doctors'
-            : (widget.role == "Admin" ? 'Manage Centers' : 'Chat');
+            : (widget.role == "Admin" ? 'Manage Centers' : 'Contact Us');
       case 3:
-        return widget.role == "RadiologyCenter"
-            ? 'Medical Reports'
-            : (widget.role == "Admin" ? 'Manage Doctors' : '');
-      case 4:
-        return 'Contact Us';
-      case 5:
         return 'Chat App';
-      case 6:
+      case 4:
         return 'About Us';
       case 10:
         return 'My Profile';
@@ -313,12 +308,12 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
             child: Column(
               children: [
                 Container(
-                  decoration:BoxDecoration(
-                            color: Colors.white70,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(width: 0.5,color: blue),
-                              // boxShadow: ,
-                            ) ,
+                  decoration: BoxDecoration(
+                    color: Colors.white70,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(width: 0.5, color: blue),
+                    // boxShadow: ,
+                  ),
                   height: 70,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
@@ -326,28 +321,27 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                     children: [
                       Text(
                         _getScreenTitle(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: sky,
-
+                        style: customTextStyle(
+                          MediaQuery.of(context).size.width * 0.03,
+                          FontWeight.bold,
+                          blue,
                         ),
                       ),
                       Row(
                         children: [
-                            Text(
-                          '$formattedDate | $formattedTime',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                          Text(
+                            '$formattedDate',
+                            style: customTextStyle(
+                              MediaQuery.of(context).size.width * 0.02,
+                              FontWeight.w500,
+                              Colors.black54,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 20),
-                     
+                          const SizedBox(width: 20),
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: sky,
+                              // color: sky,
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
@@ -361,7 +355,7 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: _unreadNotificationCount > 0
                                     ? lightBlue
@@ -377,9 +371,10 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                                         ? Icons.notifications_active_rounded
                                         : Icons.notifications_none_rounded,
                                     color: Color(0xFF073042),
-                                    size: 20,
+                                    size: MediaQuery.of(context).size.width *
+                                        0.02,
                                   ),
-                                  if (_unreadNotificationCount > 0 )
+                                  if (_unreadNotificationCount > 0)
                                     Positioned(
                                       right: 16,
                                       top: -15,
@@ -396,16 +391,19 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
                                         child: Center(
                                           child: Text(
                                             _unreadNotificationCount.toString(),
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
+                                            style: customTextStyle(
+                                              MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.01,
+                                              FontWeight.w500,
+                                              Colors.white,
                                             ),
                                           ),
                                         ),
                                       ),
-                                )  ],
-                              
+                                    )
+                                ],
                               ),
                             ),
                           ),
@@ -444,5 +442,4 @@ ChatScreenToDoctor(userId: context.read<CenterCubit>().state,userType: context.r
       ),
     );
   }
-
 }

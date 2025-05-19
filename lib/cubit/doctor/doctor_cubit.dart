@@ -46,6 +46,30 @@ try {
       emit(DoctorListError("Error adding doctor: ${e.toString()}"));
     }
 }
+Future<void>AddDoctorByEmail(String email, String centerId)async{
+try {
+   final response =await api.post('https://graduation-project-mmih.vercel.app/api/relations/radiologist/$centerId'
+   ,data: {'email':email});
+   if (response.statusCode ==201) {
+    await fetchDoctors(centerId);
+      // final newDoctor = Doctor.fromJson(response.data['data']);
+      // doctors.add(newDoctor);
+      // emit(DoctorListSuccess(List.from(doctors)));
+     emit( DoctorAddedSuccess("the Doctor Added Successfuly"));
+   }else if(response.statusCode == 404){
+    emit(DoctorListError("This doctor does not exist. An invitation has been sent"));
+   }
+   else if(response.statusCode == 409){
+    emit(DoctorListError("Radiologist is already assigned to this center"));
+   }
+   else{
+    emit(DoctorListError("Failed to Add doctor"));
+   }
+} catch (e) {
+   print("Error adding doctor: ${e.toString()}");
+      emit(DoctorListError("Error adding doctor: ${e.toString()}"));
+    }
+}
 Future deleteDoctors(String id, String centerId) async {
   try {
     final response = await api.delete(
