@@ -6,7 +6,7 @@ import 'package:graduation_project_frontend/models/Admin/docotors_model.dart';
 
 class ManageDoctorsaPage extends StatefulWidget {
   static final id = "ManageDoctorsaPage";
-  const ManageDoctorsaPage({Key? key}) : super(key: key);
+  const ManageDoctorsaPage({super.key});
 
   @override
   State<ManageDoctorsaPage> createState() => _ManageDoctorsaPageState();
@@ -110,6 +110,7 @@ class _ManageDoctorsaPageState extends State<ManageDoctorsaPage> {
         ),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 3,
@@ -201,6 +202,7 @@ class _ManageDoctorsaPageState extends State<ManageDoctorsaPage> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.05),
             spreadRadius: 0,
             blurRadius: 1,
@@ -229,7 +231,7 @@ class _ManageDoctorsaPageState extends State<ManageDoctorsaPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    doctor.firstName! + " " + doctor.lastName!,
+                    "${doctor.firstName!} ${doctor.lastName!}",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -237,7 +239,7 @@ class _ManageDoctorsaPageState extends State<ManageDoctorsaPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    doctor.specialization!.toList().first, //???????
+                    doctor.specialization.toList().first, //???????
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey.shade600,

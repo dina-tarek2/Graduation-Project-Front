@@ -8,11 +8,12 @@ import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
+
 class ChatScreen extends StatefulWidget {
   final String userId;
   final String userType;
   static String id = 'ChatScreen';
-    final Doctor? initialDoctor;
+  final Doctor? initialDoctor;
   const ChatScreen({
     Key? key,
     required this.userId,
@@ -28,9 +29,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late ChatCubit chatCubit;
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-    final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
-   List<dynamic> filteredConversations = [];
+  List<dynamic> filteredConversations = [];
   List<dynamic> conversations = [];
   List<dynamic> messages = [];
   bool isPartnerOnline = false;
@@ -42,18 +43,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   int unreadCount = 0;
   bool isTyping = false;
   bool isLoadingMessages = false;
-   bool isSearching = false;
+  bool isSearching = false;
   //  Timer? _timer;
   @override
   void initState() {
     super.initState();
-    
+
     chatCubit = ChatCubit(
       api: DioConsumer(dio: Dio()),
       userId: widget.userId,
       userType: widget.userType,
     );
-    
+
     // Load conversations initially
     _loadConversations();
     // if(partnerId.isEmpty!)
@@ -80,9 +81,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         });
       }
     });
-  
- _searchController.addListener(_filterConversations);
+
+    _searchController.addListener(_filterConversations);
   }
+
   void _filterConversations() {
     if (_searchController.text.isEmpty) {
       setState(() {
@@ -91,39 +93,41 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
       return;
     }
-    
+
     setState(() {
       isSearching = true;
       filteredConversations = conversations.where((chat) {
-        final fullName = "${chat['firstName']} ${chat['lastName']}".toLowerCase();
+        final fullName =
+            "${chat['firstName']} ${chat['lastName']}".toLowerCase();
         return fullName.contains(_searchController.text.toLowerCase());
       }).toList();
     });
   }
+
   Future<void> _loadConversations() async {
     chatCubit.fetchConversations();
   }
+
   // void _startAutoRefresh() {
-  //   _timer = Timer.periodic(Duration(seconds: 5), (timer) { 
-  //      chatCubit.fetchMessages(receiverId: partnerId, receiverType: partnerType); 
+  //   _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+  //      chatCubit.fetchMessages(receiverId: partnerId, receiverType: partnerType);
   //   });
   // }
   Future<void> _loadMessages(String receiverId, String receiverType) async {
     setState(() {
       isLoadingMessages = true;
     });
-    
+
     chatCubit.fetchMessages(
       receiverId: receiverId,
       receiverType: receiverType,
     );
   }
-  
+
   void _selectConversation(dynamic chat) {
-    String receiverType = widget.userType == "Radiologist"
-        ? "RadiologyCenter"
-        : "Radiologist";
-    
+    String receiverType =
+        widget.userType == "Radiologist" ? "RadiologyCenter" : "Radiologist";
+
     if (partnerId != chat['id']) {
       setState(() {
         chatCubit.setPartner(
@@ -144,16 +148,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _loadMessages(partnerId, receiverType);
     }
   }
-  
+
   void _sendMessage() {
     if (_controller.text.trim().isNotEmpty) {
       final messageText = _controller.text;
       _controller.clear();
-      
+
       // Optimistic update
       setState(() {
         isTyping = false;
-        
+
         // Add message locally first (optimistic)
         messages.add({
           'id': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -164,10 +168,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           'isOptimistic': true, // Mark as optimistic update
         });
       });
-      
+
       // Scroll to bottom immediately after adding the message
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-      
+
       // Actually send the message
       chatCubit.sendMessage(messageText).then((_) {
         // Update only the current conversation in the list without reloading all
@@ -219,9 +223,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           children: [
             Container(
               width: 300,
-               decoration: BoxDecoration(
-             border: Border(
-                  right: BorderSide(color: Colors.grey.shade200, width:5),
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(color: Colors.grey.shade200, width: 5),
                 ),
               ),
               child: buildChatList(),
@@ -232,28 +236,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
     );
   }
-  Widget buildChatList() {
 
-     String formatLastTime(String timestamp) {
-      try {
-        final now = DateTime.now().toUtc();
-        final dateTime = DateTime.parse(timestamp).toUtc()
-        ;
-        final difference = now.difference(dateTime);
-        
-        if (difference.inDays > 0) {
-          return difference.inDays == 1 ? 'Yesterday' : DateFormat('dd/MM').format(dateTime);
-        } else if (difference.inHours > 0) {
-          return '${difference.inHours}h ago';
-        } else if (difference.inMinutes > 0) {
-          return '${difference.inMinutes}m ago';
-        } else {
-          return 'Just now';
-        }
-      } catch (e) {
-        return 'Just now';
-      }
-    }
+  Widget buildChatList() {
     return Column(
       children: [
         Container(
@@ -261,14 +245,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Messages",
-                style: customTextStyle(24, FontWeight.w600, darkBlue)
-               
-              ),
+              Text("Messages",
+                  style: customTextStyle(24, FontWeight.w600, darkBlue)),
               const SizedBox(height: 12),
               TextField(
-                 controller: _searchController,
+                controller: _searchController,
                 decoration: InputDecoration(
                   hintText: "Search conversations...",
                   prefixIcon: const Icon(Icons.search, color: blue),
@@ -278,14 +259,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
-                    suffixIcon: isSearching ? GestureDetector(
-                      onTap: () {
-                        _searchController.clear();
-                      },
-                      child: Icon(Icons.close, color: Colors.grey),
-                    ) : null,
-              ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  suffixIcon: isSearching
+                      ? GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                          },
+                          child: Icon(Icons.close, color: Colors.grey),
+                        )
+                      : null,
+                ),
               ),
             ],
           ),
@@ -298,7 +281,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline, size: 60, color: Colors.grey.shade400),
+                        Icon(Icons.chat_bubble_outline,
+                            size: 60, color: Colors.grey.shade400),
                         const SizedBox(height: 16),
                         Text(
                           "No conversations yet",
@@ -313,11 +297,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     itemBuilder: (context, index) {
                       var chat = conversations[index];
                       final bool isSelected = chat['id'] == partnerId;
-                      
+
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
                         child: Material(
-                          color: isSelected ? blue: Colors.transparent,
+                          color: isSelected ? blue : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
@@ -334,21 +319,31 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: isSelected ? Colors.white : Colors.transparent,
+                                            color: isSelected
+                                                ? Colors.white
+                                                : Colors.transparent,
                                             width: 2,
                                           ),
                                         ),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(28),
+                                          borderRadius:
+                                              BorderRadius.circular(28),
                                           child: CachedNetworkImage(
-                                            imageUrl: chat['imageUrl']?.isNotEmpty == true
+                                            imageUrl: chat['imageUrl']
+                                                        ?.isNotEmpty ==
+                                                    true
                                                 ? chat['imageUrl']
                                                 : "https://www.viverefermo.it/images/user.png",
                                             fit: BoxFit.cover,
-                                            placeholder: (context, url) => 
-                                                Container(color: Colors.grey.shade200),
-                                            errorWidget: (context, url, error) => 
-                                                Icon(Icons.person, size: 32, color: Colors.grey),
+                                            placeholder: (context, url) =>
+                                                Container(
+                                                    color:
+                                                        Colors.grey.shade200),
+                                            errorWidget:
+                                                (context, url, error) => Icon(
+                                                    Icons.person,
+                                                    size: 32,
+                                                    color: Colors.grey),
                                           ),
                                         ),
                                       ),
@@ -362,7 +357,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                             decoration: BoxDecoration(
                                               color: Colors.green,
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.white, width: 2),
+                                              border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2),
                                             ),
                                           ),
                                         ),
@@ -371,19 +368,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "${chat['firstName']} ${chat['lastName']}",
                                               style: TextStyle(
-                                                fontWeight: isSelected || chat['unreadCount'] > 0
+                                                fontWeight: isSelected ||
+                                                        chat['unreadCount'] > 0
                                                     ? FontWeight.w600
                                                     : FontWeight.w400,
                                                 fontSize: 16,
-                                                color: isSelected ? Colors.black : Colors.black,
+                                                color: isSelected
+                                                    ? Colors.black
+                                                    : Colors.black,
                                               ),
                                             ),
                                             // Text(
@@ -400,28 +402,36 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                           children: [
                                             Expanded(
                                               child: Text(
-                                                chat['status'] ,
+                                                chat['status'],
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 13,
-                                                  color:isSelected 
-                                                    ? Colors.white 
-: chat['status'] == 'online' ? Colors.green : Colors.grey,
+                                                  color: isSelected
+                                                      ? Colors.white
+                                                      : chat['status'] ==
+                                                              'online'
+                                                          ? Colors.green
+                                                          : Colors.grey,
                                                 ),
                                               ),
                                             ),
                                             if (chat['unreadCount'] > 0)
                                               Container(
-                                                padding: const EdgeInsets.all(6),
+                                                padding:
+                                                    const EdgeInsets.all(6),
                                                 decoration: BoxDecoration(
-                                                  color: isSelected ? Colors.white : blue,
+                                                  color: isSelected
+                                                      ? Colors.white
+                                                      : blue,
                                                   shape: BoxShape.circle,
                                                 ),
                                                 child: Text(
                                                   "${chat['unreadCount']}",
-                                                  style:  TextStyle(
-                                                    color: isSelected ? blue : Colors.white,
+                                                  style: TextStyle(
+                                                    color: isSelected
+                                                        ? blue
+                                                        : Colors.white,
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -459,6 +469,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         return '';
       }
     }
+
     if (partnerId.isEmpty) {
       return Center(
         child: Column(
@@ -481,7 +492,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ),
       );
     }
-    
+
     return Stack(
       children: [
         Column(
@@ -492,17 +503,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               elevation: 3,
               shadowColor: Colors.black12,
               child: Container(
-                  decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-                  ),
-                   padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
                     Container(
@@ -513,8 +524,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         child: CachedNetworkImage(
                           imageUrl: partnerImage,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: Colors.grey.shade200),
-                          errorWidget: (context, url, error) => 
+                          placeholder: (context, url) =>
+                              Container(color: Colors.grey.shade200),
+                          errorWidget: (context, url, error) =>
                               Icon(Icons.person, size: 32, color: Colors.grey),
                         ),
                       ),
@@ -538,14 +550,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: partnerStatus == 'online' ? Colors.green : Colors.grey,
+                                  color: partnerStatus == 'online'
+                                      ? Colors.green
+                                      : Colors.grey,
                                   shape: BoxShape.circle,
                                 ),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 partnerStatus,
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.grey.shade600),
                               ),
                             ],
                           ),
@@ -568,11 +583,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            
+
             // Messages area
             Expanded(
               child: isLoadingMessages
-                  ? Center(child: CircularProgressIndicator(color: blue,))
+                  ? Center(
+                      child: CircularProgressIndicator(
+                      color: blue,
+                    ))
                   : messages.isEmpty
                       ? Center(
                           child: Column(
@@ -584,15 +602,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 color: Colors.grey.shade300,
                               ),
                               const SizedBox(height: 24),
-                              Text(
-                                "Start a conversation",
-                                style: customTextStyle(18, FontWeight.w500, darkBlue)
-                              ),
+                              Text("Start a conversation",
+                                  style: customTextStyle(
+                                      18, FontWeight.w500, darkBlue)),
                               const SizedBox(height: 8),
-                              Text(
-                                "Send a message to begin chatting",
-                                style: customTextStyle(14, FontWeight.w300, Colors.blueGrey.shade600)
-                              ),
+                              Text("Send a message to begin chatting",
+                                  style: customTextStyle(14, FontWeight.w300,
+                                      Colors.blueGrey.shade600)),
                             ],
                           ),
                         )
@@ -604,36 +620,42 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                             child: ListView.builder(
                               controller: _scrollController,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 20),
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 final message = messages[index];
                                 final bool isUser = isCurrentUser(message);
-                                final bool showDate = index == 0 || 
-                                    DateTime.parse(message['createdAt']).day != 
-                                    DateTime.parse(messages[index - 1]['createdAt']).day;
-                                
-                                final bool isOptimistic = message['isOptimistic'] == true;
-                                
+                                final bool showDate = index == 0 ||
+                                    DateTime.parse(message['createdAt']).day !=
+                                        DateTime.parse(messages[index - 1]
+                                                ['createdAt'])
+                                            .day;
+
+                                final bool isOptimistic =
+                                    message['isOptimistic'] == true;
+
                                 return Column(
                                   children: [
                                     if (showDate)
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
                                         child: Center(
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, 
+                                              horizontal: 12,
                                               vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.grey.shade300,
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
                                             child: Text(
                                               DateFormat('EEEE, MMMM d').format(
-                                                DateTime.parse(message['createdAt'])
-                                              ),
+                                                  DateTime.parse(
+                                                      message['createdAt'])),
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.grey.shade700,
@@ -643,10 +665,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     Align(
-                                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                                      alignment: isUser
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
                                       child: Container(
                                         constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context).size.width * 0.65,
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.65,
                                         ),
                                         margin: EdgeInsets.only(
                                           bottom: 12,
@@ -658,43 +685,54 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                           vertical: 12,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: isUser 
-                                              ? blue
-                                          : Colors.white,
+                                          color: isUser ? blue : Colors.white,
                                           borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(isUser ? 16 : 4),
-                                            topRight: Radius.circular(isUser ? 4 : 16),
-                                            bottomLeft: const Radius.circular(16),
-                                            bottomRight: const Radius.circular(16),
+                                            topLeft: Radius.circular(
+                                                isUser ? 16 : 4),
+                                            topRight: Radius.circular(
+                                                isUser ? 4 : 16),
+                                            bottomLeft:
+                                                const Radius.circular(16),
+                                            bottomRight:
+                                                const Radius.circular(16),
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                               color: Colors.black45,
+                                              color: Colors.black45,
                                               blurRadius: 4,
                                               offset: const Offset(0, 1),
                                             ),
                                           ],
                                         ),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              message['content'] ?? "Empty message",
+                                              message['content'] ??
+                                                  "Empty message",
                                               style: TextStyle(
-                                                color: isUser ? Colors.white : Colors.black87,
+                                                color: isUser
+                                                    ? Colors.white
+                                                    : Colors.black87,
                                                 fontSize: 15,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
                                               children: [
                                                 Text(
-                                                  formatTimeOfDay(message['createdAt'] ??
-                                                      DateTime.now().toIso8601String()),
+                                                  formatTimeOfDay(message[
+                                                          'createdAt'] ??
+                                                      DateTime.now()
+                                                          .toIso8601String()),
                                                   style: TextStyle(
-                                                    color: isUser ? Colors.white70 : Colors.grey,
+                                                    color: isUser
+                                                        ? Colors.white70
+                                                        : Colors.grey,
                                                     fontSize: 11,
                                                   ),
                                                   textAlign: TextAlign.right,
@@ -702,13 +740,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                 const SizedBox(width: 4),
                                                 if (isUser) ...[
                                                   Icon(
-                                                    isOptimistic ? Icons.access_time : 
-                                                      message['readStatus'] == true
-                                                          ? Icons.done_all
-                                                          : Icons.done,
+                                                    isOptimistic
+                                                        ? Icons.access_time
+                                                        : message['readStatus'] ==
+                                                                true
+                                                            ? Icons.done_all
+                                                            : Icons.done,
                                                     size: 16,
-                                                    color: isOptimistic ? Colors.white54 :
-                                                        message['readStatus'] == true
+                                                    color: isOptimistic
+                                                        ? Colors.white54
+                                                        : message['readStatus'] ==
+                                                                true
                                                             ? Colors.white
                                                             : Colors.white70,
                                                   ),
@@ -726,7 +768,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ),
                         ),
             ),
-            
+
             // Message input
             Container(
               decoration: BoxDecoration(
@@ -742,7 +784,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.attach_file, color: blue,),
+                    icon: const Icon(
+                      Icons.attach_file,
+                      color: blue,
+                    ),
                     onPressed: () {},
                   ),
                   Expanded(
@@ -756,7 +801,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey),
+                            icon: const Icon(Icons.emoji_emotions_outlined,
+                                color: Colors.grey),
                             onPressed: () {},
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
@@ -768,7 +814,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               decoration: const InputDecoration(
                                 hintText: "Type a message...",
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                contentPadding:
+                                    EdgeInsets.symmetric(vertical: 12),
                               ),
                               maxLines: null,
                               textCapitalization: TextCapitalization.sentences,
@@ -780,7 +827,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.mic_none_rounded, color: Colors.grey),
+                            icon: const Icon(Icons.mic_none_rounded,
+                                color: Colors.grey),
                             onPressed: () {},
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
