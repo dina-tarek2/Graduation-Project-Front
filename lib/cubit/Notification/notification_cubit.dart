@@ -142,11 +142,10 @@ class NotificationCubit extends Cubit<NotificationState> {
 
       if (response.data['success'] == true) {
         print('✅All notifications marked as read');
-        await loadNotifications(userId);
       } else {
         emit(NotificationError('فشل في تعليم كل الإشعارات كمقروءة'));
-        loadNotifications(userId);
       }
+      loadNotifications(userId);
     } catch (e) {
       emit(NotificationError('❌Error marking all notifications as read: $e'));
       print('❌Error marking all notifications as read: $e');
@@ -194,11 +193,19 @@ class NotificationCubit extends Cubit<NotificationState> {
       print('❌Error deleting all notifications: $e');
     }
   }
-  // دالة لحساب عدد الإشعارات غير المقروءة
- int get unreadNotificationCount {
-    if (state is NotificationLoaded) {
-      return notifications.where((notif) => !notif.isRead).length;
+
+  Future<void> updataNotifyByType(String userId, String type) async {
+    try {
+      final response = await api.put('$baseUrl/make_all_read',
+          data: {"userId": userId, "type": type});
+      if (response.data['success'] == true) {
+        print('✅Notification marked as read');
+      } else {
+        print('❌Failed to mark notification as read');
+      }
+      loadNotifications(userId);
+    } catch (e) {
+      print('❌Error marking notification as read: $e');
     }
-    return 0;
   }
 }

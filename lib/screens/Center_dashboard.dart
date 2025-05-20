@@ -15,7 +15,10 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 class MedicalDashboardScreen extends StatefulWidget {
   static final id = 'MedicalDashboardScreen';
 
+  const MedicalDashboardScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _MedicalDashboardScreenState createState() => _MedicalDashboardScreenState();
 }
 
@@ -88,10 +91,10 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
             ),
             TextButton(
               onPressed: () {
-                if (startDate != null && endDate != null) {
+                
                   Navigator.pop(
                       context, DateTimeRange(start: startDate, end: endDate));
-                }
+                
               },
               child: Text('OK'),
             ),
@@ -104,6 +107,7 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
       setState(() {
         _selectedDateRange = picked;
       });
+      // ignore: use_build_context_synchronously
       context.read<DashboardCubit>().loadDashboard();
     }
   }
@@ -270,8 +274,10 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
+          // ignore: deprecated_member_use
           border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Column(
@@ -321,6 +327,7 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 4,

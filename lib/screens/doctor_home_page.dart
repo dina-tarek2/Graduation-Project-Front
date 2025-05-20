@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
 
 class DoctorDashboard extends StatefulWidget {
-  const DoctorDashboard({Key? key}) : super(key: key);
+  const DoctorDashboard({super.key});
   static final id = 'DoctorDashboard';
   
   @override
@@ -78,6 +77,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: Colors.grey.withOpacity(0.1),
                                 spreadRadius: 1,
                                 blurRadius: 5,
@@ -109,8 +109,10 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
+          // ignore: deprecated_member_use
           border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Column(
