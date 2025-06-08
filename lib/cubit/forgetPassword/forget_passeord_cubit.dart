@@ -45,7 +45,7 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
       );
 
       if (response.statusCode == 200) {
-        emit(ForgetPasswordSuccess(response.data["message"]));
+        emit(ForgetPasswordOtpUpdated(response.data["message"]));
       } else {
         emit(ForgetPasswordFailure("Unexpected response format: $response"));
       }

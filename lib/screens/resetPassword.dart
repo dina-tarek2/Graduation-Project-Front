@@ -187,7 +187,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                  
                                       context
                                           .read<ForgetPasswordCubit>()
-                                          .resetPassword();
+                                          .ResetPassword();
                                     },
                                   
                                   child: Text(
