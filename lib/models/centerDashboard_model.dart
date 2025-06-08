@@ -20,15 +20,15 @@ class Centerdashboard {
 
 }
 class DailyReportStats {
-  final int pending;
-  final int reviewed;
-  final int available;
+  final int Diagnose;
+  final int Completed;
+  final int Ready;
   final int total;
 
   DailyReportStats({
-    required this.pending,
-    required this.reviewed,
-    required this.available,
+    required this.Diagnose,
+    required this.Completed,
+    required this.Ready,
     required this.total,
   });
 }

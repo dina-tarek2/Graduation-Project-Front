@@ -9,6 +9,10 @@ final class ForgetPasswordSuccess extends ForgetPasswordState {
   final String massage ;
   ForgetPasswordSuccess(this.massage);
 }
+final class ForgetPasswordReseted extends ForgetPasswordState {
+  final String massage ;
+  ForgetPasswordReseted(this.massage);
+}
 final class ForgetPasswordFailure extends ForgetPasswordState {
    final String error ;
   ForgetPasswordFailure(this.error);

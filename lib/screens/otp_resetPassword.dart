@@ -50,14 +50,37 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
     return Scaffold(
       body: BlocConsumer<ForgetPasswordCubit, ForgetPasswordState>(
         listener: (context, state) {
-          if (state is ForgetPasswordSuccess) {
+          if (state is ForgetPasswordOtpUpdated) {
              showAdvancedNotification(
             context,
-            message: state.massage,
+            message: "Otp Checked Susessfuly Go to reset Password Now ",
            type: NotificationType.success,
         style: AnimationStyle.card,
           );
-           Navigator.pushNamed(context, ResetPassword.id);
+           Navigator.push(
+  context,
+  PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => ResetPassword(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0); 
+      const end = Offset.zero;
+      const curve = Curves.easeInOut;
+
+      final tween =
+          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      final offsetAnimation = animation.drive(tween);
+
+      return SlideTransition(
+        position: offsetAnimation,
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      );
+    },
+    transitionDuration: Duration(milliseconds: 500),
+  ),
+);
           }
           if (state is ForgetPasswordFailure) {
             showAdvancedNotification(

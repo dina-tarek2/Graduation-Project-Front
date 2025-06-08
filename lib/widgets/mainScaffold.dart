@@ -116,11 +116,11 @@ class MainScaffoldState extends State<MainScaffold> {
 
   // Handle navigation from the sidebar
   void onItemSelected(int index) {
-    if (index == 5) {
-      context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
-      Navigator.pushReplacementNamed(context, 'SigninPage');
-      return;
-    }
+    // if (index == 5) {
+    //   context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
+    //   Navigator.pushReplacementNamed(context, 'SigninPage');
+    //   return;
+    // }
 
     setState(() {
       selectedIndex = index;
@@ -277,8 +277,10 @@ class MainScaffoldState extends State<MainScaffold> {
             ? 'Manage Doctors'
             : (widget.role == "Admin" ? 'Manage Centers' : 'Contact Us');
       case 3:
-        return 'Chat App';
+        return widget.role == "RadiologyCenter" ? 'Contact Us' : 'Chat App';
       case 4:
+        return widget.role == "RadiologyCenter" ? 'Chat' : 'About Us';
+      case 5:
         return 'About Us';
       case 10:
         return 'My Profile';
@@ -303,6 +305,12 @@ class MainScaffoldState extends State<MainScaffold> {
             selectedIndex: selectedIndex,
             role: widget.role,
             onItemSelected: onItemSelected,
+            onLogout: () {
+              context
+                  .read<LoginCubit>()
+                  .logout(context.read<CenterCubit>().state);
+              Navigator.pushReplacementNamed(context, 'SigninPage');
+            },
           ),
           Expanded(
             child: Column(
@@ -322,7 +330,7 @@ class MainScaffoldState extends State<MainScaffold> {
                       Text(
                         _getScreenTitle(),
                         style: customTextStyle(
-                          MediaQuery.of(context).size.width * 0.03,
+                         22,
                           FontWeight.bold,
                           blue,
                         ),
@@ -332,17 +340,17 @@ class MainScaffoldState extends State<MainScaffold> {
                           Text(
                             '$formattedDate',
                             style: customTextStyle(
-                              MediaQuery.of(context).size.width * 0.02,
+                              12,
                               FontWeight.w500,
                               Colors.black54,
                             ),
                           ),
-                          const SizedBox(width: 20),
+                          const SizedBox(width: 10),
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               // color: sky,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           GestureDetector(
@@ -355,13 +363,13 @@ class MainScaffoldState extends State<MainScaffold> {
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: _unreadNotificationCount > 0
-                                    ? lightBlue
-                                    : sky, // تغيير اللون بناءً على الحالة
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              padding: const EdgeInsets.all(4),
+                              // decoration: BoxDecoration(
+                              //   color: _unreadNotificationCount > 0
+                              //       ? lightBlue
+                              //       : sky, // تغيير اللون بناءً على الحالة
+                              //   borderRadius: BorderRadius.circular(12),
+                              // ),
                               child: Stack(
                                 clipBehavior:
                                     Clip.none, // لتجنب تجاوز العداد للحدود
@@ -370,9 +378,8 @@ class MainScaffoldState extends State<MainScaffold> {
                                     _unreadNotificationCount > 0
                                         ? Icons.notifications_active_rounded
                                         : Icons.notifications_none_rounded,
-                                    color: Color(0xFF073042),
-                                    size: MediaQuery.of(context).size.width *
-                                        0.02,
+                                    color: blue,
+                                    size:25,
                                   ),
                                   if (_unreadNotificationCount > 0)
                                     Positioned(
@@ -392,10 +399,7 @@ class MainScaffoldState extends State<MainScaffold> {
                                           child: Text(
                                             _unreadNotificationCount.toString(),
                                             style: customTextStyle(
-                                              MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.01,
+                                            12,
                                               FontWeight.w500,
                                               Colors.white,
                                             ),

@@ -44,7 +44,7 @@ final response  =await api.post(EndPoints.CheckOtp,
             );
             print("Email is $savedEmail");
     if (response.statusCode== 200) {
-      emit(ForgetPasswordSuccess(response.data["message"]));
+      emit(ForgetPasswordOtpUpdated(response.data["message"]));
     } else {
       emit(ForgetPasswordFailure("Unexpected response format: $response"));
     
@@ -65,7 +65,7 @@ final response  =await api.post(EndPoints.ResetPassword,
             );
             
             if (response.statusCode== 200) {
-      emit(ForgetPasswordSuccess(response.data['message']));
+      emit(ForgetPasswordReseted(response.data['message']));
 } else 
  emit(ForgetPasswordFailure("Unexpected response format: $response"));
 }catch (e) {
@@ -81,6 +81,7 @@ Future<String?> getEmail() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getString('saved_email');
 }
+
 @override
 Future<void> close() {
   emailController.dispose();
