@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:intl/intl.dart';
 
 class Modernstatistical extends StatefulWidget {
   final Map<String, DailyReportStats> dailyStats;

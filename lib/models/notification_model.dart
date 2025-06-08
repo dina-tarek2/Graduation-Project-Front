@@ -2,6 +2,7 @@ class AppNotification {
   final String _id;
   final String userId;
   final String userType;
+  final String type; 
   final String title;
   final String message;
   final String icon;
@@ -14,6 +15,7 @@ class AppNotification {
     required String id,
     required this.userId,
     required this.userType,
+    required this.type,
     required this.title,
     required this.message,
     required this.icon,
@@ -30,6 +32,7 @@ class AppNotification {
     String? id,
     String? userId,
     String? userType,
+    String? type,
     String? title,
     String? message,
     String? icon,
@@ -42,6 +45,7 @@ class AppNotification {
       id: id ?? this._id,
       userId: userId ?? this.userId,
       userType: userType ?? this.userType,
+      type: type ?? this.type,
       title: title ?? this.title,
       message: message ?? this.message,
       icon: icon ?? this.icon,
@@ -58,6 +62,7 @@ class AppNotification {
       id: json['_id'],
       userId: json['userId'],
       userType: json['userType'],
+      type: json['type'],
       title: json['title'],
       message: json['message'],
       icon: json['icon'],

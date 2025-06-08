@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
@@ -8,9 +6,9 @@ import 'package:graduation_project_frontend/models/Admin/approved_centers_model.
 
 class ViewCenterProfilePage extends StatefulWidget {
   static final id = "ViewCenterProfilePage";
-  String centerId;
+  final String centerId;
 
-  ViewCenterProfilePage({super.key, required this.centerId});
+  const ViewCenterProfilePage({super.key, required this.centerId});
 
   @override
   State<ViewCenterProfilePage> createState() => _ViewCenterProfilePageState();
@@ -20,7 +18,7 @@ class _ViewCenterProfilePageState extends State<ViewCenterProfilePage> {
   @override
   void initState() {
     super.initState();
-    
+
     context.read<NotApprovedCentersCubit>().getCenterInfo(widget.centerId);
   }
 
@@ -150,7 +148,7 @@ class _ViewCenterProfilePageState extends State<ViewCenterProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Approve Button
-                                Container(
+                                SizedBox(
                                   width: 130,
                                   child: ElevatedButton(
                                     onPressed: () {
@@ -158,11 +156,10 @@ class _ViewCenterProfilePageState extends State<ViewCenterProfilePage> {
                                       context
                                           .read<NotApprovedCentersCubit>()
                                           .approveCenter(widget.centerId);
-                                          context
+                                      context
                                           .read<NotApprovedCentersCubit>()
                                           .fetchAllCenters();
-                                           Navigator.pop(context);
-                                      
+                                      Navigator.pop(context);
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green,
@@ -185,7 +182,7 @@ class _ViewCenterProfilePageState extends State<ViewCenterProfilePage> {
                                 ),
 
                                 // Disapprove Button
-                                Container(
+                                SizedBox(
                                   width:
                                       130, // ضبط العرض ليناسب زر "Edit Details"
                                   child: ElevatedButton(
@@ -280,6 +277,7 @@ class _ViewCenterProfilePageState extends State<ViewCenterProfilePage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 5,

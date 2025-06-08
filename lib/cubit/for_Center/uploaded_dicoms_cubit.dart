@@ -5,8 +5,6 @@ import 'package:graduation_project_frontend/api_services/api_consumer.dart';
 import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
-import 'package:meta/meta.dart';
-
 part 'uploaded_dicoms_state.dart';
 
 class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
@@ -19,10 +17,7 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
     try {
       final response = await api.get(EndPoints.GetRecordsByCenterId(centerid));
 
-      // print("Response received: ${response.data}");
-
       if (response.data != null && response.data is Map<String, dynamic>) {
-        print("Valid response format");
         UploadedDicomModel dicomsModel =
             UploadedDicomModel.fromJson(response.data);
         emit(UploadedDicomsSuccess(dicomsModel.records));
@@ -31,7 +26,6 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
             "Unexpected response format: Expected a Map<String, dynamic> but got something else");
       }
     } catch (e) {
-      print("Error fetching uploaded DICOMs: ${e.toString()}");
       emit(UploadedDicomsFailure(e.toString()));
     }
   }
@@ -48,6 +42,7 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
       if (response.data != null && response.data is Map<String, dynamic>) {
         final message = response.data["message"] ?? "Flag updated successfully";
         showAdvancedNotification(
+          // ignore: use_build_context_synchronously
           context,
           message: message,
           type: NotificationType.success,
@@ -57,8 +52,8 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
             "Unexpected response format: Expected a Map<String, dynamic>");
       }
     } catch (e) {
-      print("Error updating DICOM flag: ${e.toString()}");
       showAdvancedNotification(
+        // ignore: use_build_context_synchronously
         context,
         message: e.toString(),
         type: NotificationType.error,
@@ -76,7 +71,6 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
         emit((ReassignedSuccessfully()));
       }
     } on Exception catch (e) {
-      print("Error reassigning cancled records: ${e.toString()}");
       emit(ReassignFailure(e.toString()));
     }
   }

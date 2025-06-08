@@ -172,7 +172,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                             if (formKey.currentState!.validate()) {
                               context
                                   .read<ForgetPasswordCubit>()
-                                  .ForgetPassword();
+                                  .forgetPassword();
                             }
                           },
                           child: Text(

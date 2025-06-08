@@ -5,17 +5,17 @@ import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graduation_project_frontend/widgets/loading.dart';
 
 @immutable
+// ignore: must_be_immutable
 class ManageDoctorsPage extends StatefulWidget {
-  String centerId;
-  List<dynamic> filteredDoctors = [];
-  String searchText = '';
+  final String centerId;
+  final List<dynamic> filteredDoctors = [];
+  final String searchText = '';
   String selectedSpeciality = 'All';
   ManageDoctorsPage({super.key, required this.centerId});
 

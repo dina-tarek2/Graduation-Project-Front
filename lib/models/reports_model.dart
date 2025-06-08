@@ -7,23 +7,24 @@
 //     required this.reports,
 //   });
 // }
-  class ReportsResponse {  
-  final List<Report> reports;  
-   final int? numOfAIReports;
-  ReportsResponse({required this.reports,this.numOfAIReports});  
+class ReportsResponse {
+  final List<Report> reports;
+  final int? numOfAIReports;
+  ReportsResponse({required this.reports, this.numOfAIReports});
 
-  factory ReportsResponse.fromJson(Map<String, dynamic> json) { 
-    print('Parsing JSON: $json');  
-    var list = json['reports'] as List; 
-    List<Report> reportsList = list.map((i) => Report.fromJson(i)).toList();  
-    
-    return ReportsResponse( numOfAIReports: json['numOfAIReports'] ?? 0,
-    reports: (json['reports'] as List<dynamic>?)
-            ?.map((e) => Report.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [],
-  );  
-  }  
+  factory ReportsResponse.fromJson(Map<String, dynamic> json) {
+    print('Parsing JSON: $json');
+    var list = json['reports'] as List;
+    list.map((i) => Report.fromJson(i)).toList();
+
+    return ReportsResponse(
+      numOfAIReports: json['numOfAIReports'] ?? 0,
+      reports: (json['reports'] as List<dynamic>?)
+              ?.map((e) => Report.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
 }
 
 class Report {

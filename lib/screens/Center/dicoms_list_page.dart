@@ -82,6 +82,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 5,
@@ -98,6 +99,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                 showDialog(
                   context: context,
                   barrierDismissible: true,
+                  // ignore: deprecated_member_use
                   barrierColor: Colors.black.withOpacity(0.5),
                   builder: (BuildContext context) {
                     return Center(child: UploadScreen());
@@ -166,6 +168,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
               });
             }
           },
+          // ignore: deprecated_member_use
           selectedColor: _getStatusColor(status).withOpacity(0.8),
           backgroundColor: Colors.grey[300],
           shape: RoundedRectangleBorder(
@@ -257,6 +260,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
@@ -275,11 +279,13 @@ class _DicomsListPageState extends State<DicomsListPage> {
                     DataColumn(label: Text("Action", style: _columnStyle())),
                     DataColumn(label: Text("Emergency", style: _columnStyle())),
                     DataColumn(label: Text("Status", style: _columnStyle())),
-                    DataColumn(label: Text("Patient Name", style: _columnStyle())),
-                    DataColumn(label: Text("Study Date", style: _columnStyle())),
+                    DataColumn(
+                        label: Text("Patient Name", style: _columnStyle())),
+                    DataColumn(
+                        label: Text("Study Date", style: _columnStyle())),
                     DataColumn(label: Text("Deadline", style: _columnStyle())),
                     // DataColumn(label: Text("Body Part", style: _columnStyle())),
-                    
+
                     DataColumn(label: Text("Modality", style: _columnStyle())),
                     DataColumn(label: Text("Doctor", style: _columnStyle())),
                     DataColumn(label: Text("QR Code", style: _columnStyle())),
@@ -312,7 +318,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
   }
 
   DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      String Dicom_url, String recordId) {
+      String dicomUrl, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -324,10 +330,10 @@ class _DicomsListPageState extends State<DicomsListPage> {
             //       builder: (context) => MedicalReportPage(
             //           reportId: reportid, Dicom_url: Dicom_url)),
             // );
-            print('reportId: $reportid, Dicom_url: $Dicom_url');
+
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
-              'url': Dicom_url,
+              'url': dicomUrl,
               'recordId': recordId
             });
           },
@@ -340,20 +346,20 @@ class _DicomsListPageState extends State<DicomsListPage> {
   DataRow _buildDataRow(RecordModel record, BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('HH:mm');
-    final String LINK =
-        "https://abanoubsamaan5.github.io/my-react-app/#/showReport/${record.id}" ??
-            "This QR not found";
-    void _launchURL() async {
-      final Uri url = Uri.parse(LINK);
+    final String link =
+        "https://abanoubsamaan5.github.io/my-react-app/#/showReport/${record.id}";
+    void launchURL() async {
+      final Uri url = Uri.parse(link);
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
       } else {
-        throw 'Could not launch $LINK';
+        throw 'Could not launch $link';
       }
     }
+
     return DataRow(
       cells: [
-            // Reassign Button if status == "Cancled"
+        // Reassign Button if status == "Cancled"
         DataCell(
           record.status.toLowerCase() == "cancled"
               ? _buildRedirectButton(record, context)
@@ -362,8 +368,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
         // Emergency toggle switch
         DataCell(
           Switch(
-            value: emergencyStates[record.id] ?? record.flag ?? false,
-            
+            value: emergencyStates[record.id] ?? record.flag,
             onChanged: (val) {
               setState(() {
                 emergencyStates[record.id] = val;
@@ -373,7 +378,6 @@ class _DicomsListPageState extends State<DicomsListPage> {
                 record.id,
                 {"flag": val.toString()},
               );
-              print('Emergency toggled to $val for report: ${record.id}');
             },
             activeColor: Colors.red[700],
             activeTrackColor: Colors.red[100],
@@ -381,15 +385,15 @@ class _DicomsListPageState extends State<DicomsListPage> {
             inactiveTrackColor: Colors.grey[100],
             splashRadius: 20,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
-              if (states.contains(MaterialState.selected)) {
+            thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+              if (states.contains(WidgetState.selected)) {
                 return Colors.red[700]!;
               }
               return Colors.grey[400]!;
             }),
             trackOutlineColor:
-                MaterialStateProperty.resolveWith<Color?>((states) {
-              if (states.contains(MaterialState.selected)) {
+                WidgetStateProperty.resolveWith<Color?>((states) {
+              if (states.contains(WidgetState.selected)) {
                 return Colors.red[300];
               }
               return Colors.grey[300];
@@ -461,7 +465,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
         ),
 
         // Deadline Date & Time
-          _clickableCell(
+        _clickableCell(
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -479,8 +483,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
             context,
             record.reportId,
             record.dicomUrl,
-            record.id
-          ),
+            record.id),
 
         // Modality
         _clickableCell(
@@ -521,13 +524,13 @@ class _DicomsListPageState extends State<DicomsListPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           QrImageView(
-                            data: LINK,
+                            data: link,
                             version: QrVersions.auto,
                             size: 300,
                           ),
                           SizedBox(height: 10),
                           GestureDetector(
-                            onTap: _launchURL,
+                            onTap: launchURL,
                             child: Text(
                               'Go to the webSite',
                               style: TextStyle(
@@ -545,7 +548,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                 );
               },
               child: QrImageView(
-                data: LINK,
+                data: link,
                 version: QrVersions.auto,
                 size: 80.0,
               ),
@@ -562,8 +565,6 @@ class _DicomsListPageState extends State<DicomsListPage> {
         //     style: customTextStyle(14, FontWeight.normal, Colors.black),
         //   ),
         // ),
-
-       
       ],
     );
   }
@@ -578,6 +579,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
       width: 90,
       height: 30,
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -629,10 +631,10 @@ class _DicomsListPageState extends State<DicomsListPage> {
                     // Call the reassign function
                     context.read<UploadedDicomsCubit>().reassign(record.id);
                   },
-                  child: Text("Reassign"),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
                   ),
+                  child: Text("Reassign"),
                 ),
               ],
             ),
@@ -643,6 +645,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
+            // ignore: deprecated_member_use
             border: Border.all(color: Colors.red.withOpacity(0.7)),
           ),
           child: Row(

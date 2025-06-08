@@ -34,12 +34,12 @@ class MainScaffold extends StatefulWidget {
   final String role;
   final String title;
   static String id = 'MainScaffold';
-  final int Index;
+  final int index;
   const MainScaffold({
     super.key,
     required this.role,
     this.title = 'Dashboard',
-    this.Index = 0,
+    this.index = 0,
   });
 
   @override
@@ -56,13 +56,15 @@ class MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.Index;
+    selectedIndex = widget.index;
     // Fetch doctor profile if role is Radiologist
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DoctorProfileCubit>().fetchDoctorProfile(
             context.read<CenterCubit>().state,
           );
-
+      context.read<CenterProfileCubit>().fetchCenterProfile(
+            context.read<CenterCubit>().state,
+          );
       context.read<NotificationCubit>().loadNotifications(
             context.read<CenterCubit>().state,
           );
@@ -181,7 +183,7 @@ class MainScaffoldState extends State<MainScaffold> {
   }
 
   int get _unreadNotificationCount {
-    final stateNot = context.watch<NotificationCubit>().state;
+    final stateNot = context.read<NotificationCubit>().state;
     if (stateNot is NotificationLoaded) {
       return stateNot.unreadNotifications;
     }
@@ -261,6 +263,9 @@ class MainScaffoldState extends State<MainScaffold> {
       case 0:
         return 'Dashboard';
       case 1:
+              context
+            .read<NotificationCubit>()
+            .updataNotifyByType(context.read<CenterCubit>().state, "study");
         return widget.role == "RadiologyCenter"
             ? 'Upload Dicom'
             : (widget.role == "Admin" ? 'Requests' : 'Dicom List');
@@ -277,7 +282,7 @@ class MainScaffoldState extends State<MainScaffold> {
             ? 'Manage Doctors'
             : (widget.role == "Admin" ? 'Manage Centers' : 'Contact Us');
       case 3:
-        return widget.role == "RadiologyCenter" ? 'Contact Us' : 'Chat App';
+        return 'Chat App';
       case 4:
         return widget.role == "RadiologyCenter" ? 'Chat' : 'About Us';
       case 5:
@@ -295,9 +300,7 @@ class MainScaffoldState extends State<MainScaffold> {
   Widget build(BuildContext context) {
     final DateTime now = DateTime.now();
     final DateFormat dateFormat = DateFormat('EEEE, d MMMM yyyy');
-    final DateFormat timeFormat = DateFormat('h:mm a');
     final String formattedDate = dateFormat.format(now);
-    final String formattedTime = timeFormat.format(now);
     return Scaffold(
       body: Row(
         children: [
@@ -338,7 +341,7 @@ class MainScaffoldState extends State<MainScaffold> {
                       Row(
                         children: [
                           Text(
-                            '$formattedDate',
+                            formattedDate,
                             style: customTextStyle(
                               12,
                               FontWeight.w500,

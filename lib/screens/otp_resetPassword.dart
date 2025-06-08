@@ -17,7 +17,7 @@ class OtpResetpassword extends StatefulWidget {
 
 class _OtpResetpasswordState extends State<OtpResetpassword> {
   String? savedEmail;
-  
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +25,7 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
   }
 
   void loadSavedEmail() async {
-    String? email = await getEmail(); 
+    String? email = await getEmail();
     if (email != null) {
       setState(() {
         savedEmail = email;
@@ -45,57 +45,47 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
 
   @override
   Widget build(BuildContext context) {
-     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: BlocConsumer<ForgetPasswordCubit, ForgetPasswordState>(
         listener: (context, state) {
           if (state is ForgetPasswordOtpUpdated) {
-             showAdvancedNotification(
-            context,
-            message: "Otp Checked Susessfuly Go to reset Password Now ",
-           type: NotificationType.success,
-        style: AnimationStyle.card,
-          );
-           Navigator.push(
-  context,
-  PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => ResetPassword(),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(1.0, 0.0); 
-      const end = Offset.zero;
-      const curve = Curves.easeInOut;
-
-      final tween =
-          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      final offsetAnimation = animation.drive(tween);
-
-      return SlideTransition(
-        position: offsetAnimation,
-        child: FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
-      );
-    },
-    transitionDuration: Duration(milliseconds: 500),
-  ),
-);
-          }
-          if (state is ForgetPasswordFailure) {
             showAdvancedNotification(
-        context,
-        message: state.error,
-        type: NotificationType.error,
-        style: AnimationStyle.card,
-          );
+              context,
+              message: "Otp Checked Susessfuly Go to reset Password Now ",
+              type: NotificationType.success,
+              style: AnimationStyle.card,
+            );
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => ResetPassword(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  const curve = Curves.easeInOut;
+
+                  final tween =
+                      Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                  final offsetAnimation = animation.drive(tween);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+            );
           }
-          },
+        },
         builder: (context, state) {
           return Stack(
             fit: StackFit.expand,
             children: [
-            
               Positioned(
                 top: 40,
                 left: 16,
@@ -111,35 +101,35 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
                   widthFactor: screenWidth < 600 ? 0.95 : 0.6,
                   child: Container(
                     padding: EdgeInsets.all(20),
-                   decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: blue,
-                      blurRadius: 15,
-                      spreadRadius: 5,
-                      offset: Offset(0, 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: blue,
+                          blurRadius: 15,
+                          spreadRadius: 5,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                         TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 500),
-                            tween: Tween(begin: 0, end: 1),
-                            builder: (context, scale, child) {
-                              return Transform.scale(
-                                scale: scale,
-                                child: Icon(
-                                  Icons.verified_outlined,
-                                  size: 100,
-                                  color: blue,
-                                ),
-                              );
-                            },
-                          ),
+                        TweenAnimationBuilder<double>(
+                          duration: Duration(milliseconds: 500),
+                          tween: Tween(begin: 0, end: 1),
+                          builder: (context, scale, child) {
+                            return Transform.scale(
+                              scale: scale,
+                              child: Icon(
+                                Icons.verified_outlined,
+                                size: 100,
+                                color: blue,
+                              ),
+                            );
+                          },
+                        ),
                         SizedBox(height: 12),
                         Text("Verify OTP",
                             style: customTextStyle(
@@ -147,7 +137,7 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
                         SizedBox(height: 8),
                         if (savedEmail != null)
                           Text(
-                             "Enter the 6-digit code sent to\n$savedEmail",
+                            "Enter the 6-digit code sent to\n$savedEmail",
                             textAlign: TextAlign.center,
                             style: customTextStyle(
                                 14, FontWeight.w400, Colors.blueGrey),
@@ -163,7 +153,7 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
                           numberOfFields: 6,
                           showFieldAsBox: true,
                           fieldWidth: 50,
-                           filled: true,
+                          filled: true,
                           // fillColor: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(10),
                           focusedBorderColor: darkBabyBlue,
@@ -180,42 +170,40 @@ class _OtpResetpasswordState extends State<OtpResetpassword> {
                         else
                           Column(
                             children: [
-                                SizedBox(height: 10),
+                              SizedBox(height: 10),
                               TextButton(
                                 onPressed: () {
                                   context
                                       .read<ForgetPasswordCubit>()
-                                      .ForgetPassword();
+                                      .forgetPassword();
                                 },
-                                child: Text("Didn't receive code? Resend",style: customTextStyle(
-                                           18,
-                                            FontWeight.w300,
-                                            Colors.blue.shade700),
-                                      ),),
-                              
+                                child: Text(
+                                  "Didn't receive code? Resend",
+                                  style: customTextStyle(18, FontWeight.w300,
+                                      Colors.blue.shade700),
+                                ),
+                              ),
                               SizedBox(height: 10),
-                                ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: blue,
-                            fixedSize: Size(170, 50),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                                  onPressed: () {
-                                    // Validate the form
-                                 
-                                      context
-                                          .read<ForgetPasswordCubit>()
-                                          .CheckOtp();
-                                    },
-                                  
-                                  child: Text(
-                                    "Verify Code",
-                                  style: customTextStyle(
-                                              18, FontWeight.w300, Colors.white),
-                                      ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: blue,
+                                  fixedSize: Size(170, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
+                                ),
+                                onPressed: () {
+                                  // Validate the form
+                                  context
+                                      .read<ForgetPasswordCubit>()
+                                      .checkOtp();
+                                },
+                                child: Text(
+                                  "Verify Code",
+                                  style: customTextStyle(
+                                      18, FontWeight.w300, Colors.white),
+                                ),
+                              ),
                             ],
                           )
                       ],
