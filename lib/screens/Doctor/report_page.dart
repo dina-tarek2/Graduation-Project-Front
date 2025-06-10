@@ -15,7 +15,7 @@ class MedicalReportPage extends StatefulWidget {
   static final id = "MedicalReportPage";
 
   final String? reportId;
-  final String? Dicom_url;
+  final List<dynamic>? Dicom_url;
   final String? recordId;
 
   @override
@@ -169,45 +169,6 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
     );
   }
 
-  Widget _buildActionButtons(VoidCallback onSave, VoidCallback onCancel) {
-    if (_isEditing) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton.icon(
-            onPressed: onSave,
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          const SizedBox(width: 12),
-          OutlinedButton.icon(
-            onPressed: onCancel,
-            icon: const Icon(Icons.cancel, color: Colors.red),
-            label: const Text('Cancel', style: TextStyle(color: Colors.red)),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-        ],
-      );
-    }
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () => setState(() => _isEditing = true),
-        icon: const Icon(Icons.edit),
-        label: const Text('Edit'),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final role = context.read<UserCubit>().state;
@@ -231,10 +192,9 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                 return BlocBuilder<RecordsListCubit, RecordsListState>(
                   builder: (context, recordState) {
                     bool isCompleted = false;
-                    if (recordState is RecordLoaded &&
-                        recordState.record != null) {
-                      isCompleted = recordState.record!.status == "Completed";
-                      print("Record status: ${recordState.record!.status}");
+                    if (recordState is RecordLoaded) {
+                      isCompleted = recordState.record.status == "Completed";
+                      print("Record status: ${recordState.record.status}");
                     }
                     print("isCompleted: $isCompleted");
 
@@ -420,17 +380,19 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
       ),
       body: BlocBuilder<ReportPageCubit, ReportPageState>(
         builder: (context, reportState) {
-          if (reportState is ReportPageLoading)
+          if (reportState is ReportPageLoading) {
             return const Center(child: CircularProgressIndicator());
-          if (reportState is ReportPageFailure)
+          }
+          if (reportState is ReportPageFailure) {
             return Center(child: Text('Error: \${reportState.errmessage}'));
+          }
           final report = (reportState as ReportPageSuccess).report;
           return BlocBuilder<RecordsListCubit, RecordsListState>(
             builder: (context, recordState) {
-              if (recordState is! RecordLoaded || recordState.record == null) {
+              if (recordState is! RecordLoaded ) {
                 return const Center(child: Text('Loading record...'));
               }
-              final record = recordState.record!;
+              final record = recordState.record;
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(

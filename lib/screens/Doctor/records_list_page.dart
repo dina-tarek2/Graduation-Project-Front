@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
 
-import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -229,7 +228,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      String Dicom_url, String recordId) {
+      List<dynamic> Dicom_url, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
