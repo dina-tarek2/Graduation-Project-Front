@@ -6,6 +6,7 @@ import 'package:graduation_project_frontend/screens/otp_resetPassword.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -16,31 +17,71 @@ class ForgetPassword extends StatefulWidget {
 
 class _ForgetPasswordState extends State<ForgetPassword> {
   final formKey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    super.initState();
+    loadEmail();
+  }
+
+  Future<void> loadEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('saved_email') ?? '';
+    if (savedEmail.isNotEmpty) {
+      final cubit = context.read<ForgetPasswordCubit>();
+      cubit.emailController.text = savedEmail;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    bool _hasNavigated = false; 
     return Scaffold(
         body: BlocConsumer<ForgetPasswordCubit, ForgetPasswordState>(
       listener: (context, state) {
-        if (state is ForgetPasswordSuccess) {
+        if (state is ForgetPasswordSuccess && !_hasNavigated) {
+          _hasNavigated = true;
           showAdvancedNotification(
             context,
             message: state.massage,
-           type: NotificationType.success,
-        style: AnimationStyle.glass,
+            type: NotificationType.success,
+            style: AnimationStyle.card,
           );
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            Navigator.pushNamed(context, OtpResetpassword.id);
-          });
+
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  OtpResetpassword(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+
+                final tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                final offsetAnimation = animation.drive(tween);
+
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: Duration(milliseconds: 500),
+            ),
+          );
         }
         if (state is ForgetPasswordFailure) {
           showAdvancedNotification(
-        context,
-        message: state.error,
-        type: NotificationType.error,
-        style: AnimationStyle.glass,
+            context,
+            message: state.error,
+            type: NotificationType.error,
+            style: AnimationStyle.card,
           );
         }
       },
@@ -99,21 +140,23 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                       Text("Forgot Password",
                           style: customTextStyle(
                               28, FontWeight.bold, Colors.black87)),
-
                       SizedBox(height: 12),
-
                       Text("Enter your email to reset your password",
                           textAlign: TextAlign.center,
                           style: customTextStyle(
                               16, FontWeight.w400, Colors.grey.shade600)),
-
                       SizedBox(height: 12),
-
                       CustomFormTextField(
                         controller:
                             context.read<ForgetPasswordCubit>().emailController,
                         hintText: " Your Email ",
-                        width: 260,
+                        width: 300,
+                        onSubmitted: (value) {
+                          final cubit = context.read<ForgetPasswordCubit>();
+                          if (cubit.state is! ForgetPasswordLoading) {
+                            cubit.forgetPassword();
+                          }
+                        },
                       ),
                       if (state is ForgetPasswordLoading)
                         CircularProgressIndicator()

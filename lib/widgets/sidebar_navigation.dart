@@ -7,12 +7,14 @@ class SidebarNavigation extends StatefulWidget {
   final int selectedIndex;
   final String role;
   final Function(int) onItemSelected;
+  final VoidCallback? onLogout;
 
   const SidebarNavigation({
     super.key,
     required this.selectedIndex,
     required this.role,
     required this.onItemSelected,
+    required this.onLogout,
   });
 
   @override
@@ -36,9 +38,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         padding: const EdgeInsets.all(8.0),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          width: isExpanded ? 250 : 80,
-           constraints: BoxConstraints(
-            maxWidth: isExpanded ? 250 : 80,
+          width: isExpanded ? 220 : 80,
+          constraints: BoxConstraints(
+            maxWidth: isExpanded ? 220 : 80,
             minWidth: 80,
           ),
           decoration: BoxDecoration(
@@ -68,39 +70,43 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                       : MainAxisAlignment.center,
                   children: [
                     if (isExpanded)
-                      Row(
-                         mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: darkBabyBlue,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Center(
+                      Flexible(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Container(
+                            //   width: 30,
+                            //   height: 30,
+                            //   decoration: BoxDecoration(
+                            //     color: darkBabyBlue,
+                            //     borderRadius: BorderRadius.circular(8),
+                            //   ),
+                            // child: const Center(
+                            //   child: Text(
+                            //     'R',
+                            //     style: TextStyle(
+                            //       fontSize: 18,
+                            //       fontWeight: FontWeight.bold,
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            // ),
+                            // ),
+                            const SizedBox(width: 8),
+                            Flexible(
                               child: Text(
-                                'R',
+                                'Radintal',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: darkBabyBlue,
+                                  letterSpacing: 0.5,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Radintal',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: darkBabyBlue,
-                              letterSpacing: 0.5,
-                            ),
-                             overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     Container(
                       decoration: BoxDecoration(
@@ -116,7 +122,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                         onPressed: toggleSidebar,
                         padding: const EdgeInsets.all(8),
                         constraints: const BoxConstraints(),
-                        splashRadius: 24,
+                        splashRadius: 10,
                       ),
                     ),
                   ],
@@ -135,7 +141,6 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
               //       ),
               //     ),
               //   ),
-        
 
               // Navigation items
               Expanded(
@@ -160,18 +165,18 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Upload Dicom'),
         buildNavItem(2, Icons.groups_rounded, 'Manage Doctors'),
-        buildNavItem(3, Icons.summarize_rounded, 'Center Reports'),
-        buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(5, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
       ]);
     } else if (widget.role == "Radiologist") {
       items.addAll([
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Dicom List'),
         buildNavItem(2, Icons.paste_rounded, 'New Reports'),
-        // buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
         buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
       ]);
     } else if (widget.role == "Admin") {
       items.addAll([
@@ -179,7 +184,6 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(1, Icons.cloud_upload_rounded, 'Requests'),
         buildNavItem(2, Icons.person_rounded, 'Manage Centers'),
         buildNavItem(3, Icons.medical_information_rounded, 'Manage Doctors'),
-        // buildNavItem(4, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     }
@@ -196,7 +200,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
     //       ),
     //     ),
     //   );
-      
+
     //   items.add(
     //     Padding(
     //       padding: const EdgeInsets.only(left: 15, bottom: 10, top: 5),
@@ -215,12 +219,63 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
     //     ),
     //   );
     // }
-    
 
     // Settings and Logout
-    items.add(buildNavItem(4, FontAwesomeIcons.circleInfo, 'About Us'));
-    items.add(const SizedBox(height: 20));
-    items.add(buildNavItem(5, Icons.logout_rounded, 'Log Out'));
+    // items.add(const SizedBox(height: 20));
+    // items.add(buildNavItem(5, Icons.logout_rounded, 'Log Out'));
+    items.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: InkWell(
+          onTap: () {
+            if (widget.onLogout != null) {
+              widget.onLogout!();
+            }
+          },
+          borderRadius: BorderRadius.circular(40),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 46,
+            child: Row(
+              mainAxisAlignment: isExpanded
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  margin: const EdgeInsets.only(left: 10, right: 10),
+                  decoration: BoxDecoration(
+                    // لا تحدد لون مميز لزر Logout
+                    color: Colors.transparent,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(50),
+                      bottomRight: Radius.circular(50),
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.logout_rounded,
+                      color: darkBabyBlue,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                if (isExpanded)
+                  Expanded(
+                    child: Text(
+                      'Log Out',
+                      style:
+                          customTextStyle(14, FontWeight.normal, darkBabyBlue),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
 
     return items;
   }
@@ -233,15 +288,15 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         onTap: () => widget.onItemSelected(index),
         borderRadius: BorderRadius.circular(40),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 150),
           height: 46,
           child: Row(
             mainAxisAlignment:
                 isExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
             children: [
               Container(
-                width: 30,
-                height: 30,
+                width: 25,
+                height: 25,
                 margin: const EdgeInsets.only(left: 10, right: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? darkBabyBlue : Colors.transparent,

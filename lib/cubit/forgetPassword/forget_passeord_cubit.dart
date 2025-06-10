@@ -17,8 +17,10 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
   Future<void> forgetPassword() async {
     try {
       emit(ForgetPasswordLoading());
-      final response = await api.post(EndPoints.ForgetPassword,
-          data: {ApiKey.email: emailController.text});
+      final response = await api.post(
+        EndPoints.ForgetPassword,
+        data: {ApiKey.email: emailController.text},
+      );
       if (response.statusCode == 200) {
         emit(ForgetPasswordSuccess(response.data["message"]));
       } else {
@@ -34,11 +36,16 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
     final savedEmail = pref.getString('saved_email') ?? '';
     try {
       emit(ForgetPasswordLoading());
-      final response = await api.post(EndPoints.CheckOtp,
-          data: {ApiKey.email: savedEmail, ApiKey.otp: otpController.text});
+      final response = await api.post(
+        EndPoints.CheckOtp,
+        data: {
+          ApiKey.email: savedEmail,
+          ApiKey.otp: otpController.text,
+        },
+      );
 
       if (response.statusCode == 200) {
-        emit(ForgetPasswordSuccess(response.data["message"]));
+        emit(ForgetPasswordOtpUpdated(response.data["message"]));
       } else {
         emit(ForgetPasswordFailure("Unexpected response format: $response"));
       }
@@ -47,23 +54,21 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
     }
   }
 
-  void updateOtp(String otp) {
-    otpController.text = otp;
-    emit(ForgetPasswordOtpUpdated(otp));
-  }
-
-  Future<void> resetPassword() async {
+  Future<void> ResetPassword() async {
     try {
       emit(ForgetPasswordLoading());
-      final response = await api.post(EndPoints.ResetPassword, data: {
-        ApiKey.email: emailController.text,
-        ApiKey.newPassword: newPasswordController.text,
-      });
+      final response = await api.post(
+        EndPoints.ResetPassword,
+        data: {
+          ApiKey.email: emailController.text,
+          ApiKey.newPassword: newPasswordController.text,
+        },
+      );
 
       if (response.statusCode == 200) {
-        emit(ForgetPasswordSuccess(response.data['message']));
+        emit(ForgetPasswordReseted(response.data['message']));
       } else {
-        emit(ForgetPasswordFailure("Unexpected response format"));
+        emit(ForgetPasswordFailure("Unexpected response format: $response"));
       }
     } catch (e) {
       emit(ForgetPasswordFailure(e.toString()));
@@ -78,6 +83,11 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
   Future<String?> getEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('saved_email');
+  }
+
+  void updateOtp(String otp) {
+    otpController.text = otp;
+    emit(ForgetPasswordOtpUpdated(otp));
   }
 
   @override

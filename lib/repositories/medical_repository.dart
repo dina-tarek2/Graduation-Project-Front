@@ -97,9 +97,9 @@ final rangeRecordsCountResponse = await api.post(
       final dailyStats = <String, DailyReportStats>{};
       rangeData.forEach((day, stats) {
         dailyStats[day] = DailyReportStats(
-          pending: stats['Pending'] as int,
-          reviewed: stats['Reviewed'] as int,
-          available: stats['Available'] as int,
+          Diagnose: stats['Diagnose'] as int,
+          Completed: stats['Completed'] as int,
+          Ready: stats['Ready'] as int,
           total: stats['total'] as int,
         );
       });

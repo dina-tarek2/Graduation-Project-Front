@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/forgetPassword/forget_passeord_cubit.dart';
 import 'package:graduation_project_frontend/screens/signin_page.dart';
@@ -22,14 +23,37 @@ class _ResetPasswordState extends State<ResetPassword> {
     return Scaffold(
       body: BlocConsumer<ForgetPasswordCubit, ForgetPasswordState>(
         listener: (context, state) {
-          if (state is ForgetPasswordSuccess) {
+          if (state is ForgetPasswordReseted) {
            showAdvancedNotification(
             context,
             message: state.massage,
            type: NotificationType.success,
         style: AnimationStyle.card,
           );
-           Navigator.pushNamed(context, SigninPage.id);
+           Navigator.push(
+  context,
+  PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => SigninPage(),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0); 
+      const end = Offset.zero;
+      const curve = Curves.easeInOut;
+
+      final tween =
+          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      final offsetAnimation = animation.drive(tween);
+
+      return SlideTransition(
+        position: offsetAnimation,
+        child: FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+      );
+    },
+    transitionDuration: Duration(milliseconds: 500),
+  ),
+);
           }
           if (state is ForgetPasswordFailure) {
           showAdvancedNotification(
@@ -118,6 +142,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                               .newPasswordController,
                           hintText: "Enter Your New Password  ",
                           width: 250,
+                           onSubmitted: (value) {
+                                      context
+                                          .read<ForgetPasswordCubit>()
+                                          .ResetPassword();
+                                  },
                           obscureText: _isPasswordObscured,
                          validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -131,9 +160,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isPasswordObscured 
-                                    ? Icons.visibility_off 
-                                    : Icons.visibility,
-                                  color: Colors.grey.shade600,
+                                    ? FontAwesomeIcons.eyeSlash
+                                    : FontAwesomeIcons.eye,
+                                  color: Colors.blue,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -148,7 +177,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                            ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: blue,
-                            fixedSize: Size(150, 50),
+                            fixedSize: Size(190, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
@@ -158,7 +187,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                  
                                       context
                                           .read<ForgetPasswordCubit>()
-                                          .resetPassword();
+                                          .ResetPassword();
                                     },
                                   
                                   child: Text(
