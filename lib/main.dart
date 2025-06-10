@@ -50,6 +50,7 @@ import 'package:graduation_project_frontend/screens/signin_page.dart';
 import 'package:graduation_project_frontend/screens/signup_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
+import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
@@ -145,7 +146,7 @@ class MyApp extends StatelessWidget {
         SigninPage.id: (context) => SigninPage(),
         SignupPage.id: (context) => SignupPage(),
         DicomListPage.id: (context) => DicomListPage(),
-
+        NewDicomPage.id: (context) => NewDicomPage(),
         DoctorDashboard.id: (context) => DoctorDashboard(),
 
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),

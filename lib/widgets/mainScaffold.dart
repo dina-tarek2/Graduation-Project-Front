@@ -13,6 +13,7 @@ import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.d
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
+import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
@@ -94,8 +95,8 @@ class MainScaffoldState extends State<MainScaffold> {
       screens = [
         DoctorDashboard(),
         RecordsListPage(),
+        NewDicomPage(),
         ContactScreen(role: widget.role),
-//         ContactScreen(role: widget.role),
         ChatScreenToDoctor(
           userId: context.read<CenterCubit>().state,
           userType: context.read<UserCubit>().state,
@@ -236,9 +237,6 @@ class MainScaffoldState extends State<MainScaffold> {
     if (selectedIndex < screens.length) {
       return screens[selectedIndex];
     }
-    // if (selectedIndex == 6) {
-    //   return const Center(child: Text("Settings Screen"));
-    // }
     if (selectedIndex == 10) {
       if (widget.role == "Radiologist") {
         return DoctorProfile(
@@ -280,7 +278,7 @@ class MainScaffoldState extends State<MainScaffold> {
       case 2:
         return widget.role == "RadiologyCenter"
             ? 'Manage Doctors'
-            : (widget.role == "Admin" ? 'Manage Centers' : 'Contact Us');
+            : (widget.role == "Admin" ? 'Manage Centers' : 'New Rpeorts');
       case 3:
         context
             .read<NotificationCubit>()

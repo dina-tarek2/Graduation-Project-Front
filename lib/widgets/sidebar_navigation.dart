@@ -168,10 +168,10 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
       items.addAll([
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Dicom List'),
-        // buildNavItem(2, Icons.person_rounded, 'Patients'),
+        buildNavItem(2, Icons.paste_rounded, 'New Reports'),
         // buildNavItem(3, Icons.medical_information_rounded, 'Medical Reports'),
-        buildNavItem(2, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(3, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
+        buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
       ]);
     } else if (widget.role == "Admin") {
       items.addAll([

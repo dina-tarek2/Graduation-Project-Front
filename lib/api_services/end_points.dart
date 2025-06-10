@@ -21,7 +21,7 @@ class EndPoints {
   //doctor
   static String GetRecordsByRadiologistId(String id) =>
       // "Record/getRecordsByRadiologistId/$id";
-      "Record/getRecordsByRadiologistId/67fd9050433fe6d2e1d18f56";
+      "Record/getRecordsByRadiologistId/$id";
 
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78

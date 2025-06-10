@@ -9,11 +9,12 @@ class RecordsListModel {
   final String modality;
   final String? bodyPartExamined;
   final String email;
-  final String dicomId;
-  final String Dicom_url;
+  final List<dynamic> dicomId;
+  final List<dynamic> Dicom_url;
   final String? series;
   final String status;
   final bool deleted;
+  final bool isEmergency;
   final String? aiReportResult;
   final DateTime studyDate;
   final DateTime? patientBirthDate;
@@ -36,6 +37,7 @@ class RecordsListModel {
     this.series,
     required this.status,
     required this.deleted,
+    required this.isEmergency,
     this.aiReportResult,
     required this.studyDate,
     this.patientBirthDate,
@@ -64,6 +66,7 @@ class RecordsListModel {
       series: json['series'] ?? '',
       status: json['status'] ?? '',
       deleted: json['deleted'] ?? false,
+      isEmergency: json['flag']?? false,
       aiReportResult: json['aiReportResult'] ?? '',
       studyDate: DateTime.parse(
           json['study_date'] ?? DateTime.now().toIso8601String()),
