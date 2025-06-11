@@ -34,7 +34,9 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
     }
   }
 
-  Future<Map<String, dynamic>?> uploadDicom(List<dynamic> dicomUrl) async {
+
+  Future<Map<String, dynamic>?> uploadDicom(List<dynamic>? dicomUrl) async {
+
     try {
       final dio = Dio();
       final response = await dio.post(
