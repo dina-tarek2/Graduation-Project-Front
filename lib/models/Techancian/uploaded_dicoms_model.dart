@@ -51,6 +51,7 @@ class RecordModel {
     required this.v,
     required this.reportId,
     required this.radiologistName,
+    required this.flag,
   });
 
   final String id;
@@ -77,6 +78,7 @@ class RecordModel {
   final int v;
   final String reportId;
   final String radiologistName;
+  final bool flag;
 
   factory RecordModel.fromJson(Map<String, dynamic> json) {
     return RecordModel(
@@ -92,11 +94,13 @@ class RecordModel {
       age: json["age"] as String? ?? "N/A",
       bodyPartExamined: json["body_part_examined"] as String? ?? "N/A",
       email: json["email"] as String? ?? "",
+
       dicomId: json["DicomId"] as List ,
       series: json["series"] as String? ?? "",
       status: json["status"] as String? ?? "Pending",
       deleted: json["deleted"] as bool? ?? false,
       dicomUrl: json["Dicom_url"] as List ,
+
       studyDescription: json["study_description"] as String? ?? "",
       deadline: DateTime.tryParse(json["deadline"] ?? ""),
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
@@ -104,6 +108,7 @@ class RecordModel {
       v: json["__v"] as int? ?? 0,
       reportId: json["reportId"] as String? ?? "",
       radiologistName: json["radiologistName"] as String? ?? "Unknown",
+      flag: json["flag"] as bool? ?? false,
     );
   }
 
@@ -133,6 +138,7 @@ class RecordModel {
       "__v": v,
       "reportId": reportId,
       "radiologistName": radiologistName,
+      "flag": flag
     };
   }
 }

@@ -22,7 +22,7 @@ Widget buildReportCard(Report report) {
                 decoration: BoxDecoration(
                   color: report.status == 'Available' ? Colors.blue.shade100 : 
                    report.status == 'Pending' ? Colors.orange.shade100 :
-                    report.status == 'Reviewed' ? Colors.green.shade100 : Colors.grey[100],
+                    report.status == 'Completed' ? Colors.green.shade100 : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(report.status),

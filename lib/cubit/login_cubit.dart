@@ -17,19 +17,17 @@ class LoginCubit extends Cubit<LoginState> {
   final GlobalKey<FormState> loginKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
 
-  final TextEditingController passwordController = TextEditingController();  bool isLoginPasswordShowing = true;
+  final TextEditingController passwordController = TextEditingController();
+  bool isLoginPasswordShowing = true;
   IconData suffixIcon = FontAwesomeIcons.eyeSlash;
-String? currentUserId;
-bool isSocketListenersInitialized = false;
+  String? currentUserId;
+  bool isSocketListenersInitialized = false;
 
-
-  IO.Socket socket = IO.io(
-    "https://graduation-project--xohomg.fly.dev", 
-    <String, dynamic>{
-      "transports": ["websocket"],
-      "autoConnect": false,
-    }
-  );
+  IO.Socket socket =
+      IO.io("https://graduation-project--xohomg.fly.dev", <String, dynamic>{
+    "transports": ["websocket"],
+    "autoConnect": false,
+  });
 
   void initSocket() {
     _setupSocketListeners();
@@ -120,9 +118,7 @@ bool isSocketListenersInitialized = false;
         message: notification['message'],
         title: notification['title'],
         image: isImageUrl ? iconData : null,
-        icon: !isImageUrl
-            ? Icon(Icons.notifications)
-            : null, 
+        icon: !isImageUrl ? Icon(Icons.notifications) : null,
         sound: notification['sound'],
         date: DateTime.parse(notification['createdAt']),
         type: custom_toast.NotificationType.notify,
@@ -143,8 +139,9 @@ bool isSocketListenersInitialized = false;
 
   void changeLoginPasswordSuffixIcon() {
     isLoginPasswordShowing = !isLoginPasswordShowing;
-    suffixIcon =
-        isLoginPasswordShowing ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye;
+    suffixIcon = isLoginPasswordShowing
+        ? FontAwesomeIcons.eyeSlash
+        : FontAwesomeIcons.eye;
     emit(ChangeLoginPasswordSuffixIcon());
   }
 
@@ -160,17 +157,16 @@ bool isSocketListenersInitialized = false;
     }, (SignInModel) {
       emit(LoginSuccess(SignInModel.role));
 
-         final userId = SignInModel.id;
-           if (userId == null || userId.isEmpty) {
-            print(userId);
-            // emit(LoginError("Invalid user ID received"));
-            return;
-          }
-          currentUserId = userId;
-       connectToSocket(userId);
-         
-     });
-    }
+      final userId = SignInModel.id;
+      if (userId == null || userId.isEmpty) {
+        print(userId);
+        // emit(LoginError("Invalid user ID received"));
+        return;
+      }
+      currentUserId = userId;
+      connectToSocket(userId);
+    });
+  }
 
   @override
   Future<void> close() {

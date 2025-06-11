@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:intl/intl.dart';
 
 class Modernstatistical extends StatefulWidget {
   final Map<String, DailyReportStats> dailyStats;
@@ -26,9 +25,9 @@ class _ModernstatisticalState extends State<Modernstatistical> {
     ].map((day) {
       return {
         'day': day.substring(0, 3),
-        'Pending': 0,
-        'Reviewed': 0,
-        'Available': 0,
+        'Diagnose': 0,
+        'Completed': 0,
+        'Ready': 0,
       };
     }).toList();
 
@@ -51,16 +50,16 @@ class _ModernstatisticalState extends State<Modernstatistical> {
         final stat = stats[day]!;
         chartData.add({
           'day': day.substring(0, 3),
-          'Pending': stat.pending,
-          'Reviewed': stat.reviewed,
-          'Available': stat.available,
+          'Diagnose': stat.Diagnose,
+          'Completed': stat.Completed,
+          'Ready': stat.Ready,
         });
       } else {
         chartData.add({
           'day': day.substring(0, 3),
-          'Pending': 0,
-          'Reviewed': 0,
-          'Available': 0,
+         'Diagnose': 0,
+        'Completed': 0,
+        'Ready': 0,
         });
       }
     }
@@ -76,7 +75,8 @@ class _ModernstatisticalState extends State<Modernstatistical> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              interval: 2,
+              interval: 5,
+              reservedSize: 40,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 if (index >= data.length) return const SizedBox.shrink();
@@ -87,14 +87,17 @@ class _ModernstatisticalState extends State<Modernstatistical> {
               },
             ),
           ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true,
+         reservedSize: 40,
+          )),
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: true),
         barTouchData: BarTouchData(enabled: true),
         groupsSpace: 12,
-        maxY: 5,
+        minY: 0,
+        maxY:50 ,
       ),
     );
   }
@@ -107,19 +110,19 @@ class _ModernstatisticalState extends State<Modernstatistical> {
         x: index,
         barRods: [
           BarChartRodData(
-            toY: (item['Pending'] as int).toDouble(),
+            toY: (item['Diagnose'] as int).toDouble(),
             color: Colors.orange,
             width: 6,
             borderRadius: BorderRadius.circular(2),
           ),
           BarChartRodData(
-            toY: (item['Reviewed'] as int).toDouble(),
+            toY: (item['Completed'] as int).toDouble(),
             color: Colors.green,
             width: 6,
             borderRadius: BorderRadius.circular(2),
           ),
           BarChartRodData(
-            toY: (item['Available'] as int).toDouble(),
+            toY: (item['Ready'] as int).toDouble(),
             color: Colors.purple,
             width: 6,
             borderRadius: BorderRadius.circular(2),
@@ -157,7 +160,7 @@ class _ModernstatisticalState extends State<Modernstatistical> {
         borderRadius: BorderRadius.circular(16),
       ),
       elevation: 4,
-      color: sky,
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -173,11 +176,11 @@ class _ModernstatisticalState extends State<Modernstatistical> {
                 ),
                 Row(
                   children: [
-                    _buildChartLegendItem('Pending', Colors.orange),
+                    _buildChartLegendItem('Diagnose', Colors.orange),
                     SizedBox(width: 12),
-                    _buildChartLegendItem('Reviewed', Colors.green),
+                    _buildChartLegendItem('Completed', Colors.green),
                     SizedBox(width: 12),
-                    _buildChartLegendItem('Available', Colors.purple),
+                    _buildChartLegendItem('Ready', sky),
                   ],
                 ),
               ],

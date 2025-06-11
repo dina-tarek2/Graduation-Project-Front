@@ -18,7 +18,7 @@ class ContactCubit extends Cubit<ContactState> {
   Future<void> contact() async {
     try {
       emit(ContactLoading());
-      final response = await api.post(
+      await api.post(
         EndPoints.SentEmail,
         data: {
           ApiKey.name: nameController.text,
@@ -29,7 +29,6 @@ class ContactCubit extends Cubit<ContactState> {
       );
       // final message = response.data['message'] ?? "Message sent successfully";
       emit(ContactSuccess());
-
     } catch (e) {
       emit(ContactFailure(e.toString()));
     }

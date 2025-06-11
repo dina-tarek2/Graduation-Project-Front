@@ -177,8 +177,28 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                                 if (!n.isRead) {
                                   context
                                       .read<NotificationCubit>()
-                                      .markAsRead(index);
+                                      .markAsRead(index, userId);
                                 }
+                                if(n.type=='massage'){
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (_) => MainScaffold(
+                                      role: context.read<UserCubit>().state,
+                                      index: 3,
+                                    ),
+                                  ),
+                                );
+                              }else if(n.type=='study'){
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (_) => MainScaffold(
+                                      role: context.read<UserCubit>().state,
+                                      index: 1,
+                                    ),
+                                  ),
+                                );
+                              }
+                                
                               },
                             ),
                           );
@@ -219,7 +239,7 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                       MaterialPageRoute(
                         builder: (_) => MainScaffold(
                           role: context.read<UserCubit>().state,
-                          Index: 11,
+                          index: 11,
                         ),
                       ),
                     );

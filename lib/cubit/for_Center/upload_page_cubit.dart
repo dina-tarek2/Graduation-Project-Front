@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:graduation_project_frontend/api_services/api_consumer.dart';
@@ -28,6 +26,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
 
     if (result != null) {
       selectedFiles = result.paths.map((path) => File(path!)).toList();
+
       print(' ${selectedFiles.length} chosen');
       await uploadAllFilesConcurrently(centerid,email,flag);
     } else {
@@ -127,16 +126,9 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
       final response = await api.get(EndPoints.showImages(publicId));
 
       if (response.statusCode == 200) {
-        print("show images done successfully");
+
       }
     } catch (error) {
-      if (error is DioException) {
-        print("DioException Error: ${error.message}");
-        print("DioException Response: ${error.response?.data}");
-        print("DioException Status Code: ${error.response?.statusCode}");
-      } else {
-        print("Unknown Error: $error");
-      }
       emit(UploadDicomFailure(error: "$error"));
     }
   }

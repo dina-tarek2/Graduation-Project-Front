@@ -18,7 +18,9 @@ class CustomFormTextField extends StatelessWidget {
     this.width,
     this.height,
     this.onSubmitted,
-      this.decoration = const InputDecoration(),
+    this.readOnly = false,
+    this.isMultiline = false,
+    this.decoration = const InputDecoration(),
   }) : super(key: key);
 
   final TextEditingController? controller;
@@ -35,7 +37,9 @@ class CustomFormTextField extends StatelessWidget {
   final double? width;
   final double? height;
   final ValueChanged<String>? onSubmitted;
-final InputDecoration decoration;
+  final bool readOnly;
+  final bool isMultiline;
+  final InputDecoration decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -45,32 +49,42 @@ final InputDecoration decoration;
         width: width,
         height: height,
         child: TextFormField(
-          controller: controller,
+          readOnly: readOnly,
           obscureText: obscureText,
           validator: validator,
           onFieldSubmitted: onSubmitted,
-          minLines: obscureText ? 1 : minLines,
-          maxLines: obscureText ? 1 : (maxLines ?? 1),
+          controller: controller,
+          minLines: isMultiline ? (minLines ?? 3) : (readOnly ? 1 : minLines),
+          maxLines:
+              isMultiline ? (maxLines ?? 5) : (readOnly ? 1 : (maxLines ?? 1)),
           decoration: InputDecoration(
             hintText: hintText,
             labelText: labelText,
-            hintStyle: const TextStyle(color: Colors.grey),
+            labelStyle: TextStyle(
+              color: readOnly ? Colors.black54 : Colors.black87,
+            ),
+            hintStyle: TextStyle(
+              color: Colors.grey.shade500,
+            ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.circular(20.0),
+              borderSide: BorderSide(
+                color: readOnly ? Colors.grey.shade400 : Colors.grey,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+              borderSide: BorderSide(
+                color: readOnly ? Colors.grey.shade400 : Colors.grey,
+                width: 1.5,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: const BorderSide(color: Colors.blue, width: 2),
             ),
             prefixIcon: prefixIcon ??
-                (icon != null
-                    ? Icon(icon, size: 16, color: sky)
-                    : null),
+                (icon != null ? Icon(icon, size: 16, color: sky) : null),
             suffixIcon: suffixIcon ??
                 (suffixIconOnPressed != null
                     ? IconButton(
@@ -78,9 +92,11 @@ final InputDecoration decoration;
                         icon: const Icon(Icons.visibility, color: Colors.blue),
                       )
                     : null),
+            filled: true,
+            fillColor: readOnly ? const Color(0xFFF4F4F4) : Colors.white,
             iconColor: Colors.white,
-            prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-            filled: false,
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 40, minHeight: 40),
           ),
         ),
       ),

@@ -13,7 +13,11 @@ final class UploadedDicomsSuccess extends UploadedDicomsState {
 
   UploadedDicomsSuccess(this.dicoms);
 }
+final class UploadedDicomsFlagSuccess extends UploadedDicomsState {
+  final String message;
 
+  UploadedDicomsFlagSuccess(this.message);
+}
 final class UploadedDicomsFailure extends UploadedDicomsState {
   final String error;
 

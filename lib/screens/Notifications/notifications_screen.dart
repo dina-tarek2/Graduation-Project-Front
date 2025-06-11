@@ -8,6 +8,7 @@ import 'package:graduation_project_frontend/screens/Notifications/formatNotifica
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
@@ -15,10 +16,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   String searchQuery = '';
   String filter = 'All'; // All, Read, Unread
-
-  // GlobalKey to track the position of a widget
-  final GlobalKey _key = GlobalKey();
-
+  
   @override
   Widget build(BuildContext context) {
     final role = context.read<UserCubit>().state;
@@ -70,6 +68,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               );
               if (confirm == true) {
+                // ignore: use_build_context_synchronously
                 BlocProvider.of<NotificationCubit>(context)
                     .deleteAllNotifications(userId);
               }
@@ -205,7 +204,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             child: GestureDetector(
                               onTap: () {
                                 BlocProvider.of<NotificationCubit>(context)
-                                    .markAsRead(index);
+                                    .markAsRead(index, userId);
+                                      if (notification.type == 'massage') {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (_) => MainScaffold(
+                                        role: context.read<UserCubit>().state,
+                                        index: 3,
+                                      ),
+                                    ),
+                                  );
+                                } else if (notification.type == 'study') {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (_) => MainScaffold(
+                                        role: context.read<UserCubit>().state,
+                                        index: 1,
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                               child: Card(
                                 elevation: 2,
@@ -222,6 +240,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     children: [
                                       CircleAvatar(
                                         backgroundColor:
+                                            // ignore: deprecated_member_use
                                             Colors.blueAccent.withOpacity(0.1),
                                         backgroundImage:
                                             NetworkImage(notification.icon),
