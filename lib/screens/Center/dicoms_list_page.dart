@@ -336,8 +336,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
 
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
-              'url': dicomUrl,
-              'recordId': recordId
+              'url': Dicom_url,
+              'recordId': reportid
             });
           },
           child: child,
@@ -410,7 +410,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // Patient Name
@@ -422,7 +422,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // _clickableCell(
@@ -464,7 +464,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // Deadline Date & Time
@@ -486,7 +486,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             context,
             record.reportId,
             record.dicomUrl,
-            record.id),
+          //  record.id
+          ),
 
         // Modality
         _clickableCell(
@@ -494,7 +495,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+          //record.id,
         ),
 
         // Radiologist Name
@@ -507,7 +508,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // QR Code Viewer
