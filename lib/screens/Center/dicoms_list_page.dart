@@ -300,7 +300,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
   }
 
   DataCell _clickableCell(
-      Widget child, BuildContext context, String reportid, String Dicom_url) {
+      Widget child, BuildContext context, String reportid,
+      List<dynamic> Dicom_url) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,

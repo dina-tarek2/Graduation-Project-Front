@@ -19,7 +19,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
   final CancelToken cancelToken = CancelToken();
   final List<UploadingFile> currentUploads = [];
 
-  Future<void> pickFiles(String centerid) async {
+  Future<void> pickFiles(String centerid,String? email,bool? flag) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -29,13 +29,13 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
     if (result != null) {
       selectedFiles = result.paths.map((path) => File(path!)).toList();
       print(' ${selectedFiles.length} chosen');
-      await uploadAllFilesConcurrently(centerid);
+      await uploadAllFilesConcurrently(centerid,email,flag);
     } else {
       // المستخدم لغى الاختيار
     }
   }
 
-  Future<void> uploadAllFilesConcurrently(String centerid) async {
+  Future<void> uploadAllFilesConcurrently(String centerid,String? email,bool? flag) async {
     if (selectedFiles.isEmpty) {
       emit(UploadDicomFailure(error: "No files chosen."));
       return;
@@ -48,7 +48,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
     List<Future<void>> uploadTasks = [];
 
     for (var dicomFile in selectedFiles) {
-      uploadTasks.add(_uploadSingleFile(dicomFile, centerid).then((success) {
+      uploadTasks.add(_uploadSingleFile(dicomFile, centerid,email,flag).then((success) {
         if (success) {
           successCount++;
         } else {
@@ -63,7 +63,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
     emit(UploadDicomSummary(successCount: successCount, failCount: failCount));
   }
 
-  Future<bool> _uploadSingleFile(File dicomFile, String centerid) async {
+  Future<bool> _uploadSingleFile(File dicomFile, String centerid,String? email,bool? flag) async {
     if (!dicomFile.existsSync()) {
       emit(UploadDicomFailure(error: "File ${dicomFile.path} does not exist."));
       return false;
@@ -82,7 +82,7 @@ class UploadDicomCubit extends Cubit<UploadDicomState> {
 
     try {
       final response = await api.post(
-        EndPoints.upload(centerid),
+        EndPoints.upload(centerid,email,flag),
         isFromData: true,
         data: formData,
         cancelToken: _cancelToken,

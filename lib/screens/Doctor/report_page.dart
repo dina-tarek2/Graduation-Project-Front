@@ -11,7 +11,7 @@ class MedicalReportPage extends StatefulWidget {
       {super.key, this.reportId, this.Dicom_url, this.recordId});
   static final id = "MedicalReportPage";
   final String? reportId;
-  final String? Dicom_url;
+  final List<dynamic>? Dicom_url;
   final String? recordId;
 
   @override

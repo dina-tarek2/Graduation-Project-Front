@@ -5,7 +5,7 @@ import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:webview_windows/webview_windows.dart';
 
 class DicomWebViewPage extends StatefulWidget {
-  final String url;
+  final List<dynamic> url;
   final String reportId;
   final String recordId;
   static const String id = "dicom_webview_page";
@@ -66,7 +66,7 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
     );
   }
 
-  Future<Map<String, dynamic>?> uploadDicom(String? dicomUrl) async {
+  Future<Map<String, dynamic>?> uploadDicom(List<dynamic>? dicomUrl) async {
     try {
       final dio = Dio();
       final response = await dio.post(

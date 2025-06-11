@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
+import 'package:graduation_project_frontend/screens/Doctor/deadline.dart';
 
-import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,23 +10,76 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 
 class RecordsListPage extends StatefulWidget {
-  static final id = "RecordsListPage";
+  static const id = "RecordsListPage";
 
-  const RecordsListPage({super.key});
+  const RecordsListPage({Key? key}) : super(key: key);
 
   @override
   _RecordsListPageState createState() => _RecordsListPageState();
 }
 
-class _RecordsListPageState extends State<RecordsListPage> {
-  String searchQuery = "";
+class _RecordsListPageState extends State<RecordsListPage>
+    with WidgetsBindingObserver {  String searchQuery = "";
   String selectedStatus = "All";
+   // handle deadline part
+  DeadlineChecker? _deadlineChecker;
 
   @override
   void initState() {
     super.initState();
+        WidgetsBinding.instance.addObserver(this); // إضافة مراقب دورة حياة التطبيق
+
     final userId = context.read<CenterCubit>().state;
     context.read<RecordsListCubit>().fetchRecords(userId);
+    
+    // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   print("Setting up deadline checker after frame");
+    //   setupDeadlineChecker();
+    // });
+  }
+
+  void setupDeadlineChecker() {
+    if (_deadlineChecker == null) {
+      print("Creating new deadline checker");
+      _deadlineChecker = DeadlineChecker(context);
+      _deadlineChecker!.startDeadlineChecking();
+    } else {
+      print("Deadline checker already exists");
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // التأكد من أن المدقق يعمل بعد تغيير التبعيات
+    if (_deadlineChecker == null) {
+      setupDeadlineChecker();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // إعادة تشغيل المدقق عند عودة التطبيق للواجهة
+    if (state == AppLifecycleState.resumed) {
+      print("App resumed - restarting deadline checker");
+      _deadlineChecker?.stopDeadlineChecking();
+      _deadlineChecker = DeadlineChecker(context);
+      _deadlineChecker!.startDeadlineChecking();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      // إيقاف المدقق عند توقف التطبيق مؤقتًا
+      print("App paused - stopping deadline checker");
+      _deadlineChecker?.stopDeadlineChecking();
+    }
+  }
+
+  @override
+  void dispose() {
+    print("Disposing RecordsListPage");
+    _deadlineChecker?.stopDeadlineChecking();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -40,7 +93,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildFilterSection(),
-            SizedBox(height: 16),
+           const SizedBox(height: 16),
             Expanded(child: _buildRecordsTable()),
           ],
         ),
@@ -52,7 +105,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
@@ -72,7 +125,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
                   0.4, // controls search width
               child: _buildSearchBox(),
             ),
-            SizedBox(width: 12),
+          const  SizedBox(width: 12),
             _buildStatusFilterChips(),
           ],
         ),
@@ -103,13 +156,18 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   Widget _buildStatusFilterChips() {
-    List<String> statusOptions = ["All", "Available", "Pending", "Reviewed"];
-    return Wrap(
+List<String> statusOptions = [
+      "All",
+      "Ready",
+      "Diagonize",
+      "Completed",
+      "Cancled"
+    ];    return Wrap(
       spacing: 8,
       children: statusOptions.map((status) {
         return ChoiceChip(
-          label: Text(status, style: TextStyle(fontWeight: FontWeight.w600)),
-          selected: selectedStatus == status,
+  label:
+              Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),          selected: selectedStatus == status,
           onSelected: (isSelected) {
             if (isSelected) {
               setState(() {
@@ -131,7 +189,14 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   Widget _buildRecordsTable() {
-    return BlocBuilder<RecordsListCubit, RecordsListState>(
+    return BlocConsumer<RecordsListCubit, RecordsListState>(
+      listener: (context, state) {
+        // إعادة فحص المواعيد النهائية كلما تغيرت البيانات
+        if (state is RecordsListSuccess) {
+          print("Data loaded - checking deadlines");
+          _deadlineChecker?.checkDeadlines();
+        }
+      },
       builder: (context, state) {
         if (state is RecordsListLoading) {
           return Center(
@@ -169,6 +234,13 @@ class _RecordsListPageState extends State<RecordsListPage> {
 
             return matchesSearch && matchesStatus;
           }).toList();
+
+          
+          // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            print("Setting up deadline checker after frame");
+            setupDeadlineChecker();
+          });
 
           return Container(
             decoration: BoxDecoration(
@@ -229,7 +301,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      String Dicom_url, String recordId) {
+      List<dynamic> Dicom_url, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
@@ -336,14 +408,16 @@ class _RecordsListPageState extends State<RecordsListPage> {
     );
   }
 
-  Color _getStatusColor(String status) {
+Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case "available":
+      case "ready":
         return Colors.green;
-      case "pending":
+      case "diagonize":
         return Colors.orange;
-      case "reviewed":
+      case "completed":
         return Colors.blue;
+      case "cancled":
+        return Colors.red;
       default:
         return Colors.grey;
     }
