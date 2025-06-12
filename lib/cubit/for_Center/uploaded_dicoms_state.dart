@@ -33,3 +33,11 @@ final class ReassignFailure extends UploadedDicomsState {
 
   ReassignFailure(this.error);
 }
+final class CommentSuccessfully extends UploadedDicomsState {}
+
+
+final class CommentFailure extends UploadedDicomsState {
+  final String error;
+
+  CommentFailure(this.error);
+}

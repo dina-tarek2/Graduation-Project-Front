@@ -184,7 +184,7 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                                   MaterialPageRoute(
                                     builder: (_) => MainScaffold(
                                       role: context.read<UserCubit>().state,
-                                      index: 3,
+                                      index: 4,
                                     ),
                                   ),
                                 );

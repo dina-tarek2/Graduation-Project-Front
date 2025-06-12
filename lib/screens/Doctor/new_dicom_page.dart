@@ -26,7 +26,6 @@ class _NewDicomPageState extends State<NewDicomPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: BlocBuilder<RecordsListCubit, RecordsListState>(
         builder: (context, state) {
           if (state is RecordsListLoading) {
@@ -37,7 +36,12 @@ class _NewDicomPageState extends State<NewDicomPage> {
             final readyRecords = state.records
                 .where((record) => record.status == "Ready")
                 .toList();
-
+            readyRecords.sort((a, b) {
+              if (a.isEmergency != b.isEmergency) {
+                return a.isEmergency ? -1 : 1; // الطارئة الأول
+              }
+              return a.deadline.compareTo(b.deadline); // بعد كده أقرب Deadline
+            });
             if (readyRecords.isEmpty) {
               return Center(child: Text("No Ready Records Available"));
             }

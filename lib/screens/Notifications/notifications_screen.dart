@@ -210,7 +210,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     MaterialPageRoute(
                                       builder: (_) => MainScaffold(
                                         role: context.read<UserCubit>().state,
-                                        index: 3,
+                                        index: 4,
                                       ),
                                     ),
                                   );
