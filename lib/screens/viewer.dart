@@ -37,9 +37,10 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
   Future<Map<String, dynamic>?> uploadDicom(List<dynamic> dicomUrl) async {
     try {
       final dio = Dio();
+    
       final response = await dio.post(
-        'https://4dc1-41-37-56-190.ngrok-free.app/upload',
-        data: {'dicom_url': dicomUrl},
+        'https://bc73-41-33-141-180.ngrok-free.app/upload',
+        data: {'dicom_url': dicomUrl[0]}, 
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 

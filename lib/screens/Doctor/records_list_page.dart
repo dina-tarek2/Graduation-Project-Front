@@ -56,7 +56,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               spreadRadius: 2,
               blurRadius: 5,
               offset: Offset(0, 3),
@@ -101,7 +101,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   Widget _buildStatusFilterChips() {
-    List<String> statusOptions = ["All", "Available", "Pending", "Completed"];
+    List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
     return Wrap(
       spacing: 8,
       children: statusOptions.map((status) {
@@ -115,7 +115,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
               });
             }
           },
-          selectedColor: _getStatusColor(status).withOpacity(0.8),
+          selectedColor: _getStatusColor(status).withValues(alpha: 0.8),
           backgroundColor: Colors.grey[300],
           labelStyle: TextStyle(
             color: selectedStatus == status ? Colors.white : Colors.black87,
@@ -163,7 +163,8 @@ class _RecordsListPageState extends State<RecordsListPage> {
                     record.id.contains(searchQuery);
 
             bool matchesStatus =
-                selectedStatus == "All" || record.status == selectedStatus;
+                record.status != "Ready" && selectedStatus == "All" ||
+                    record.status == selectedStatus;
 
             return matchesSearch && matchesStatus;
           }).toList();
@@ -174,7 +175,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
                   offset: Offset(0, 3),
@@ -189,6 +190,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
                 child: DataTable(
                   columnSpacing: 70,
                   columns: [
+                    DataColumn(label: Text("Comment", style: _columnStyle())),
                     DataColumn(label: Text("Status", style: _columnStyle())),
                     DataColumn(
                         label: Text("Patient Name", style: _columnStyle())),
@@ -228,7 +230,7 @@ class _RecordsListPageState extends State<RecordsListPage> {
   }
 
   DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      List<dynamic> Dicom_url, String recordId) {
+      List<dynamic> dicomUrl, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
@@ -240,10 +242,9 @@ class _RecordsListPageState extends State<RecordsListPage> {
             //       builder: (context) => MedicalReportPage(
             //           reportId: reportid, Dicom_url: Dicom_url)),
             // );
-            print('reportId: $reportid, Dicom_url: $Dicom_url');
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
-              'url': Dicom_url,
+              'url': dicomUrl,
               'recordId': recordId
             });
           },
@@ -258,29 +259,64 @@ class _RecordsListPageState extends State<RecordsListPage> {
     final timeFormat = DateFormat('HH:mm');
 
     return DataRow(
+      color: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (record.isEmergency) {
+            return Colors.red
+                .withValues(alpha: 0.1); // لون الصف لو الحالة طارئة
+          }
+          return null; // الافتراضي
+        },
+      ),
       cells: [
+        DataCell(
+          Row(
+            children: [
+              if (record.isEmergency) ...[
+                Icon(Icons.warning, color: Colors.red),
+                SizedBox(width: 6),
+              ],
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: Size(0, 32),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  backgroundColor: Colors.blue[50],
+                  foregroundColor: Colors.blue[800],
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle:
+                      TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+                onPressed: () {
+                  _showCommentDialog(record);
+                },
+                child: Text("Show Comment"),
+              ),
+            ],
+          ),
+        ),
         _clickableCell(_buildStatusIndicator(record.status), context,
             record.reportId, record.Dicom_url, record.id),
-        _clickableCell(Text(record.patientName), context, record.reportId,
-            record.Dicom_url, record.id),
+        _clickableCell(Text(record.patientName, style: TextStyle(fontSize: 13)),
+            context, record.reportId, record.Dicom_url, record.id),
         _clickableCell(
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(dateFormat.format(record.createdAt),
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                 Text(timeFormat.format(record.createdAt),
-                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    style: TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
             context,
             record.reportId,
             record.Dicom_url,
             record.id),
-        // DataCell(Text(record.age.toString())), // غير قابل للنقر
-        // DataCell(Text(record.bodyPartExamined ?? "N/A")), // غير قابل للنقر
-        // DataCell(Text(record.series ?? "N/A")), // غير قابل للنقر
         _clickableCell(
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,19 +324,21 @@ class _RecordsListPageState extends State<RecordsListPage> {
               children: [
                 Text(dateFormat.format(record.deadline),
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red[700])),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[700])),
                 Text(timeFormat.format(record.deadline),
-                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    style: TextStyle(color: Colors.grey, fontSize: 11)),
               ],
             ),
             context,
             record.reportId,
             record.Dicom_url,
             record.id),
-        _clickableCell(Text(record.modality), context, record.reportId,
-            record.Dicom_url, record.id),
-        _clickableCell(Text(record.centerName), context, record.reportId,
-            record.Dicom_url, record.id),
+        _clickableCell(Text(record.modality, style: TextStyle(fontSize: 13)),
+            context, record.reportId, record.Dicom_url, record.id),
+        _clickableCell(Text(record.centerName, style: TextStyle(fontSize: 13)),
+            context, record.reportId, record.Dicom_url, record.id),
       ],
     );
   }
@@ -337,15 +375,58 @@ class _RecordsListPageState extends State<RecordsListPage> {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case "available":
+      case "ready":
         return Colors.green;
-      case "pending":
+      case "diagonize":
         return Colors.orange;
       case "completed":
         return Colors.blue;
+      case "cancled":
+        return Colors.red;
       default:
         return Colors.grey;
     }
+  }
+
+  void _showCommentDialog(RecordsListModel record) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Comments'),
+        content: record.Dicom_url.isNotEmpty
+            ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: record.Dicom_url.map((item) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("• ",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.blue)),
+                          Expanded(
+                            child: Text(
+                              item,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              )
+            : Text("No comment available"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close', style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
   }
 
   TextStyle _columnStyle() => TextStyle(

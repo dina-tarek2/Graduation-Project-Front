@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/api_services/api_consumer.dart';
 import 'package:graduation_project_frontend/api_services/end_points.dart';
 import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:graduation_project_frontend/models/comments_moudel.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
 part 'uploaded_dicoms_state.dart';
 
@@ -67,11 +68,44 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
           await api.post(EndPoints.RedirectToDoctorFromRadintal(recordId));
 
       if (response.statusCode == 200 &&
+          response.data['message'] == "Record redirected successfully") {}
+    } on Exception catch (e) {}
+  }
+
+  // add comminet api post
+  // إضافة تعليق جديد
+  Future<bool> addComment(String recordId, String message) async {
+    try {
+      final response = await api.post(
+        EndPoints.addCommentsById,
+        data: {
+          "recordId": recordId,
+          "userType": "RadiologyCenter",
+          "Comments": message,
+        },
+      );
+      if (response.statusCode == 200 &&
           response.data['message'] == "Record redirected successfully") {
-        emit((ReassignedSuccessfully()));
+        return true;
+      } else {
+        return false;
       }
-    } on Exception catch (e) {
-      emit(ReassignFailure(e.toString()));
+    } catch (e) {
+      return false;
+    }
+  }
+
+// جلب التعليقات كـ List<DicomComment>
+  Future<List<DicomComment>> fetchComment(String recordId) async {
+    try {
+      final response = await api.get(EndPoints.GetCommentsById(recordId));
+      // استخراج التعليقات من كل Record وتحويلها لـ List<DicomComment>
+      List<DicomComment> comments = response.data
+          .map<DicomComment>((json) => DicomComment.fromJson(json))
+          .toList();
+      return comments;
+    } catch (e) {
+      rethrow; // عشان تقدر تمسك الخطأ عند استدعاء الدالة لو تحب
     }
   }
 }
