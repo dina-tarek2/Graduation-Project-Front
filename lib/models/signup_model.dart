@@ -4,12 +4,16 @@ import '../api_services/end_points.dart';
 
 class SignUpModel {
   final String message ;
+  final String? FrontId ;
+  final String? BackId ;
 
- SignUpModel({required this.message});
+ SignUpModel({required this.message, this.FrontId,this.BackId});
 
  factory SignUpModel.fromJson(Map<String,dynamic> jsonData){
    return SignUpModel(
     message: jsonData[ApiKey.message],
+    FrontId: jsonData['FrontId'],
+    BackId: jsonData['BackId'],
    );
  } 
 }
