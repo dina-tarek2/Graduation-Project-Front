@@ -269,9 +269,7 @@ class MainScaffoldState extends State<MainScaffold> {
             ? 'Manage Doctors'
             : (widget.role == "Admin" ? 'Manage Centers' : 'New Rpeorts');
       case 3:
-        return widget.role == "RadiologyCenter" ? 'Contact Us' 
-                    :'Chat App';
-
+        return 'Contact Us' ;
       case 4:
         return  'Chat';
       case 5:
