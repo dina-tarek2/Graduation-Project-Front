@@ -16,6 +16,7 @@ import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.d
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
+import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/splashScreen.dart';
