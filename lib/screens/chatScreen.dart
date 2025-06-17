@@ -4,7 +4,9 @@ import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/chat/chat_cubit.dart';
 import 'package:graduation_project_frontend/models/doctors_model.dart';
+import 'package:graduation_project_frontend/screens/Doctor/doctor_profile.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
@@ -27,6 +29,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late ChatCubit chatCubit;
+  bool _showEmojiPicker = false;
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -34,6 +37,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   List<dynamic> filteredConversations = [];
   List<dynamic> conversations = [];
   List<dynamic> messages = [];
+   String searchQuery = ''; 
   bool isPartnerOnline = false;
   String partnerId = "";
   String partnerType = "";
@@ -44,6 +48,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool isTyping = false;
   bool isLoadingMessages = false;
   bool isSearching = false;
+    bool showNoResults = false;
+  List<Map<String, dynamic>> allMessages = []; 
+  List<Map<String, dynamic>> filteredMessages = [];
   //  Timer? _timer;
   @override
   void initState() {
@@ -82,28 +89,28 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       }
     });
 
-    _searchController.addListener(_filterConversations);
+    _searchController.addListener((){
+       filterSearch(_searchController.text);
+    });
+    filteredConversations = conversations;
   }
 
-  void _filterConversations() {
-    if (_searchController.text.isEmpty) {
-      setState(() {
-        filteredConversations = conversations;
-        isSearching = false;
-      });
-      return;
-    }
-
+  void filterSearch(String query) {
+    searchQuery = query;
     setState(() {
-      isSearching = true;
+    if (searchQuery.isNotEmpty) {
       filteredConversations = conversations.where((chat) {
-        final fullName =
-            "${chat['firstName']} ${chat['lastName']}".toLowerCase();
-        return fullName.contains(_searchController.text.toLowerCase());
-      }).toList();
+        final firstName = (chat['firstName'] ?? '').toString().toLowerCase();
+        final lastName = (chat['lastName'] ?? '').toString().toLowerCase();
+        final fullName = "$firstName $lastName";
+
+        return fullName.contains(searchQuery);
+      }).cast<Map<String, dynamic>>().toList();
+    } else {
+      filteredConversations = conversations.cast<Map<String, dynamic>>().toList(); 
+  }
     });
   }
-
   Future<void> _loadConversations() async {
     chatCubit.fetchConversations();
   }
@@ -201,7 +208,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       );
     }
   }
-
+// void _navigateToProfile(Doctor radiologist) {
+//     final mainState = context.findAncestorStateOfType<MainScaffoldState>();
+//     if (mainState != null) {
+//       mainState.setState(() {
+//         mainState.selectedIndex = 10;
+//         // mainState.selectedDoctor = radiologist;
+//       });
+//     }     
+//   }
   @override
   void dispose() {
     _controller.dispose();
@@ -222,11 +237,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         child: Row(
           children: [
             Container(
-              width: 300,
+              width: 350,
               decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(color: Colors.grey.shade200, width: 5),
-                ),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: darkBabyBlue,
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: buildChatList(),
             ),
@@ -238,9 +259,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   Widget buildChatList() {
+      List<dynamic> displayConversations = searchQuery.isEmpty 
+        ? conversations
+        : filteredConversations;
     return Column(
       children: [
         Container(
+          color: Colors.white60,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,25 +275,31 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               const SizedBox(height: 12),
               TextField(
                 controller: _searchController,
+                  onChanged: (value) {
+    filterSearch(value);
+  },
                 decoration: InputDecoration(
                   hintText: "Search conversations...",
                   prefixIcon: const Icon(Icons.search, color: blue),
+                   suffixIcon: searchQuery.isNotEmpty 
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.grey),
+                          onPressed: () {
+                            _searchController.clear();
+                            filterSearch('');
+                          },
+                        )
+                      : null,
                   filled: true,
                   fillColor: Colors.grey.shade100,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
-                  suffixIcon: isSearching
-                      ? GestureDetector(
-                          onTap: () {
-                            _searchController.clear();
-                          },
-                          child: Icon(Icons.close, color: Colors.grey),
-                        )
-                      : null,
+                 
                 ),
+              
               ),
             ],
           ),
@@ -276,37 +307,66 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         Expanded(
           child: RefreshIndicator(
             onRefresh: _loadConversations,
-            child: conversations.isEmpty
+            child: displayConversations.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline,
-                            size: 60, color: Colors.grey.shade400),
+                        Icon(
+                          searchQuery.isNotEmpty 
+                              ? Icons.search_off 
+                              : Icons.chat_bubble_outline,
+                          size: 60, 
+                          color: Colors.grey.shade400
+                        ),
                         const SizedBox(height: 16),
                         Text(
-                          "No conversations yet",
+                          searchQuery.isNotEmpty
+                              ? "No results found for '$searchQuery'"
+                              : "No conversations yet",
                           style: TextStyle(color: Colors.grey.shade600),
+                          textAlign: TextAlign.center,
                         ),
+                        if (searchQuery.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              filterSearch('');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: blue,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text("Clear Search"),
+                          ),
+                        ],
                       ],
                     ),
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    itemCount: conversations.length,
+                    itemCount: displayConversations.length,
                     itemBuilder: (context, index) {
-                      var chat = conversations[index];
+                      var chat = displayConversations[index];
                       final bool isSelected = chat['id'] == partnerId;
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 4),
                         child: Material(
-                          color: isSelected ? blue : Colors.transparent,
+                          color: isSelected ? blue : Colors.blueGrey.shade100,
                           borderRadius: BorderRadius.circular(12),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(12),
-                            onTap: () => _selectConversation(chat),
+                            onTap: ()  {
+                              _loadConversations();
+                              _selectConversation(chat);
+                              
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Row(
@@ -319,9 +379,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: isSelected
-                                                ? Colors.white
-                                                : Colors.transparent,
+                                            color: Colors.black,
                                             width: 2,
                                           ),
                                         ),
@@ -381,8 +439,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                 fontWeight: isSelected ||
                                                         chat['unreadCount'] > 0
                                                     ? FontWeight.w600
-                                                    : FontWeight.w400,
-                                                fontSize: 16,
+                                                    : FontWeight.w500,
+                                                fontSize: 18,
                                                 color: isSelected
                                                     ? Colors.black
                                                     : Colors.black,
@@ -457,6 +515,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   Widget buildChatScreen() {
+    List<String> emojis = [
+      "😀",
+      "😂",
+      "😍",
+      "🤔",
+      "😢",
+      "😎",
+      "🔥",
+      "❤️",
+      "👍"
+    ];
+    
     bool isCurrentUser(dynamic message) {
       return message['sender'] == widget.userId;
     }
@@ -478,7 +548,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             Icon(
               Icons.chat_bubble_outline,
               size: 80,
-              color: blue,
+              color: darkBlue,
             ),
             const SizedBox(height: 24),
             Text(
@@ -498,88 +568,102 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         Column(
           children: [
             // Chat header
-            Material(
-              color: Colors.white,
-              elevation: 3,
-              shadowColor: Colors.black12,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: CachedNetworkImage(
-                          imageUrl: partnerImage,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              Container(color: Colors.grey.shade200),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.person, size: 32, color: Colors.grey),
+            InkWell(
+              onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorProfile(
+          doctorId: partnerId, 
+          role:partnerType,
+        ),
+      ),
+    );
+  },
+              child: Material(
+                color: Colors.white,
+                elevation: 3,
+                shadowColor: Colors.black12,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: CachedNetworkImage(
+                            imageUrl: partnerImage,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                Container(color: Colors.grey.shade200),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.person, size: 32, color: Colors.grey),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            partnerName,
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: darkBlue,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              partnerName,
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: partnerStatus == 'online'
-                                      ? Colors.green
-                                      : Colors.grey,
-                                  shape: BoxShape.circle,
+                            Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: partnerStatus == 'online'
+                                        ? Colors.green
+                                        : Colors.grey,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                partnerStatus,
-                                style: TextStyle(
-                                    fontSize: 13, color: Colors.grey.shade600),
-                              ),
-                            ],
-                          ),
-                        ],
+                                const SizedBox(width: 4),
+                                Text(
+                                  partnerStatus,
+                                  style: TextStyle(
+                                      fontSize: 13, color: Colors.grey.shade600),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // IconButton(
-                    //   icon: const Icon(Icons.videocam_outlined, color: blue),
-                    //   onPressed: () {},
-                    // ),
-                    // IconButton(
-                    //   icon: const Icon(Icons.call_outlined, color: blue),
-                    //   onPressed: () {},
-                    // ),
-                    IconButton(
-                      icon: const Icon(Icons.more_vert, color: Colors.grey),
-                      onPressed: () {},
-                    ),
-                  ],
+                      // IconButton(
+                      //   icon: const Icon(Icons.videocam_outlined, color: blue),
+                      //   onPressed: () {},
+                      // ),
+                      // IconButton(
+                      //   icon: const Icon(Icons.call_outlined, color: blue),
+                      //   onPressed: () {},
+                      // ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -745,14 +829,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                         : message['readStatus'] ==
                                                                 true
                                                             ? Icons.done_all
-                                                            : Icons.done,
+                                                            : Icons.done_all,
                                                     size: 16,
                                                     color: isOptimistic
                                                         ? Colors.white54
                                                         : message['readStatus'] ==
                                                                 true
-                                                            ? Colors.white
-                                                            : Colors.white70,
+                                                            ? Colors.white70
+                                                            : const Color.fromARGB(255, 131, 124, 124),
                                                   ),
                                                 ],
                                               ],
@@ -768,6 +852,38 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ),
                         ),
             ),
+//icon
+            if (_showEmojiPicker)
+              Container(
+                padding: const EdgeInsets.all(8),
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.grey[100],
+                ),
+                child: Wrap(
+                  children: emojis.map((e) {
+                    return InkWell(
+                      onTap: () {
+                        _controller.text += e;
+                        _controller.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _controller.text.length),
+                        );
+                        setState(() {
+                          isTyping = _controller.text.trim().isNotEmpty;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          e,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
 
             // Message input
             Container(
@@ -783,13 +899,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.attach_file,
-                      color: blue,
-                    ),
-                    onPressed: () {},
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(
+                  //     Icons.attach_file,
+                  //     color: blue,
+                  //   ),
+                  //   onPressed: () {},
+                  // ),
+
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -803,7 +920,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           IconButton(
                             icon: const Icon(Icons.emoji_emotions_outlined,
                                 color: Colors.grey),
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _showEmojiPicker = !_showEmojiPicker;
+                              });
+                            },
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -817,7 +938,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 12),
                               ),
-                              maxLines: null,
+                              onSubmitted: (value) {
+                                _sendMessage();
+                              },
                               textCapitalization: TextCapitalization.sentences,
                               onChanged: (text) {
                                 setState(() {
@@ -826,17 +949,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               },
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.mic_none_rounded,
-                                color: Colors.grey),
-                            onPressed: () {},
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
                         ],
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 8),
                   Container(
                     width: 46,
@@ -851,7 +968,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(24),
                         onTap: !isTyping ? null : _sendMessage,
                         child: Icon(
-                          isTyping ? Icons.send : Icons.mic,
+                          Icons.send ,
                           color: Colors.white,
                           size: 20,
                         ),

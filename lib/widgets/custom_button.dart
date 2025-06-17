@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
 class CustomButton extends StatelessWidget {
    CustomButton({super.key, this.onTap, required this.text, this.width});
@@ -24,9 +25,7 @@ class CustomButton extends StatelessWidget {
                   // child: Text(text),
                          child: Text(
                               text,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                              style: customTextStyle(16, FontWeight.w500, Colors.white)
                             ),
                   ),
               ),

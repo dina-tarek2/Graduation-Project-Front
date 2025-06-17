@@ -108,9 +108,12 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
         _selectedDateRange = picked;
       });
       // ignore: use_build_context_synchronously
-      context.read<DashboardCubit>().loadDashboard();
-    }
-  }
+ context.read<DashboardCubit>().loadDashboard(
+     picked.start,
+     picked.end,
+  );
+}    }
+  
 
   @override
   void initState() {
@@ -118,8 +121,10 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
     // Delay the initialization slightly to ensure the provider is fully set up
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<DashboardCubit>().loadDashboard();
-      }
+ context.read<DashboardCubit>().loadDashboard(
+         _selectedDateRange.start,
+         _selectedDateRange.end,
+      );      }
     });
   }
 
@@ -415,7 +420,7 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
     final mainState = context.findAncestorStateOfType<MainScaffoldState>();
     if (mainState != null) {
       mainState.setState(() {
-        mainState.selectedIndex = 5;
+        mainState.selectedIndex = 4;
         // mainState.selectedDoctor = radiologist;
       });
     }

@@ -19,6 +19,7 @@ class Centerdashboard {
      required this.dailyStats});
 
 }
+
 class DailyReportStats {
   final int Diagnose;
   final int Completed;
