@@ -52,6 +52,7 @@ import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
 import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
 
@@ -149,7 +150,7 @@ class MyApp extends StatelessWidget {
         SigninPage.id: (context) => SigninPage(),
         SignupPage.id: (context) => SignupPage(),
         DicomListPage.id: (context) => DicomListPage(),
-
+        NewDicomPage.id: (context) => NewDicomPage(),
         DoctorDashboard.id: (context) => DoctorDashboard(),
 
         ContactScreen.id: (context) => ContactScreen(role: "Radiologist"),

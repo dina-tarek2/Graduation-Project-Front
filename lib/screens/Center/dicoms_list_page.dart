@@ -4,7 +4,9 @@ import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:collection/collection.dart'; // تأكد تضيفها لو مش موجودة في pubspec.yaml
 import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:graduation_project_frontend/models/comments_moudel.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
@@ -276,6 +278,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                 child: DataTable(
                   columnSpacing: 30,
                   columns: [
+                    DataColumn(label: Text("Comment", style: _columnStyle())),
                     DataColumn(label: Text("Action", style: _columnStyle())),
                     DataColumn(label: Text("Emergency", style: _columnStyle())),
                     DataColumn(label: Text("Status", style: _columnStyle())),
@@ -317,8 +320,11 @@ class _DicomsListPageState extends State<DicomsListPage> {
     );
   }
 
-  DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      String dicomUrl, String recordId) {
+
+  DataCell _clickableCell(
+      Widget child, BuildContext context, String reportid,
+      List<dynamic> Dicom_url) {
+
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -333,8 +339,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
 
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
-              'url': dicomUrl,
-              'recordId': recordId
+              'url': Dicom_url,
+              'recordId': reportid
             });
           },
           child: child,
@@ -359,6 +365,51 @@ class _DicomsListPageState extends State<DicomsListPage> {
 
     return DataRow(
       cells: [
+        DataCell(
+          Row(
+            children: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: Size(0, 25),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                  backgroundColor: Colors.blue[50],
+                  foregroundColor: Colors.blue[800],
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle:
+                      TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                onPressed: () {
+                  _addCommentDialog(record);
+                },
+                child: Text("+",
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              ),
+              SizedBox(width: 8),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: Size(0, 32),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  backgroundColor: Colors.blue[50],
+                  foregroundColor: Colors.blue[800],
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  textStyle:
+                      TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+                onPressed: () {
+                  _showCommentDialog(record);
+                },
+                child: Text("Show Comment"),
+              ),
+            ],
+          ),
+        ),
         // Reassign Button if status == "Cancled"
         DataCell(
           record.status.toLowerCase() == "cancled"
@@ -369,23 +420,32 @@ class _DicomsListPageState extends State<DicomsListPage> {
         DataCell(
           Switch(
             value: emergencyStates[record.id] ?? record.flag,
-            onChanged: (val) {
-              setState(() {
-                emergencyStates[record.id] = val;
-              });
-              context.read<UploadedDicomsCubit>().updateDicomflag(
-                context,
-                record.id,
-                {"flag": val.toString()},
-              );
-            },
-            activeColor: Colors.red[700],
-            activeTrackColor: Colors.red[100],
+            onChanged: record.status.toLowerCase() != "ready"
+                ? null // يعطل السويتش لو الحالة Completed
+                : (val) {
+                    setState(() {
+                      emergencyStates[record.id] = val;
+                    });
+                    context.read<UploadedDicomsCubit>().updateDicomflag(
+                      context,
+                      record.id,
+                      {"flag": val.toString()},
+                    );
+                  },
+            activeColor: record.status.toLowerCase() != "ready"
+                ? Colors.grey[400]
+                : Colors.red[700],
+            activeTrackColor: record.status.toLowerCase() != "ready"
+                ? Colors.grey[200]
+                : Colors.red[100],
             inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[100],
             splashRadius: 20,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+              if (record.status.toLowerCase() != "ready") {
+                return Colors.grey[200]!;
+              }
               if (states.contains(WidgetState.selected)) {
                 return Colors.red[700]!;
               }
@@ -393,6 +453,9 @@ class _DicomsListPageState extends State<DicomsListPage> {
             }),
             trackOutlineColor:
                 WidgetStateProperty.resolveWith<Color?>((states) {
+              if (record.status.toLowerCase() != "ready") {
+                return Colors.grey[200];
+              }
               if (states.contains(WidgetState.selected)) {
                 return Colors.red[300];
               }
@@ -407,7 +470,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // Patient Name
@@ -419,7 +482,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // _clickableCell(
@@ -461,7 +524,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // Deadline Date & Time
@@ -483,7 +546,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             context,
             record.reportId,
             record.dicomUrl,
-            record.id),
+          //  record.id
+          ),
 
         // Modality
         _clickableCell(
@@ -491,7 +555,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+          //record.id,
         ),
 
         // Radiologist Name
@@ -504,7 +568,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-          record.id,
+         // record.id,
         ),
 
         // QR Code Viewer
@@ -604,6 +668,155 @@ class _DicomsListPageState extends State<DicomsListPage> {
       default:
         return Colors.grey;
     }
+  }
+
+void _showCommentDialog(RecordModel record) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Comments'),
+        content: FutureBuilder<List<DicomComment>>(
+          future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              final comments = snapshot.data ?? [];
+              if (comments.isEmpty) {
+                return Text("No comments available");
+              }
+              // تجميع التعليقات حسب اسم المركز
+              final groupedComments = groupBy(comments, (DicomComment c) => c.name ?? 'Unknown Center');
+              return Container(
+                height: 300,
+                width: 400,
+                child: ListView.separated(
+                  itemCount: groupedComments.keys.length,
+                  separatorBuilder: (_, __) => Divider(),
+                  itemBuilder: (context, index) {
+                    final centerName = groupedComments.keys.elementAt(index);
+                    final centerComments = groupedComments[centerName]!;
+
+                    // تجميع كل dicomComments اللي تحت نفس المركز في ليست واحدة
+                    final allComments = centerComments.expand((c) => c.dicomComments).toList();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          centerName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: allComments.map((singleComment) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("• ", style: TextStyle(color: Colors.blue)),
+                                  Expanded(child: Text(singleComment)),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              );
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close', style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _addCommentDialog(RecordModel record) {
+    TextEditingController _commentController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Comments'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // تيكست فيلد لإضافة تعليق
+                TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    labelText: 'Add a comment',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 2,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel', style: TextStyle(color: Colors.red)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (_commentController.text.trim().isEmpty) return;
+
+                        setState(() {
+                          isLoading = true;
+                        });
+
+                        try {
+                          await context.read<UploadedDicomsCubit>().addComment(
+                                record.id,
+                                _commentController.text.trim(),
+                              );
+
+                          Navigator.pop(context); // غلق الـ dialog بعد النجاح
+                        } catch (e) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: $e")),
+                          );
+                        }
+                      },
+                child: isLoading
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : Text('Add'),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   Widget _buildRedirectButton(RecordModel record, BuildContext context) {

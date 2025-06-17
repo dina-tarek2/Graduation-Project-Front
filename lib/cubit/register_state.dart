@@ -27,3 +27,12 @@ final class RegisterFailure extends RegisterState {
 class LicenseImagePicked extends RegisterState {}
 
 class ChangeRegisterPasswordSuffixIconState extends RegisterState {}
+
+
+class FrontIdImagePicked extends RegisterState {}
+
+class BackIdImagePicked extends RegisterState {}
+
+class FrontIdImageRemoved extends RegisterState {}
+
+class BackIdImageRemoved extends RegisterState {}

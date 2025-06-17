@@ -20,22 +20,28 @@ class EndPoints {
   static String VerifyOtpDoctor = "RadiologistAuth/verifyOtp";
   //doctor
   static String GetRecordsByRadiologistId(String id) =>
-      // "Record/getRecordsByRadiologistId/$id";
-      "Record/getRecordsByRadiologistId/67fd9050433fe6d2e1d18f56";
+      "Record/getRecordsByRadiologistId/$id";
 
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
   //center
-
-  static String upload(String id) =>
-      "upload_dicom?centerId=$id"; 
+  static String upload(String id,String? email, bool? flag) =>
+      "upload_dicom?centerId=$id&email=$email&useOuerRadiologist=$flag"; 
+  
   static String showImages(id) =>
       "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId(String id) =>
       "/Record/getRecordsByCenterId/$id";
+
+  static String GetCommentsById(String id) =>
+      "/comments/getAllCommentsByRecordId/$id";
+  static String addCommentsById = "/comments/addcommmet";
+  static String deleteCommentById(String id) =>
+      "/comments/deleteComment/$id";
   static String RedirectToDoctorFromRadintal(String id) =>
-      "/Record/redirectToOurRadiologist/$id";     
-  static String getReviewedReport(String reportId) => "AIReports/getOneAIReport/$reportId";
+      "/Record/redirectToOurRadiologist/$id";
+  static String getReviewedReport(String reportId) =>
+      "AIReports/getOneAIReport/$reportId";
   //Admin - in center
   static String getApprovedCenters = "admin/getApprovedRadiologyCenters";
   static String addCenterByAdmin = "admin/addRadiologyCenter";

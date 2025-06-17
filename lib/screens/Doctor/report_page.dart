@@ -15,7 +15,7 @@ class MedicalReportPage extends StatefulWidget {
   static final id = "MedicalReportPage";
 
   final String? reportId;
-  final String? Dicom_url;
+  final List<dynamic>? Dicom_url;
   final String? recordId;
 
   @override
@@ -31,6 +31,7 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
     super.initState();
     context.read<ReportPageCubit>().fetchReport(widget.reportId!);
     context.read<RecordsListCubit>().getRecordById(widget.recordId!);
+
     _selectedStatus =
         context.read<ReportPageCubit>().resultController.text.trim();
   }
@@ -169,45 +170,6 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
     );
   }
 
-  Widget _buildActionButtons(VoidCallback onSave, VoidCallback onCancel) {
-    if (_isEditing) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton.icon(
-            onPressed: onSave,
-            icon: const Icon(Icons.save),
-            label: const Text('Save'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          const SizedBox(width: 12),
-          OutlinedButton.icon(
-            onPressed: onCancel,
-            icon: const Icon(Icons.cancel, color: Colors.red),
-            label: const Text('Cancel', style: TextStyle(color: Colors.red)),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-        ],
-      );
-    }
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () => setState(() => _isEditing = true),
-        icon: const Icon(Icons.edit),
-        label: const Text('Edit'),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final role = context.read<UserCubit>().state;
@@ -231,36 +193,35 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                 return BlocBuilder<RecordsListCubit, RecordsListState>(
                   builder: (context, recordState) {
                     bool isCompleted = false;
-                    if (recordState is RecordLoaded &&
-                        recordState.record != null) {
-                      isCompleted = recordState.record!.status == "Completed";
-                      print("Record status: ${recordState.record!.status}");
+                    if (recordState is RecordLoaded) {
+                      isCompleted = recordState.record.status == "Completed";
+                      print("Record status: ${recordState.record.status}");
                     }
                     print("isCompleted: $isCompleted");
 
                     return Row(
                       children: [
                         // زر Edit
-                        if (!_isEditing)
+                        if (!_isEditing && role == "Radiologist")
                           TextButton.icon(
-                            onPressed: isCompleted
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _isEditing = true;
-                                    });
-                                  },
-                            icon: Icon(Icons.edit,
-                                color:
-                                    isCompleted ? Colors.grey : Colors.black87),
-                            label: Text(
-                              'Edit',
-                              style: TextStyle(
+                              onPressed: isCompleted
+                                  ? null
+                                  : () {
+                                      setState(() {
+                                        _isEditing = true;
+                                      });
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigoAccent,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                              ),
+                              icon: Icon(Icons.edit,
                                   color: isCompleted
                                       ? Colors.grey
                                       : Colors.black87),
-                            ),
-                          ),
+                              label: Text('Edit')),
                         // أزرار Cancel و Save أثناء التحرير
                         if (_isEditing) ...[
                           // زر Cancel
@@ -368,45 +329,68 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
                             ),
                           ),
                         ],
-                        const SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: ElevatedButton(
-                            onPressed: isCompleted
-                                ? null
-                                : () async {
-                                    await context
-                                        .read<ReportPageCubit>()
-                                        .updateReportOrRecord(
-                                      id: widget.recordId!,
-                                      isReport: false,
-                                      body: {"status": "Completed"},
-                                    );
 
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              "Report sent and marked as Completed.")),
-                                    );
-
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              MainScaffold(role: role)),
-                                    );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  isCompleted ? Colors.grey : Colors.indigo,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                        if (!_isEditing && role == "Radiologist")
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: ElevatedButton(
+                              onPressed: isCompleted
+                                  ? null
+                                  : () =>
+                                      _showDoctorCancelDialog(context, role),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
                               ),
+                              child: const Text('Cancel Report'),
                             ),
-                            child: const Text('Send Report'),
                           ),
-                        ),
+
+                        if (!_isEditing && role == "Radiologist")
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ElevatedButton(
+                              onPressed: isCompleted
+                                  ? null
+                                  : () async {
+                                      await context
+                                          .read<ReportPageCubit>()
+                                          .updateReportOrRecord(
+                                        id: widget.recordId!,
+                                        isReport: false,
+                                        body: {
+                                          "status": "Completed",
+                                          "flag": false
+                                        },
+                                      );
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "Report sent and marked as Completed.")),
+                                      );
+
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) =>
+                                                MainScaffold(role: role)),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    isCompleted ? Colors.grey : Colors.indigo,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              child: const Text('Send Report'),
+                            ),
+                          ),
                       ],
                     );
                   },
@@ -420,17 +404,19 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
       ),
       body: BlocBuilder<ReportPageCubit, ReportPageState>(
         builder: (context, reportState) {
-          if (reportState is ReportPageLoading)
+          if (reportState is ReportPageLoading) {
             return const Center(child: CircularProgressIndicator());
-          if (reportState is ReportPageFailure)
+          }
+          if (reportState is ReportPageFailure) {
             return Center(child: Text('Error: \${reportState.errmessage}'));
+          }
           final report = (reportState as ReportPageSuccess).report;
           return BlocBuilder<RecordsListCubit, RecordsListState>(
             builder: (context, recordState) {
-              if (recordState is! RecordLoaded || recordState.record == null) {
+              if (recordState is! RecordLoaded) {
                 return const Center(child: Text('Loading record...'));
               }
-              final record = recordState.record!;
+              final record = recordState.record;
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ListView(
@@ -485,6 +471,71 @@ class _MedicalReportPageState extends State<MedicalReportPage> {
           );
         },
       ),
+    );
+  }
+
+  void _showDoctorCancelDialog(BuildContext context, String role) {
+    final TextEditingController _cancelCommentController =
+        TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Cancel Report"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Are you sure you want to cancel this report?"),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _cancelCommentController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Comment (optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Exit"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+
+                final cancelComment = _cancelCommentController.text.trim();
+
+                await context.read<ReportPageCubit>().updateReportOrRecord(
+                  id: widget.recordId!,
+                  isReport: false,
+                  body: {
+                    "status": "Cancelled",
+                    "flag": false,
+                    "cancelComment": cancelComment,
+                  },
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text("Report cancelled successfully.")),
+                );
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+                );
+              },
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              child: const Text("Cancel Report"),
+            ),
+          ],
+        );
+      },
     );
   }
 
