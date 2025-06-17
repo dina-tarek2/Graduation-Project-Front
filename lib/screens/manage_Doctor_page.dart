@@ -5,6 +5,7 @@ import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_cubit.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:graduation_project_frontend/widgets/custom_button.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
 import 'package:graduation_project_frontend/widgets/custom_toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -192,6 +193,126 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
       ),
     );
   }
+  void _SendInvitationToDoc(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 12,
+        backgroundColor: Colors.white,
+        titlePadding: EdgeInsets.only(top: 20, left: 20, right: 20),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        actionsPadding: EdgeInsets.only(bottom: 10, right: 10),
+        title: Row(
+          children: [
+            Icon(FontAwesomeIcons.userDoctor, color: Colors.blueAccent),
+            SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                'Send Invitation To Doctor',
+                style: customTextStyle(18, FontWeight.w500, Colors.grey[700]!),
+              ),
+            ),
+          ],
+        ),
+        content: CustomFormTextField(
+          controller: idRadiologist,
+          hintText: 'Enter Doctor Email',
+          validator: (value) {
+            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value!)) {
+              return "Please write a valid email";
+            }
+            return null;
+          },
+          icon: FontAwesomeIcons.user,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            hintStyle: TextStyle(color: Colors.grey.shade600),
+            contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+          ),
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              idRadiologist.clear();
+            },
+            icon: Icon(Icons.cancel, color: Colors.redAccent),
+            label: Text(
+              "Cancel",
+              style: customTextStyle(18, FontWeight.w300, Colors.redAccent),
+            ),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              elevation: 5,
+            ),
+             onPressed: () async {
+              final email = idRadiologist.text.trim();
+              if (email.isEmpty ||
+                  !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                showAdvancedNotification(
+                  dialogContext,
+                  message: "Please enter a valid email address.",
+                  type: NotificationType.warning,
+                  style: AnimationStyle.card,
+                );
+                return;
+              }
+              
+              // Close the dialog first
+              Navigator.of(dialogContext).pop();
+              
+              // Store the email before clearing the controller
+              final doctorEmail = email;
+              idRadiologist.clear();
+           
+              try {
+                // Use the cubit directly through the instance variable
+                await _doctorCubit.SendDocInvitation(doctorEmail, widget.centerId);
+                
+                // Show success notification
+                showAdvancedNotification(
+                  context,
+                  message: "Doctor invitation sent successfully!",
+                  type: NotificationType.success,
+                  style: AnimationStyle.card,
+                );
+                
+                // Manually refresh the list
+                await _refreshDoctorsList();
+              } catch (e) {
+                
+                // Show error notification
+                showAdvancedNotification(
+                  context,
+                  message: "Failed to add doctor: ${e.toString()}",
+                  type: NotificationType.error,
+                  style: AnimationStyle.card,
+                );
+              }
+            },
+            icon: Icon(FontAwesomeIcons.paperPlane),
+            label: Text(
+              'Send',
+              style: customTextStyle(18, FontWeight.w400, blue),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
   void _showAddDoctorDialog(BuildContext context) {
     showDialog(
@@ -339,36 +460,47 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                         children: [
                           Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Your Medical Team",
-                                  style: TextStyle(
-                                    fontSize: isMobile ? 22 : 26,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                BlocBuilder<DoctorCubit, DoctorListState>(
-                                  builder: (context, state) {
-                                    if (state is DoctorListSuccess) {
-                                      return Text(
-                                          "${state.doctors.length} doctors available",
-                                          style: customTextStyle(
-                                              isMobile ? 16 : 20,
-                                              FontWeight.w500,
-                                              Colors.grey.shade600));
-                                    }
-                                    return Text("Loading doctors...",
-                                        style: customTextStyle(
-                                            isMobile ? 16 : 20,
-                                            FontWeight.w500,
-                                            Colors.grey.shade600));
-                                  },
+                                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Your Medical Team",
+                                          style: TextStyle(
+                                            fontSize: isMobile ? 22 : 26,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        BlocBuilder<DoctorCubit, DoctorListState>(
+                                          builder: (context, state) {
+                                            if (state is DoctorListSuccess) {
+                                              return Text(
+                                                  "${state.doctors.length} doctors available",
+                                                  style: customTextStyle(
+                                                      isMobile ? 16 : 20,
+                                                      FontWeight.w500,
+                                                      Colors.grey.shade600));
+                                            }
+                                            return Text("Loading doctors...",
+                                                style: customTextStyle(
+                                                    isMobile ? 16 : 20,
+                                                    FontWeight.w500,
+                                                    Colors.grey.shade600));
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                     SizedBox(height: 55),
+                                        CustomButton(text: 'Invite' ,width:55 ,onTap: (){_SendInvitationToDoc(context);},)
+                                    
+                                  ],
                                 ),
                                 SizedBox(height: 16),
-                                _buildSearchAndFilter(isMobile, isTablet),
+                                    _buildSearchAndFilter(isMobile, isTablet),
                               ],
                             ),
                           ),
@@ -573,7 +705,7 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
 
   Widget _buildDoctorsList(BuildContext context, List<dynamic> doctors, bool isMobile, bool isTablet) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 8.0 : 16.0),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 8.0 : 10.0),
       child: DoctorTable(
         doctors: doctors,
         isMobile: isMobile,
@@ -686,7 +818,7 @@ class DoctorTable extends StatelessWidget {
     if (isMobile) {
       return _buildMobileLayout();
     } else {
-      return _buildDesktopLayout();
+      return _buildDesktopLayout(context);
     }
   }
 
@@ -738,18 +870,29 @@ class DoctorTable extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(FontAwesomeIcons.stethoscope, size: 14, color: blue),
                     SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        doctor.specialization.join(", "),
-                        style: customTextStyle(14, FontWeight.w500, blue),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+                   
+                     Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: doctor.specialization.map<Widget>((spec) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 2),
+            child: Text(
+              spec,
+              style: customTextStyle(14, FontWeight.w500, blue),
+              softWrap: true, 
+            ),
+          );
+        }).toList(),
+      ),
+    ),
+  ],
+),
+                        
                 SizedBox(height: 8),
                 Row(
                   children: [
@@ -769,148 +912,182 @@ class DoctorTable extends StatelessWidget {
     );
   }
 
-  Widget _buildDesktopLayout() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: 800),
-          child: DataTable(
-            columnSpacing: isTablet ? 16 : 24,
-            headingRowColor: WidgetStateProperty.all<Color>(darkBlue),
-            dataRowMinHeight: 60,
-            dataRowMaxHeight: 70,
-            headingTextStyle: customTextStyle(isTablet ? 16 : 18, FontWeight.bold, Colors.white),
-            columns: [
-              DataColumn(
-                  label: Row(
-                children: [
-                  Icon(FontAwesomeIcons.userDoctor, size: isTablet ? 16 : 19, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Doctor',
-                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
-                  ),
-                ],
-              )),
-              DataColumn(
-                  label: Row(
-                children: [
-                  Icon(FontAwesomeIcons.stethoscope, size: isTablet ? 15 : 18, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Speciality',
-                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
-                  ),
-                ],
-              )),
-              DataColumn(
-                  label: Row(
-                children: [
-                  Icon(FontAwesomeIcons.fileLines, size: isTablet ? 15 : 18, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Reports',
-                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
-                  ),
-                ],
-              )),
-              DataColumn(
-                  label: Row(
-                children: [
-                  Icon(FontAwesomeIcons.sliders, size: isTablet ? 15 : 18, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Action',
-                    style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
-                  ),
-                ],
-              )),
-            ],
-            rows: doctors.map((doctor) {
-              return DataRow(
-                color: WidgetStateProperty.resolveWith<Color>(
-                    (Set<WidgetState> states) {
-                  if (states.contains(WidgetState.hovered)) return Colors.white;
-                  return Colors.white;
-                }),
-                cells: [
-                  DataCell(
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(doctor.imageUrl),
-                            radius: isTablet ? 16 : 18,
-                          ),
-                          SizedBox(width: 8),
-                          Flexible(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                               children: [
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+        child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+          child: Container(
+             width: MediaQuery.of(context).size.width,
+            child: DataTable(
+              columnSpacing: isTablet ? 20 : 40,
+              headingRowColor: WidgetStateProperty.all<Color>(darkBlue),
+              dataRowMinHeight: 60,
+              dataRowMaxHeight: 90,
+              headingTextStyle: customTextStyle(isTablet ? 16 : 18, FontWeight.bold, Colors.white),
+              columns: [
+                DataColumn(
+                    label: Expanded(
+                      child: Row(
+                                      children: [
+                      Icon(FontAwesomeIcons.userDoctor, size: isTablet ? 16 : 19, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Doctor',
+                        style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                      ),
+                                      ],
+                                    ),
+                    )),
+                DataColumn(
+                    label: Expanded(
+                      child: Row(
+                                      children: [
+                      Icon(FontAwesomeIcons.stethoscope, size: isTablet ? 15 : 18, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Speciality',
+                        style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                      ),
+                                      ],
+                                    ),
+                    )),
+                DataColumn(
+                    label: Expanded(
+                      child: Row(
+                                      children: [
+                      Icon(FontAwesomeIcons.fileLines, size: isTablet ? 15 : 18, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Reports',
+                        style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                      ),
+                                      ],
+                                    ),
+                    )),
+                DataColumn(
+                    label: Expanded(
+                      child: Row(
+                                      children: [
+                      Icon(FontAwesomeIcons.sliders, size: isTablet ? 15 : 18, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Action',
+                        style: customTextStyle(isTablet ? 18 : 20, FontWeight.w600, Colors.white),
+                      ),
+                                      ],
+                                    ),
+                    )),
+              ],
+              rows: doctors.map((doctor) {
+                return DataRow(
+                  color: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.hovered)) return Colors.white;
+                    return Colors.white;
+                  }),
+                  cells: [
+                    DataCell(
+                        Container(
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(doctor.imageUrl),
+                                radius: isTablet ? 16 : 18,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                Text(
+                                  "Dr. ${doctor.firstName} ${doctor.lastName}",
+                                  style: customTextStyle(
+                                      isTablet ? 16 : 22, FontWeight.w500, Colors.black),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              
                             Text(
-                              "Dr. ${doctor.firstName} ${doctor.lastName}",
-                              style: customTextStyle(
-                                  isTablet ? 16 : 18, FontWeight.w500, Colors.black),
+                              "${doctor.email}",
+                              style: customTextStyle(isTablet ? 14 : 18, FontWeight.w300, Colors.grey),
                               overflow: TextOverflow.ellipsis,
-                            ),
-                          
-                        Text(
-                          "${doctor.email}",
-                          style: customTextStyle(isTablet ? 14 : 18, FontWeight.w300, Colors.grey),
-                          overflow: TextOverflow.ellipsis,
-                        )
+                            )
+                          ],
+                                              ),
+                                            ),
+                                            ],
+                          ),
+                        ),
+                        ),
+            DataCell(
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (int i = 0; i < doctor.specialization.length; i++)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: i == doctor.specialization.length - 1 ? 0 : 4),
+                    child: Row(
+                      children: [
+                        Text("• ",
+                         style: customTextStyle(16, FontWeight.bold, blue)),
+                        Expanded(
+                          child: Text(
+                            doctor.specialization[i],
+                            style: customTextStyle(isTablet ? 12 : 17, FontWeight.w500, blue),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  ],
-                      ),
-                      ),
-                  DataCell(
-                    Flexible(
-                      child: Text(
-                        doctor.specialization.join(", "),
-                        style: customTextStyle(isTablet ? 16 : 18, FontWeight.w500, blue),
-                        overflow: TextOverflow.ellipsis,
+                      ],
+                  ),
+                ),
+                      DataCell(
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                       
+                        child: Text(
+                          "${doctor.totalReports}",
+                          style: customTextStyle(isTablet ? 18 : 21, FontWeight.w600, blue),
+                        ),
                       ),
                     ),
-                  ),
                     DataCell(
-                    Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                     
-                      child: Text(
-                        "${doctor.totalReports}",
-                        style: customTextStyle(isTablet ? 18 : 21, FontWeight.w600, blue),
+                      Container(
+                        width: double.infinity, 
+                      alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          icon: Icon(Icons.delete_outline_rounded,
+                              size: isTablet ? 22 : 25, color: Colors.red.shade300),
+                          tooltip: "Delete",
+                          onPressed: () {
+                            onDelete(doctor);
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(
-                    IconButton(
-                      icon: Icon(Icons.delete_outline_rounded,
-                          size: isTablet ? 22 : 25, color: Colors.red.shade300),
-                      tooltip: "Delete",
-                      onPressed: () {
-                        onDelete(doctor);
-                      },
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

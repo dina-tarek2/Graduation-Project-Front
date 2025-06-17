@@ -50,7 +50,8 @@ import 'package:graduation_project_frontend/screens/signin_page.dart';
 import 'package:graduation_project_frontend/screens/signup_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
-import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
+import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
@@ -128,6 +129,9 @@ void main() {
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         BlocProvider(
             create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
+            BlocProvider(
+  create: (context) => DoctorHomeCubit(DioConsumer(dio: Dio()))),
+
       ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),

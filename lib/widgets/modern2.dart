@@ -1,74 +1,83 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
+import 'package:graduation_project_frontend/models/centerRecord.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
-class Modernstatistical extends StatefulWidget {
-  final Map<String, DailyReportStats> dailyStats;
-  
-  const Modernstatistical({required this.dailyStats});
+class Modernstatistical2 extends StatefulWidget {
+  final Map<String, dynamic> weeklyStatusCounts;
+
+  const Modernstatistical2({required this.weeklyStatusCounts});
 
   @override
-  State<Modernstatistical> createState() => _ModernstatisticalState();
+  State<Modernstatistical2> createState() => _ModernstatisticalState();
 }
 
-class _ModernstatisticalState extends State<Modernstatistical> {
+class _ModernstatisticalState extends State<Modernstatistical2> {
   late List<Map<String, dynamic>> animatedData;
 
   @override
   void initState() {
     super.initState();
-
-    // مبدئيًا القيم كلها 0 عشان نبدأ الأنيميشن منها
     animatedData = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     ].map((day) {
       return {
-        'day': day.substring(0, 3),
+        'day': day,
         'Diagnose': 0,
         'Completed': 0,
         'Ready': 0,
       };
     }).toList();
 
-    // بعد تأخير بسيط، نضيف القيم الحقيقية
     Future.delayed(Duration(milliseconds: 300), () {
-      setState(() {
-        animatedData = _prepareChartData(widget.dailyStats);
-        
-      });
+      if (mounted) {
+        setState(() {
+          animatedData = _prepareChartDataFromWeeklyObject(widget.weeklyStatusCounts);
+        });
+      }
     });
   }
 
-  List<Map<String, dynamic>> _prepareChartData(Map<String, DailyReportStats> stats) {
-    final List<Map<String, dynamic>> chartData = [];
-    final List<String> daysOrder = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
-    ];
+  List<Map<String, dynamic>> _prepareChartDataFromWeeklyObject(Map<String, dynamic> weeklyData) {
+    final data = weeklyData['data'] ?? weeklyData;
 
-    for (var day in daysOrder) {
-      if (stats.containsKey(day)) {
-        final stat = stats[day]!;
-        chartData.add({
-          'day': day.substring(0, 3),
-          'Diagnose': stat.Diagnose,
-          'Completed': stat.Completed,
-          'Ready': stat.Ready,
-        });
-      } else {
-        chartData.add({
-          'day': day.substring(0, 3),
-         'Diagnose': 0,
-        'Completed': 0,
-        'Ready': 0,
-        });
-      }
-    }
-    return chartData;
+final List<String> dayOrder = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    final Map<String, String> dayMapping = {
+      'Mon': 'Monday',
+      'Tue': 'Tuesday',
+      'Wed': 'Wednesday',
+      'Thu': 'Thursday',
+      'Fri': 'Friday',
+      'Sat': 'Saturday',
+      'Sun': 'Sunday',
+    };
+
+    return dayOrder.map((shortDay) {
+      final fullDay = dayMapping[shortDay]!;
+      final dayData = data[fullDay] as Map<String, dynamic>? ?? {};
+      return {
+        'day': shortDay,
+        'Diagnose': dayData['Diagnose'] ?? 0,
+        'Completed': dayData['Completed'] ?? 0,
+        'Ready': dayData['Ready'] ?? 0,
+      };
+    }).toList();
   }
 
   Widget _buildGroupedBarChart(List<Map<String, dynamic>> data) {
+    int maxValue = 0;
+    for (var item in data) {
+      int dayMax = [
+        item['Diagnose'] as int,
+        item['Completed'] as int,
+        item['Ready'] as int
+      ].reduce((a, b) => a > b ? a : b);
+      if (dayMax > maxValue) maxValue = dayMax;
+    }
+
+    double chartMaxY = (maxValue < 10) ? 10 : (maxValue * 1.2);
+
     return BarChart(
       BarChartData(
         barGroups: generateGroupedBarGroups(data),
@@ -77,29 +86,54 @@ class _ModernstatisticalState extends State<Modernstatistical> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              interval: 5,
               reservedSize: 40,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
-                if (index >= data.length) return const SizedBox.shrink();
+                if (index < 0 || index >= data.length) return const SizedBox.shrink();
                 return Text(
                   data[index]['day'],
-                  style: customTextStyle(18, FontWeight.w600, Colors.black),
+                  style: customTextStyle(16, FontWeight.w500, Colors.black),
                 );
               },
             ),
           ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true,
-         reservedSize: 40,
-          )),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toInt().toString(),
+                  style: customTextStyle(14, FontWeight.w400, Colors.black),
+                );
+              },
+              reservedSize: 40,
+            ),
+          ),
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        borderData: FlBorderData(show: true),
-        barTouchData: BarTouchData(enabled: true),
+        borderData: FlBorderData(
+          show: true,
+          border: Border(
+            left: BorderSide(color: Colors.grey.shade200, width: 1),
+            bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+          ),
+        ),
+        barTouchData: BarTouchData(
+          enabled: true,
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              String status = ['Diagnose', 'Completed', 'Ready'][rodIndex];
+              return BarTooltipItem(
+                '$status\n${rod.toY.round()}',
+                TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              );
+            },
+          ),
+        ),
         groupsSpace: 12,
         minY: 0,
-        maxY:50 ,
+        maxY: chartMaxY,
       ),
     );
   }
@@ -107,7 +141,6 @@ class _ModernstatisticalState extends State<Modernstatistical> {
   List<BarChartGroupData> generateGroupedBarGroups(List<Map<String, dynamic>> data) {
     return List.generate(data.length, (index) {
       final item = data[index];
-
       return BarChartGroupData(
         x: index,
         barRods: [
@@ -149,7 +182,7 @@ class _ModernstatisticalState extends State<Modernstatistical> {
         SizedBox(width: 4),
         Text(
           label,
-          style: customTextStyle(12, FontWeight.w300, grey),
+          style: customTextStyle(12, FontWeight.w300, Colors.grey[600] ?? Colors.grey),
         ),
       ],
     );
@@ -168,7 +201,6 @@ class _ModernstatisticalState extends State<Modernstatistical> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title & Legends
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
