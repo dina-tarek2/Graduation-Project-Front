@@ -1,25 +1,22 @@
-
-  
 import 'package:flutter/material.dart';
 
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({Key? key}) : super(key: key);
-static String id ='AboutUsPage';
+  static String id = 'AboutUsPage';
+
   @override
   Widget build(BuildContext context) {
-    // Get screen width to determine layout
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth > 900;
     final bool isTablet = screenWidth > 600 && screenWidth <= 900;
 
     return Scaffold(
-      
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A539A), Color(0xFF063461)],
+            colors: [Color(0xFF081C34), Color(0xFF050F1F)],
           ),
         ),
         child: SingleChildScrollView(
@@ -28,7 +25,6 @@ static String id ='AboutUsPage';
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -42,7 +38,7 @@ static String id ='AboutUsPage';
                             child: Icon(
                               Icons.medical_services_outlined,
                               size: 60,
-                              color: Color(0xFF0A539A),
+                              color: Color(0xFF081C34),
                             ),
                           ),
                         ),
@@ -71,24 +67,15 @@ static String id ='AboutUsPage';
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Main content
                 isDesktop
                     ? _buildDesktopLayout(context)
                     : isTablet
                         ? _buildTabletLayout(context)
                         : _buildMobileLayout(context),
-
                 const SizedBox(height: 40),
-
-                // AI Advantage section
                 _buildAiAdvantageSection(context),
-
                 const SizedBox(height: 40),
-
-                // Footer
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -182,11 +169,11 @@ static String id ='AboutUsPage';
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xFF0A539A).withOpacity(0.1),
+                  backgroundColor: const Color(0xFF081C34).withOpacity(0.1),
                   radius: 25,
                   child: Icon(
                     icon,
-                    color: const Color(0xFF0A539A),
+                    color: const Color(0xFF081C34),
                     size: 30,
                   ),
                 ),
@@ -195,7 +182,7 @@ static String id ='AboutUsPage';
                   child: Text(
                     'For $title',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: const Color(0xFF0A539A),
+                          color: const Color(0xFF081C34),
                           fontWeight: FontWeight.bold,
                         ),
                   ),
@@ -218,7 +205,7 @@ static String id ='AboutUsPage';
         children: [
           const Icon(
             Icons.check_circle,
-            color: Color(0xFF0A539A),
+            color: Color(0xFF081C34),
             size: 18,
           ),
           const SizedBox(width: 8),
@@ -245,10 +232,10 @@ static String id ='AboutUsPage';
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [const Color(0xFF0A539A), const Color(0xFF063461)],
+            colors: [Color(0xFF081C34), Color(0xFF050F1F)],
           ),
         ),
         child: Column(

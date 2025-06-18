@@ -18,15 +18,78 @@ class MedicalDashboardScreen extends StatefulWidget {
   const MedicalDashboardScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MedicalDashboardScreenState createState() => _MedicalDashboardScreenState();
 }
 
-class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
+class _MedicalDashboardScreenState extends State<MedicalDashboardScreen>
+    with TickerProviderStateMixin {
   DateTimeRange _selectedDateRange = DateTimeRange(
     start: DateTime.now().subtract(Duration(days: 6)),
     end: DateTime.now(),
   );
+
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Modern color palette based on #081c34
+  static const Color primaryDark = Color(0xFF081C34);
+  static const Color primaryLight = Color(0xFF1A365D);
+  static const Color accent = Color(0xFF3182CE);
+  static const Color accentLight = Color(0xFF63B3ED);
+  static const Color success = Color(0xFF38A169);
+  static const Color warning = Color(0xFFED8936);
+  static const Color error = Color(0xFFE53E3E);
+  static const Color background = Color(0xFFF7FAFC);
+  static const Color cardBackground = Colors.white;
+  static const Color textPrimary = Color(0xFF2D3748);
+  static const Color textSecondary = Color(0xFF718096);
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize animations
+    _fadeController = AnimationController(
+      duration: Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+
+    // Start animations
+    _fadeController.forward();
+    _slideController.forward();
+
+    // Initialize dashboard data with date range parameters
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<DashboardCubit>().loadDashboard(
+          _selectedDateRange.start,
+          _selectedDateRange.end,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
 
   Future<void> _selectDateRange(BuildContext context) async {
     DateTime startDate = _selectedDateRange.start;
@@ -41,44 +104,73 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Select range'),
+          backgroundColor: cardBackground,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'Select Date Range',
+            style: TextStyle(
+              color: primaryDark,
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              _buildDateField(
                 controller: startController,
-                readOnly: true,
-                decoration: InputDecoration(labelText: 'Start Date'),
+                label: 'Start Date',
                 onTap: () async {
                   DateTime? pickedStart = await showDatePicker(
                     context: context,
                     initialDate: startDate,
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: primaryDark,
+                            onPrimary: Colors.white,
+                            surface: cardBackground,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (pickedStart != null) {
                     startDate = pickedStart;
-                    startController.text =
-                        DateFormat('dd/MM/yyyy').format(startDate);
+                    startController.text = DateFormat('dd/MM/yyyy').format(startDate);
                   }
                 },
               ),
-              SizedBox(height: 10),
-              TextField(
+              SizedBox(height: 16),
+              _buildDateField(
                 controller: endController,
-                readOnly: true,
-                decoration: InputDecoration(labelText: 'End Date'),
+                label: 'End Date',
                 onTap: () async {
                   DateTime? pickedEnd = await showDatePicker(
                     context: context,
                     initialDate: endDate,
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: primaryDark,
+                            onPrimary: Colors.white,
+                            surface: cardBackground,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (pickedEnd != null) {
                     endDate = pickedEnd;
-                    endController.text =
-                        DateFormat('dd/MM/yyyy').format(endDate);
+                    endController.text = DateFormat('dd/MM/yyyy').format(endDate);
                   }
                 },
               ),
@@ -87,16 +179,22 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: textSecondary, fontWeight: FontWeight.w500),
+              ),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
-                
-                  Navigator.pop(
-                      context, DateTimeRange(start: startDate, end: endDate));
-                
+                Navigator.pop(context, DateTimeRange(start: startDate, end: endDate));
               },
-              child: Text('OK'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryDark,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: Text('Apply', style: TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
         );
@@ -107,312 +205,654 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
       setState(() {
         _selectedDateRange = picked;
       });
-      // ignore: use_build_context_synchronously
- context.read<DashboardCubit>().loadDashboard(
-     picked.start,
-     picked.end,
-  );
-}    }
-  
+      // Pass the new date range parameters to loadDashboard
+      context.read<DashboardCubit>().loadDashboard(
+        _selectedDateRange.start,
+        _selectedDateRange.end,
+      );
+    }
+  }
 
-  @override
-  void initState() {
-    super.initState();
-    // Delay the initialization slightly to ensure the provider is fully set up
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
- context.read<DashboardCubit>().loadDashboard(
-         _selectedDateRange.start,
-         _selectedDateRange.end,
-      );      }
-    });
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return TextField(
+      controller: controller,
+      readOnly: true,
+      onTap: onTap,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: textSecondary),
+        suffixIcon: Icon(Icons.calendar_today, color: primaryDark, size: 20),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryDark, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: background,
       body: BlocConsumer<DashboardCubit, DashboardState>(
         builder: (context, state) {
           if (state is DashboardInitial) {
-            return Center(child: CircularProgressIndicator(color: darkBlue));
+            return _buildLoadingState();
           } else if (state is DashboardLoading) {
             return _buildLoadingView(state.loadProgress);
           } else if (state is DashboardLoaded) {
-            return _buildDashboard(state.data);
+            return AnimatedBuilder(
+              animation: _fadeAnimation,
+              builder: (context, child) {
+                return FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: _buildDashboard(state.data),
+                  ),
+                );
+              },
+            );
           }
           return Container();
         },
         listener: (BuildContext context, state) {
           if (state is DashboardError) {
-            showAdvancedNotification(context,
-                message: state.message,
-                type: NotificationType.error,
-                style: AnimationStyle.card);
+            showAdvancedNotification(
+              context,
+              message: state.message,
+              type: NotificationType.error,
+              style: AnimationStyle.card,
+            );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: cardBackground,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: primaryDark.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: primaryDark,
+              strokeWidth: 3,
+            ),
+            SizedBox(height: 24),
+            Text(
+              'Initializing Dashboard...',
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLoadingView(double progress) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularPercentIndicator(
-            radius: 80.0,
-            lineWidth: 12.0,
-            percent: progress,
-            center: Text(
-              '${(progress * 100).toInt()}%',
-              style: customTextStyle(24, FontWeight.bold, darkBlue),
+      child: Container(
+        padding: EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          color: cardBackground,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: primaryDark.withOpacity(0.15),
+              blurRadius: 30,
+              offset: Offset(0, 15),
+              spreadRadius: 2,
             ),
-            progressColor: darkBabyBlue,
-            backgroundColor: sky,
-            circularStrokeCap: CircularStrokeCap.round,
-            animation: true,
-            animationDuration: 200,
-          ),
-          SizedBox(height: 24),
-          Text(
-            'Loading dashboard...',
-            style: customTextStyle(18, FontWeight.w400, darkBlue),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 8,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryDark),
+                  ),
+                ),
+                Column(
+                  children: [
+                    Text(
+                      '${(progress * 100).toInt()}%',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: primaryDark,
+                      ),
+                    ),
+                    Text(
+                      'Loading',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 32),
+            Text(
+              'Preparing your dashboard...',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: textPrimary,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Please wait while we load your data',
+              style: TextStyle(
+                fontSize: 14,
+                color: textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _loadDashboard() async {
-    _buildLoadingView;
+    // Pass the current date range parameters to loadDashboard
+    context.read<DashboardCubit>().loadDashboard(
+      _selectedDateRange.start,
+      _selectedDateRange.end,
+    );
   }
 
   Widget _buildDashboard(Centerdashboard data) {
-    // List<Doctor> doctorsList = context.watch<DoctorCubit>().doctors;
-
     return RefreshIndicator(
       onRefresh: _loadDashboard,
+      color: primaryDark,
+      backgroundColor: cardBackground,
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(12),
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Dashboard Overview',
-              style: customTextStyle(22, FontWeight.w600, darkBlue),
-            ),
-            SizedBox(height: 16),
-
-            // Modified stats cards - Now using the doctor dashboard style
-            Row(
-              children: [
-                _buildStatCard(
-                    'Radiologists',
-                    data.totalRadiologists.toString(),
-                    Icons.medical_services,
-                    '${data.onlineRadiologists} online',
-                    darkBlue),
-                SizedBox(width: 20),
-                _buildStatCard('Reports', data.monthlyRecords.toString(),
-                    Icons.description, 'This Month', Colors.blue),
-                SizedBox(width: 20),
-                _buildStatCard('Today', data.todayRecords.toString(),
-                    Icons.today, 'Reports', Colors.green),
-                SizedBox(width: 20),
-                _buildStatCard('This Week', data.weeklyRecords.toString(),
-                    Icons.calendar_today, 'Reports', Colors.orange),
-              ],
-            ),
-
+            _buildHeader(),
             SizedBox(height: 24),
-
+            _buildStatsGrid(data),
+            SizedBox(height: 32),
             if (data.onlineRadiologistsDetails.isNotEmpty) ...[
-              Text(
-                'Online Radiologists',
-                style: customTextStyle(18, FontWeight.bold, darkBlue),
-              ),
-              SizedBox(height: 12),
-              _buildOnlineRadiologistsList(data.onlineRadiologistsDetails),
-              SizedBox(height: 24),
+              _buildOnlineRadiologistsSection(data.onlineRadiologistsDetails),
+              SizedBox(height: 32),
             ],
-            InkWell(
-              onTap: () async {
-                _selectDateRange(context);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: sky,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.date_range, color: darkBlue, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
-                      style: customTextStyle(14, FontWeight.w300, darkBlue),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Daily Reports Analytics',
-              style: customTextStyle(18, FontWeight.bold, darkBlue),
-            ),
-            SizedBox(height: 12),
-            Modernstatistical(dailyStats: data.dailyStats),
+            _buildAnalyticsSection(data),
           ],
         ),
       ),
     );
   }
 
-  // New card widget matching doctor dashboard style
-  Widget _buildStatCard(
-      String title, String value, IconData icon, String subtitle, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        decoration: BoxDecoration(
-          // ignore: deprecated_member_use
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-          // ignore: deprecated_member_use
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Dashboard Overview',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: primaryDark,
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
               ),
-            ),
-            SizedBox(height: 5),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w400,
+              SizedBox(height: 8),
+              Text(
+                'Monitor your medical center\'s performance',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: textSecondary,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+        Container(
+          decoration: BoxDecoration(
+            color: primaryDark.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: IconButton(
+            onPressed: _loadDashboard,
+            icon: Icon(Icons.refresh_rounded, color: primaryDark),
+            iconSize: 24,
+            tooltip: 'Refresh Dashboard',
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildOnlineRadiologistsList(List<Doctor> radiologists) {
+  Widget _buildStatsGrid(Centerdashboard data) {
+    final stats = [
+      {
+        'title': 'Radiologists',
+        'value': data.totalRadiologists.toString(),
+        'subtitle': '${data.onlineRadiologists} online',
+        'icon': Icons.medical_services_rounded,
+        'color': primaryDark,
+        'trend': '+2 this week',
+      },
+      {
+        'title': 'Monthly Reports',
+        'value': data.monthlyRecords.toString(),
+        'subtitle': 'This month',
+        'icon': Icons.description_rounded,
+        'color': accent,
+        'trend': '+15% vs last month',
+      },
+      {
+        'title': 'Today\'s Reports',
+        'value': data.todayRecords.toString(),
+        'subtitle': 'Today',
+        'icon': Icons.today_rounded,
+        'color': success,
+        'trend': '+3 since yesterday',
+      },
+      {
+        'title': 'Weekly Reports',
+        'value': data.weeklyRecords.toString(),
+        'subtitle': 'This week',
+        'icon': Icons.calendar_view_week_rounded,
+        'color': warning,
+        'trend': '+8% vs last week',
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.3,
+      ),
+      itemCount: stats.length,
+      itemBuilder: (context, index) {
+        final stat = stats[index];
+        return _buildModernStatCard(
+          title: stat['title'] as String,
+          value: stat['value'] as String,
+          subtitle: stat['subtitle'] as String,
+          icon: stat['icon'] as IconData,
+          color: stat['color'] as Color,
+          trend: stat['trend'] as String,
+        );
+      },
+    );
+  }
+
+  Widget _buildModernStatCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required String trend,
+  }) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: cardBackground,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            // ignore: deprecated_member_use
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: color.withOpacity(0.1),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+            spreadRadius: 2,
           ),
         ],
       ),
-      child: Column(
-        children: radiologists
-            .map((radiologist) => _buildRadiologistCard(radiologist))
-            .toList(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            // Handle card tap
+          },
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: color, size: 24),
+                    ),
+                    Spacer(),
+                    Icon(Icons.more_vert, color: textSecondary, size: 20),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimary,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.trending_up, color: success, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      trend,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: success,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildRadiologistCard(Doctor radiologist) {
+  Widget _buildOnlineRadiologistsSection(List<Doctor> radiologists) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Online Radiologists',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: primaryDark,
+              ),
+            ),
+            SizedBox(width: 12),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: success.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${radiologists.length} active',
+                style: TextStyle(
+                  color: success,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: cardBackground,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: primaryDark.withOpacity(0.08),
+                blurRadius: 20,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: radiologists
+                .asMap()
+                .entries
+                .map((entry) => _buildModernRadiologistCard(
+                      entry.value,
+                      isLast: entry.key == radiologists.length - 1,
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModernRadiologistCard(Doctor radiologist, {bool isLast = false}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+        border: isLast ? null : Border(
+          bottom: BorderSide(color: Colors.grey.shade100, width: 1),
         ),
       ),
       child: Row(
         children: [
-          // Profile Image
-          CircleAvatar(
-            radius: 30,
-            backgroundImage: NetworkImage(radiologist.imageUrl),
+          Stack(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200, width: 2),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Image.network(
+                    radiologist.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: Icon(Icons.person, color: Colors.grey.shade400),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: success,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: cardBackground, width: 2),
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(width: 16),
-
-          // Doctor Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   radiologist.fullName,
-                  style: customTextStyle(16, FontWeight.w600, darkBlue),
-                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimary,
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
                   radiologist.specialization.join(', '),
-                  style: customTextStyle(14, FontWeight.normal, grey),
-                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textSecondary,
+                  ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade100,
-                    borderRadius: BorderRadius.circular(12),
+                    color: success.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     'Online',
-                    style: customTextStyle(
-                        12, FontWeight.w300, Colors.green.shade700),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: success,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           Container(
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: darkBabyBlue,
+              color: primaryDark,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: IconButton(
-              icon: Icon(Icons.chat_bubble_outline, color: Colors.white),
-              onPressed: () {
-                // Navigate to chat with this radiologist
-                _navigateToChat(radiologist);
-              },
-              tooltip: 'Chat with ${radiologist.firstName}',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => _navigateToChat(radiologist),
+                child: Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnalyticsSection(Centerdashboard data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Daily Reports Analytics',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: primaryDark,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _selectDateRange(context),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: primaryDark.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: primaryDark.withOpacity(0.2)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.date_range_rounded, color: primaryDark, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: primaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: cardBackground,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: primaryDark.withOpacity(0.08),
+                blurRadius: 20,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.all(20),
+          child: Modernstatistical(dailyStats: data.dailyStats),
+        ),
+      ],
     );
   }
 
@@ -420,8 +860,7 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
     final mainState = context.findAncestorStateOfType<MainScaffoldState>();
     if (mainState != null) {
       mainState.setState(() {
-        mainState.selectedIndex = 4;
-        // mainState.selectedDoctor = radiologist;
+        mainState.selectedIndex = 5;
       });
     }
   }
