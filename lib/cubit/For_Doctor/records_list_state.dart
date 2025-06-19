@@ -22,3 +22,6 @@ class RecordsListFailure extends RecordsListState {
   final String error;
   RecordsListFailure(this.error);
 }
+class ExtendedDeadlineSuccess extends RecordsListState {}
+
+
