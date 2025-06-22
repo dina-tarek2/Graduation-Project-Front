@@ -4,7 +4,7 @@ import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:collection/collection.dart'; // تأكد تضيفها لو مش موجودة في pubspec.yaml
+import 'package:collection/collection.dart';
 import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
 import 'package:graduation_project_frontend/models/comments_moudel.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
@@ -689,7 +689,7 @@ void _showCommentDialog(RecordModel record) {
                 return Text("No comments available");
               }
               // تجميع التعليقات حسب اسم المركز
-              final groupedComments = groupBy(comments, (DicomComment c) => c.name ?? 'Unknown Center');
+              final groupedComments = groupBy(comments, (DicomComment c) => c.name);
               return Container(
                 height: 300,
                 width: 400,

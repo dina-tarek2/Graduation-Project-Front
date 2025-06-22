@@ -19,19 +19,20 @@ class RecordsListPage extends StatefulWidget {
 }
 
 class _RecordsListPageState extends State<RecordsListPage>
-    with WidgetsBindingObserver {  String searchQuery = "";
+    with WidgetsBindingObserver {
+  String searchQuery = "";
   String selectedStatus = "All";
-   // handle deadline part
+  // handle deadline part
   DeadlineChecker? _deadlineChecker;
 
   @override
   void initState() {
     super.initState();
-        WidgetsBinding.instance.addObserver(this); // إضافة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.addObserver(this); // إضافة مراقب دورة حياة التطبيق
 
     final userId = context.read<CenterCubit>().state;
     context.read<RecordsListCubit>().fetchRecords(userId);
-    
+
     // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   print("Setting up deadline checker after frame");
@@ -92,7 +93,7 @@ class _RecordsListPageState extends State<RecordsListPage>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildFilterSection(),
-           const SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(child: _buildRecordsTable()),
           ],
         ),
@@ -124,7 +125,7 @@ class _RecordsListPageState extends State<RecordsListPage>
                   0.4, // controls search width
               child: _buildSearchBox(),
             ),
-          const  SizedBox(width: 12),
+            const SizedBox(width: 12),
             _buildStatusFilterChips(),
           ],
         ),
@@ -158,12 +159,12 @@ class _RecordsListPageState extends State<RecordsListPage>
 
     List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
     return Wrap(
-
       spacing: 8,
       children: statusOptions.map((status) {
         return ChoiceChip(
-  label:
-              Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),          selected: selectedStatus == status,
+          label:
+              Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
+          selected: selectedStatus == status,
           onSelected: (isSelected) {
             if (isSelected) {
               setState(() {
@@ -232,7 +233,6 @@ class _RecordsListPageState extends State<RecordsListPage>
             return matchesSearch && matchesStatus;
           }).toList();
 
-          
           // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
           WidgetsBinding.instance.addPostFrameCallback((_) {
             print("Setting up deadline checker after frame");
@@ -443,7 +443,7 @@ class _RecordsListPageState extends State<RecordsListPage>
     );
   }
 
-Color _getStatusColor(String status) {
+  Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "ready":
         return Colors.green;

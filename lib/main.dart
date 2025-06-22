@@ -53,6 +53,9 @@ import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
 import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart';
 
+import 'cubit/setting_cubit.dart';
+import 'screens/SettingPage.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
@@ -113,7 +116,9 @@ void main() {
         ),
 //         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
-
+        BlocProvider(
+          create: (context) => SettingCubit(DioConsumer(dio: Dio())),
+        ),
         BlocProvider(
           create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
         ),
@@ -168,7 +173,7 @@ class MyApp extends StatelessWidget {
               userId: context.read<CenterCubit>().state,
               userType: context.read<UserCubit>().state,
             ),
-
+        SettingPage.id: (context) => SettingPage(role: context.read<UserCubit>().state),
         // MainScaffold.id :(context) => MainScaffold(),
 
         //doctor

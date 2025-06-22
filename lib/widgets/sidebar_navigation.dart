@@ -168,6 +168,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
         buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(6, Icons.settings_outlined, 'Setting')
       ]);
     } else if (widget.role == "Radiologist") {
       items.addAll([
@@ -177,6 +178,7 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
         buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(6, Icons.settings_outlined, 'Setting')
       ]);
     } else if (widget.role == "Admin") {
       items.addAll([

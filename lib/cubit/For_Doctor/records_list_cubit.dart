@@ -18,7 +18,6 @@ class RecordsListCubit extends Cubit<RecordsListState> {
     try {
       final response = await api.get(EndPoints.GetRecordsByRadiologistId(id));
       if (response.data is List) {
-
         List<RecordsListModel> records = (response.data as List)
             .map((item) =>
                 RecordsListModel.fromJson(item as Map<String, dynamic>))
@@ -40,8 +39,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
       final response =
           await api.get('${EndPoints.baseUrl}Record/getOneRecordById/$id');
 
-           if (response.data is Map<String, dynamic>) {
-
+      if (response.data is Map<String, dynamic>) {
         print(
             'Response data: ${response.data}'); // طباعة البيانات للحصول على التفاصيل
         currentRecord = RecordsListModel.fromJson(response.data);
@@ -59,6 +57,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
 
   // apprpove api
   Future<void> approveRecord(String id) async {
+    emit(RecordsListLoading());
     try {
       final response = await api.post(
         '${EndPoints.baseUrl}Record/approve/$id',
@@ -67,7 +66,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
       if (response.statusCode == 200) {
         print("Record approved successfully");
 
-        // يمكنك تحديث الحالة أو القيام بأي إجراء آخر هنا
+        emit(NewRecordSuccess());
       } else {
         throw Exception("Failed to approve record: ${response.statusCode}");
       }
@@ -79,13 +78,14 @@ class RecordsListCubit extends Cubit<RecordsListState> {
 
   // cancel api
   Future<void> cancelRecord(String id) async {
+    emit(RecordsListLoading());
     try {
       final response = await api.post(
         '${EndPoints.baseUrl}Record/cancel/$id',
       );
       if (response.statusCode == 200) {
         print("Record canceled successfully");
-        // يمكنك تحديث الحالة أو القيام بأي إجراء آخر هنا
+        emit(NewRecordSuccess());
       } else {
         throw Exception("Failed to cancel record: ${response.statusCode}");
       }

@@ -54,7 +54,7 @@ class _NewDicomPageState extends State<NewDicomPage> {
               },
             );
           } else {
-            return Center(child: Text("No Data"));
+            return Center(child: Text("Not have New Reports"));
           }
         },
       ),
@@ -156,13 +156,6 @@ class _NewDicomPageState extends State<NewDicomPage> {
                     onPressed: () {
                       // Approve API
                       context.read<RecordsListCubit>().approveRecord(record.id);
-                      // Navigate to DICOM viewer or next step
-                      Navigator.pushNamed(context, DicomWebViewPage.id,
-                          arguments: {
-                            'url': record.Dicom_url,
-                            'recordId': record.id,
-                            'reportId': record.reportId,
-                          });
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

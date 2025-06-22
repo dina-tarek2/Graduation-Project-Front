@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/models/centerRecord.dart';
+
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
 class Modernstatistical2 extends StatefulWidget {
@@ -19,9 +19,7 @@ class _ModernstatisticalState extends State<Modernstatistical2> {
   @override
   void initState() {
     super.initState();
-    animatedData = [
-      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
-    ].map((day) {
+    animatedData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) {
       return {
         'day': day,
         'Diagnose': 0,
@@ -33,16 +31,26 @@ class _ModernstatisticalState extends State<Modernstatistical2> {
     Future.delayed(Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
-          animatedData = _prepareChartDataFromWeeklyObject(widget.weeklyStatusCounts);
+          animatedData =
+              _prepareChartDataFromWeeklyObject(widget.weeklyStatusCounts);
         });
       }
     });
   }
 
-  List<Map<String, dynamic>> _prepareChartDataFromWeeklyObject(Map<String, dynamic> weeklyData) {
+  List<Map<String, dynamic>> _prepareChartDataFromWeeklyObject(
+      Map<String, dynamic> weeklyData) {
     final data = weeklyData['data'] ?? weeklyData;
 
-final List<String> dayOrder = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    final List<String> dayOrder = [
+      'Sat',
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri'
+    ];
     final Map<String, String> dayMapping = {
       'Mon': 'Monday',
       'Tue': 'Tuesday',
@@ -89,7 +97,8 @@ final List<String> dayOrder = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
               reservedSize: 40,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
-                if (index < 0 || index >= data.length) return const SizedBox.shrink();
+                if (index < 0 || index >= data.length)
+                  return const SizedBox.shrink();
                 return Text(
                   data[index]['day'],
                   style: customTextStyle(16, FontWeight.w500, Colors.black),
@@ -138,7 +147,8 @@ final List<String> dayOrder = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     );
   }
 
-  List<BarChartGroupData> generateGroupedBarGroups(List<Map<String, dynamic>> data) {
+  List<BarChartGroupData> generateGroupedBarGroups(
+      List<Map<String, dynamic>> data) {
     return List.generate(data.length, (index) {
       final item = data[index];
       return BarChartGroupData(
@@ -182,7 +192,8 @@ final List<String> dayOrder = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
         SizedBox(width: 4),
         Text(
           label,
-          style: customTextStyle(12, FontWeight.w300, Colors.grey[600] ?? Colors.grey),
+          style: customTextStyle(
+              12, FontWeight.w300, Colors.grey[600] ?? Colors.grey),
         ),
       ],
     );
