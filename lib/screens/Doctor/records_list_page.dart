@@ -156,6 +156,7 @@ class _RecordsListPageState extends State<RecordsListPage>
   }
 
   Widget _buildStatusFilterChips() {
+
     List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
     return Wrap(
       spacing: 8,
