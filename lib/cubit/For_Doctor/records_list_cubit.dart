@@ -57,6 +57,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
   }
   // apprpove api
   Future<void> approveRecord(String id) async {
+    emit(RecordsListLoading());
     try {
       final response = await api.post(
         '${EndPoints.baseUrl}Record/approve/$id',
@@ -76,6 +77,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
   }
   // cancel api
   Future<void> cancelRecord(String id) async {
+    emit(RecordsListLoading());
     try {
       final response = await api.post(
         '${EndPoints.baseUrl}Record/cancel/$id',
