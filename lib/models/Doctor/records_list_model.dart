@@ -10,7 +10,7 @@ class RecordsListModel {
   final String? bodyPartExamined;
   final String email;
 
-   final List<dynamic> dicomId;
+  final List<dynamic> dicomId;
   final List<dynamic> Dicom_url;
   final String? series;
   final String status;

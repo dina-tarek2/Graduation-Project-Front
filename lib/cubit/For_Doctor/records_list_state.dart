@@ -12,7 +12,7 @@ class RecordsListSuccess extends RecordsListState {
 
   RecordsListSuccess(this.records);
 }
-
+class NewRecordSuccess extends RecordsListState {}
 class RecordLoaded extends RecordsListState {
   final RecordsListModel record;
   RecordLoaded(this.record);
@@ -22,3 +22,6 @@ class RecordsListFailure extends RecordsListState {
   final String error;
   RecordsListFailure(this.error);
 }
+class ExtendedDeadlineSuccess extends RecordsListState {}
+
+

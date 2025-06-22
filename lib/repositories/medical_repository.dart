@@ -49,11 +49,12 @@ class MedicalRepository {
     final String centerId;
   centerDashboardRepository(this.api, this.centerId);
 
-  Future<Centerdashboard> fetchDashboardData() async {
+  Future<Centerdashboard> fetchDashboardData( {required String startDate,  // تغيير من DateTime إلى String
+    required String endDate,}  ) async {
     try {
        final now = DateTime.now();
-      final endDate = DateFormat('yyyy-MM-dd').format(now);
-      final startDate = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: 6)));
+      // final endDate = DateFormat('yyyy-MM-dd').format(now);
+      // final startDate = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: 6)));
      
     
 

@@ -54,7 +54,7 @@ class _NewDicomPageState extends State<NewDicomPage> {
               },
             );
           } else {
-            return Center(child: Text("No Data"));
+            return Center(child: Text("Not have New Reports"));
           }
         },
       ),

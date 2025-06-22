@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -113,57 +111,62 @@ class DeadlineChecker {
       context: context,
       barrierDismissible: false, // Cannot dismiss by tapping outside
       builder: (BuildContext dialogContext) {
-        return WillPopScope(
-          // Prevent closing with back button
-          onWillPop: () async => false,
-          child: AlertDialog(
-            title: Row(
-              children: [
-                const Icon(Icons.alarm, color: Colors.red),
-                const SizedBox(width: 10),
-                const Text("Warning: The deadline is about to end!"),
+        return BlocListener<RecordsListCubit, RecordsListState>(
+          listener: (context, state) {
+            if (state is ExtendedDeadlineSuccess) return;
+          },
+          child: WillPopScope(
+            // Prevent closing with back button
+            onWillPop: () async => false,
+            child: AlertDialog(
+              title: Row(
+                children: [
+                  const Icon(Icons.alarm, color: Colors.red),
+                  const SizedBox(width: 10),
+                  const Text("Warning: The deadline is about to end!"),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "patient name: ${record.patientName}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text("deadline: $formattedDeadline"),
+                  const SizedBox(height: 8),
+                  Text(
+                    " remaining time: $minutesRemaining minutes",
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text("Do you want to extend the deadline?"),
+                ],
+              ),
+              actions: [
+                CustomButton(
+                  text: "Cancel",
+                  onTap: () {
+                    // We might want to log this action but not dismiss
+                    // For now, just close the dialog
+                    Navigator.of(dialogContext).pop();
+                  },
+                  width: 100,
+                  backgroundColor: Colors.grey,
+                ),
+                CustomButton(
+                  text: "Extend deadline",
+                  onTap: () {
+                    context.read<RecordsListCubit>().extendDeadline(record.id);
+                    Navigator.of(dialogContext).pop();
+                  },
+                  width: 120,
+                ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "patient name: ${record.patientName}",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text("deadline: $formattedDeadline"),
-                const SizedBox(height: 8),
-                Text(
-                  " remaining time: $minutesRemaining minutes",
-                  style: const TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                const Text("Do you want to extend the deadline?"),
-              ],
-            ),
-            actions: [
-              CustomButton(
-                text: "Cancel",
-                onTap: () {
-                  // We might want to log this action but not dismiss
-                  // For now, just close the dialog
-                  Navigator.of(dialogContext).pop();
-                },
-                width: 100,
-                backgroundColor: Colors.grey,
-              ),
-              CustomButton(
-                text: "Extend deadline",
-                onTap: () {
-                  _extendDeadline(record);
-                  Navigator.of(dialogContext).pop();
-                },
-                width: 120,
-              ),
-            ],
           ),
         );
       },
@@ -171,21 +174,21 @@ class DeadlineChecker {
   }
 
   // Function to extend the deadline
-  void _extendDeadline(RecordsListModel record) {
-    // Calculate new deadline (adding 2 hours to current deadline)
-    final DateTime newDeadline = record.deadline!.add(const Duration(hours: 2));
+  // void _extendDeadline(RecordsListModel record) {
+  //   // Calculate new deadline (adding 2 hours to current deadline)
+  //   final DateTime newDeadline = record.deadline!.add(const Duration(hours: 2));
 
-    // Format for display and API
-    final DateFormat apiFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-    final String formattedDeadline = apiFormat.format(newDeadline);
+  //   // Format for display and API
+  //   final DateFormat apiFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
+  //   final String formattedDeadline = apiFormat.format(newDeadline);
 
-    // Call API to update deadline
-    // context.read<UploadedDicomsCubit>().updateDicomDeadline(
-    //   context,
-    //   record.id,
-    //   {"deadline": formattedDeadline},
-    // );
-    print(
-        "Should extend deadline for record ${record.id} to $formattedDeadline");
-  }
+  //   // Call API to update deadline
+  //   // context.read<UploadedDicomsCubit>().updateDicomDeadline(
+  //   //   context,
+  //   //   record.id,
+  //   //   {"deadline": formattedDeadline},
+  //   // );
+  //   print(
+  //       "Should extend deadline for record ${record.id} to $formattedDeadline");
+  // }
 }

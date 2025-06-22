@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
 // ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
@@ -25,9 +26,7 @@ class CustomButton extends StatelessWidget {
                   // child: Text(text),
                          child: Text(
                               text,
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
+                              style: customTextStyle(16, FontWeight.w500, Colors.white)
                             ),
                   ),
               ),

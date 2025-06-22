@@ -15,6 +15,7 @@ import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart
 import 'package:graduation_project_frontend/screens/Center_dashboard.dart';
 import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/records_list_page.dart';
+import 'package:graduation_project_frontend/screens/SettingPage.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/Notifications/notifications_screen.dart';
 import 'package:graduation_project_frontend/screens/chatScreen.dart';
@@ -30,6 +31,7 @@ import 'package:graduation_project_frontend/widgets/custom_toast.dart'
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
 import 'package:intl/intl.dart';
+import 'package:graduation_project_frontend/widgets/build_profile_avater.dart';
 
 class MainScaffold extends StatefulWidget {
   final String role;
@@ -50,6 +52,7 @@ class MainScaffold extends StatefulWidget {
 class MainScaffoldState extends State<MainScaffold> {
   late final List<Widget> screens;
   File? _imageFile;
+  String imageUrl = "";
   // GlobalKey to locate the notifications icon for overlay positioning
   final GlobalKey _notificationIconKey = GlobalKey();
   OverlayEntry? _overlayEntry;
@@ -86,6 +89,9 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
+        SettingPage(
+          role: widget.role,
+        ),
       ];
     } else if (widget.role == "Radiologist") {
       // Default screens for other roles
@@ -99,6 +105,10 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
+        SettingPage(
+          role: widget.role,
+          
+        ),
       ];
     } else {
       screens = [
@@ -116,12 +126,6 @@ class MainScaffoldState extends State<MainScaffold> {
 
   // Handle navigation from the sidebar
   void onItemSelected(int index) {
-    // if (index == 5) {
-    //   context.read<LoginCubit>().logout(context.read<CenterCubit>().state);
-    //   Navigator.pushReplacementNamed(context, 'SigninPage');
-    //   return;
-    // }
-
     setState(() {
       selectedIndex = index;
     });
@@ -258,7 +262,7 @@ class MainScaffoldState extends State<MainScaffold> {
       case 0:
         return 'Dashboard';
       case 1:
-              context
+        context
             .read<NotificationCubit>()
             .updataNotifyByType(context.read<CenterCubit>().state, "study");
         return widget.role == "RadiologyCenter"
@@ -269,11 +273,13 @@ class MainScaffoldState extends State<MainScaffold> {
             ? 'Manage Doctors'
             : (widget.role == "Admin" ? 'Manage Centers' : 'New Rpeorts');
       case 3:
-        return 'contact Us';
+        return 'Contact Us';
       case 4:
-        return  'Chat';
+        return 'Chat';
       case 5:
         return 'About Us';
+      case 6:
+        return 'Setting';
       case 10:
         return 'My Profile';
       case 11:
@@ -320,7 +326,7 @@ class MainScaffoldState extends State<MainScaffold> {
                       Text(
                         _getScreenTitle(),
                         style: customTextStyle(
-                         22,
+                          22,
                           FontWeight.bold,
                           blue,
                         ),
@@ -369,7 +375,7 @@ class MainScaffoldState extends State<MainScaffold> {
                                         ? Icons.notifications_active_rounded
                                         : Icons.notifications_none_rounded,
                                     color: blue,
-                                    size:25,
+                                    size: 25,
                                   ),
                                   if (_unreadNotificationCount > 0)
                                     Positioned(
@@ -389,7 +395,7 @@ class MainScaffoldState extends State<MainScaffold> {
                                           child: Text(
                                             _unreadNotificationCount.toString(),
                                             style: customTextStyle(
-                                            12,
+                                              12,
                                               FontWeight.w500,
                                               Colors.white,
                                             ),

@@ -16,6 +16,7 @@ import 'package:graduation_project_frontend/screens/Admin/manage_doctorsA_page.d
 import 'package:graduation_project_frontend/screens/Admin/requests_page.dart';
 import 'package:graduation_project_frontend/screens/Center/dicoms_list_page.dart';
 import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
+import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
 import 'package:graduation_project_frontend/screens/splashScreen.dart';
@@ -50,7 +51,11 @@ import 'package:graduation_project_frontend/screens/signin_page.dart';
 import 'package:graduation_project_frontend/screens/signup_page.dart';
 import 'package:graduation_project_frontend/screens/viewer.dart';
 import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
-import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
+import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart';
+
+import 'cubit/setting_cubit.dart';
+import 'screens/SettingPage.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
@@ -111,7 +116,9 @@ void main() {
         ),
 //         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         //  BlocProvider(create: (context) => ContactCubit(DioConsumer(dio: Dio()))),
-
+        BlocProvider(
+          create: (context) => SettingCubit(DioConsumer(dio: Dio())),
+        ),
         BlocProvider(
           create: (context) => ForgetPasswordCubit(DioConsumer(dio: Dio())),
         ),
@@ -128,6 +135,9 @@ void main() {
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         BlocProvider(
             create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
+            BlocProvider(
+  create: (context) => DoctorHomeCubit(DioConsumer(dio: Dio()))),
+
       ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
@@ -163,7 +173,7 @@ class MyApp extends StatelessWidget {
               userId: context.read<CenterCubit>().state,
               userType: context.read<UserCubit>().state,
             ),
-
+        SettingPage.id: (context) => SettingPage(role: context.read<UserCubit>().state),
         // MainScaffold.id :(context) => MainScaffold(),
 
         //doctor

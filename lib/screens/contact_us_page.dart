@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:graduation_project_frontend/constants/colors.dart';
 import 'package:graduation_project_frontend/cubit/contact_cubit.dart';
 import 'package:graduation_project_frontend/widgets/custom_button.dart';
@@ -32,7 +33,7 @@ class ContactScreen extends StatelessWidget {
           child: Container(
             color: Colors.white,
             child: Padding(
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
               child: BlocConsumer<ContactCubit, ContactState>(
                 listener: (context, state) {
                   if (state is ContactSuccess) {
@@ -69,7 +70,7 @@ class ContactScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -82,7 +83,7 @@ class ContactScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 2),
                             Text(
-                              'shahd@gmail.com',
+                              'radintelio@gmail.com',
                               style: TextStyle(
                                   fontSize:
                                       MediaQuery.of(context).size.width * 0.01,
@@ -100,27 +101,32 @@ class ContactScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              SizedBox(height: 5),
                               CustomFormTextField(
                                 controller:
                                     BlocProvider.of<ContactCubit>(context)
                                         .nameController,
                                 hintText: 'Enter your name',
                                 labelText: 'Name',
+                                icon: FontAwesomeIcons.user,
                               ),
+                              SizedBox(height: 5),
                               CustomFormTextField(
                                   controller:
                                       BlocProvider.of<ContactCubit>(context)
                                           .emailController,
                                   hintText: 'Enter your email',
                                   labelText: 'Email',
-                                  icon: Icons.email),
+                                  icon: FontAwesomeIcons.envelope),
+                              SizedBox(height: 5),
                               CustomFormTextField(
                                   controller:
                                       BlocProvider.of<ContactCubit>(context)
                                           .phoneController,
                                   hintText: 'Enter your phone number',
                                   labelText: 'Phone',
-                                  icon: Icons.phone),
+                                  icon: FontAwesomeIcons.phone),
+                              SizedBox(height: 5),
                               CustomFormTextField(
                                   controller:
                                       BlocProvider.of<ContactCubit>(context)
@@ -128,7 +134,7 @@ class ContactScreen extends StatelessWidget {
                                   hintText: 'Enter your massage',
                                   labelText: 'How Can We Help You',
                                   maxLines: 5,
-                                  icon: Icons.sms),
+                                  icon: FontAwesomeIcons.commentDots),
                               SizedBox(height: 5),
                               (state is ContactLoading)
                                   ? CircularProgressIndicator()
@@ -142,7 +148,7 @@ class ContactScreen extends StatelessWidget {
                                         text: "Get Started",
                                         width:
                                             MediaQuery.of(context).size.height *
-                                                0.8,
+                                                1,
                                       ),
                                     ),
                             ],
