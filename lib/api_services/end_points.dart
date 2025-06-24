@@ -27,8 +27,20 @@ class EndPoints {
       "Record/extendStudyDeadline/$recordId";
   static String analyzeImage(String id) =>
       "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
-  static String upload(String id,String? email, bool? flag) =>
-      "upload_dicom?centerId=$id&email=$email&useOuerRadiologist=$flag"; 
+  static String upload(String id, String? email, bool? flag) {
+    String url = "upload_dicom?centerId=$id";
+
+    if (email != null) {
+      url += "&email=$email";
+    }
+
+    if (flag != null) {
+      url += "&useOuerRadiologist=$flag";
+    }
+
+    return url;
+  }
+
   static String showImages(id) =>
       "https://dicom-fastapi.fly.dev/show_images/$id";
   static String GetRecordsByCenterId(String id) =>
