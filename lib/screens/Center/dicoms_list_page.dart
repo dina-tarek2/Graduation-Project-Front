@@ -79,9 +79,15 @@ class _DicomsListPageState extends State<DicomsListPage> {
       scrollDirection: Axis.horizontal,
       child: Container(
         padding: EdgeInsets.all(12),
+        // margin: EdgeInsets.only(bottom: 16),
+        width: MediaQuery.of(context).size.width * 0.89, // controls width
+
+       
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
+          // ignore: deprecated_member_use
+          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
           boxShadow: [
             BoxShadow(
               // ignore: deprecated_member_use
@@ -136,6 +142,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
         ),
         style: customTextStyle(14, FontWeight.normal, Colors.black87),
         onChanged: (value) {
@@ -675,62 +682,119 @@ void _showCommentDialog(RecordModel record) {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text('Comments'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Comments',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.blue[800],
+          ),
+        ),
         content: FutureBuilder<List<DicomComment>>(
           future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               final comments = snapshot.data ?? [];
               if (comments.isEmpty) {
-                return Text("No comments available");
+                return SizedBox(
+                  height: 100,
+                  child: Center(
+                    child: Text(
+                      "No comments available",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                );
               }
-              // تجميع التعليقات حسب اسم المركز
-              final groupedComments = groupBy(comments, (DicomComment c) => c.name);
-              return Container(
-                height: 300,
-                width: 400,
-                child: ListView.separated(
-                  itemCount: groupedComments.keys.length,
-                  separatorBuilder: (_, __) => Divider(),
+
+              return SizedBox(
+                height: 450,
+                width: 500,
+                child: ListView.builder(
+                  itemCount: comments.length,
                   itemBuilder: (context, index) {
-                    final centerName = groupedComments.keys.elementAt(index);
-                    final centerComments = groupedComments[centerName]!;
+                    final comment = comments[index];
 
-                    // تجميع كل dicomComments اللي تحت نفس المركز في ليست واحدة
-                    final allComments = centerComments.expand((c) => c.dicomComments).toList();
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          centerName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: allComments.map((singleComment) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("• ", style: TextStyle(color: Colors.blue)),
-                                  Expanded(child: Text(singleComment)),
-                                ],
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF8F9FA),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(comment.image),
+                                radius: 24,
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      comment.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      comment.userType,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                _formatDate(comment.createdAt),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...comment.dicomComments.map(
+                            (c) => Container(
+                              margin: EdgeInsets.only(bottom: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                c,
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -741,7 +805,10 @@ void _showCommentDialog(RecordModel record) {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: TextStyle(color: Colors.blue)),
+            child: Text(
+              'Close',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       );
@@ -749,52 +816,93 @@ void _showCommentDialog(RecordModel record) {
   );
 }
 
-void _addCommentDialog(RecordModel record) {
-    TextEditingController _commentController = TextEditingController();
-    bool isLoading = false;
+String _formatDate(DateTime date) {
+  final localDate = date.toLocal();
+  return "${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')} "
+         "${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}";
+}
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
+
+void _addCommentDialog(RecordModel record) {
+  final TextEditingController _commentController = TextEditingController();
+  bool isLoading = false;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
           return AlertDialog(
-            title: Text('Comments'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // تيكست فيلد لإضافة تعليق
-                TextField(
-                  controller: _commentController,
-                  decoration: InputDecoration(
-                    labelText: 'Add a comment',
-                    border: OutlineInputBorder(),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              'Add Comment',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.blue[800],
+              ),
+            ),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Write your comment...',
+                      filled: true,
+                      fillColor: Color(0xFFF8F9FA),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
                   ),
-                  maxLines: 2,
-                ),
-              ],
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: TextStyle(color: Colors.red)),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[800],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
                 onPressed: isLoading
                     ? null
                     : () async {
-                        if (_commentController.text.trim().isEmpty) return;
+                        final commentText = _commentController.text.trim();
+                        if (commentText.isEmpty) return;
 
                         setState(() {
                           isLoading = true;
                         });
 
                         try {
-                          await context.read<UploadedDicomsCubit>().addComment(
-                                record.id,
-                                _commentController.text.trim(),
-                              );
+                          await context
+                              .read<UploadedDicomsCubit>()
+                              .addComment(record.id, commentText);
 
-                          Navigator.pop(context); // غلق الـ dialog بعد النجاح
+                          Navigator.pop(context); // Close dialog
                         } catch (e) {
                           setState(() {
                             isLoading = false;
@@ -806,18 +914,31 @@ void _addCommentDialog(RecordModel record) {
                       },
                 child: isLoading
                     ? SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: 18,
+                        height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Text('Add'),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'Add',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ],
           );
-        });
-      },
-    );
-  }
+        },
+      );
+    },
+  );
+}
+
+
 
   Widget _buildRedirectButton(RecordModel record, BuildContext context) {
     return Material(

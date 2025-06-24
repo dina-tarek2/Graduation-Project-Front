@@ -8,6 +8,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
+import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_project_frontend/models/comments_moudel.dart';
+import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 
 class RecordsListPage extends StatefulWidget {
   static const id = "RecordsListPage";
@@ -458,46 +464,150 @@ class _RecordsListPageState extends State<RecordsListPage>
     }
   }
 
-  void _showCommentDialog(RecordsListModel record) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Comments'),
-        content: record.Dicom_url.isNotEmpty
-            ? SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: record.Dicom_url.map((item) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Row(
+void _showCommentDialog(RecordsListModel record) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Comments',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.blue[800],
+          ),
+        ),
+        content: FutureBuilder<List<DicomComment>>(
+          future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              final comments = snapshot.data ?? [];
+              if (comments.isEmpty) {
+                return SizedBox(
+                  height: 100,
+                  child: Center(
+                    child: Text(
+                      "No comments available",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                );
+              }
+
+              return SizedBox(
+                height: 450,
+                width: 500,
+                child: ListView.builder(
+                  itemCount: comments.length,
+                  itemBuilder: (context, index) {
+                    final comment = comments[index];
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF8F9FA),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("• ",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.blue)),
-                          Expanded(
-                            child: Text(
-                              item,
-                              style: TextStyle(fontSize: 14),
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: NetworkImage(comment.image),
+                                radius: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      comment.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      comment.userType,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                _formatDate(comment.createdAt),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...comment.dicomComments.map(
+                            (c) => Container(
+                              margin: EdgeInsets.only(bottom: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                c,
+                                style: TextStyle(fontSize: 14),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
-              )
-            : Text("No comment available"),
+              );
+            }
+          },
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: TextStyle(color: Colors.blue)),
+            child: Text(
+              'Close',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
+String _formatDate(DateTime date) {
+  final local = date.toLocal();
+  return "${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} "
+         "${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}";
+}
 
   TextStyle _columnStyle() => TextStyle(
       fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey[800]);
