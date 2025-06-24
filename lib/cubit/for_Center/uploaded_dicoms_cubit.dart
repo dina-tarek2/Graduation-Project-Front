@@ -62,13 +62,16 @@ class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {
     }
   }
 
-  Future<void> reassign(String recordId) async {
+  Future<void> reassign(String recordId, String centerid) async {
     try {
       final response =
           await api.post(EndPoints.RedirectToDoctorFromRadintal(recordId));
 
       if (response.statusCode == 200 &&
-          response.data['message'] == "Record redirected successfully") {}
+          response.data['message'] == "Record redirected successfully") {
+           emit(UploadedDicomsLoading());
+       await fetchUploadedDicoms(centerid);
+      }
     } on Exception catch (e) {}
   }
 

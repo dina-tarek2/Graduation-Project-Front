@@ -40,11 +40,11 @@ class _DicomsListPageState extends State<DicomsListPage> {
     super.initState();
     final userId = context.read<CenterCubit>().state;
     context.read<UploadedDicomsCubit>().fetchUploadedDicoms(userId);
-    startAutoRefresh(); // auto refresh every 3 min
+    startAutoRefresh(); // auto refresh every 2 min
   }
 
   void startAutoRefresh() {
-    _timer = Timer.periodic(Duration(seconds: 180), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 120), (timer) {
       final userId = context.read<CenterCubit>().state;
       context.read<UploadedDicomsCubit>().fetchUploadedDicoms(userId);
     });
@@ -82,7 +82,6 @@ class _DicomsListPageState extends State<DicomsListPage> {
         // margin: EdgeInsets.only(bottom: 16),
         width: MediaQuery.of(context).size.width * 0.89, // controls width
 
-       
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
@@ -122,7 +121,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
 
               child: _buildSearchBox(),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: 65),
             _buildStatusFilterChips(),
           ],
         ),
@@ -142,7 +141,6 @@ class _DicomsListPageState extends State<DicomsListPage> {
           prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-
         ),
         style: customTextStyle(14, FontWeight.normal, Colors.black87),
         onChanged: (value) {
@@ -327,11 +325,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
     );
   }
 
-
-  DataCell _clickableCell(
-      Widget child, BuildContext context, String reportid,
+  DataCell _clickableCell(Widget child, BuildContext context, String reportid,
       List<dynamic> Dicom_url) {
-
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -477,7 +472,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-         // record.id,
+          // record.id,
         ),
 
         // Patient Name
@@ -489,7 +484,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-         // record.id,
+          // record.id,
         ),
 
         // _clickableCell(
@@ -531,30 +526,30 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
-         // record.id,
+          // record.id,
         ),
 
         // Deadline Date & Time
         _clickableCell(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  dateFormat.format(record.deadline!),
-                  style: customTextStyle(14, FontWeight.bold, Colors.black),
-                ),
-                Text(
-                  timeFormat.format(record.deadline!),
-                  style: customTextStyle(12, FontWeight.normal, Colors.grey),
-                ),
-              ],
-            ),
-            context,
-            record.reportId,
-            record.dicomUrl,
-          //  record.id
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                dateFormat.format(record.deadline!),
+                style: customTextStyle(14, FontWeight.bold, Colors.black),
+              ),
+              Text(
+                timeFormat.format(record.deadline!),
+                style: customTextStyle(12, FontWeight.normal, Colors.grey),
+              ),
+            ],
           ),
+          context,
+          record.reportId,
+          record.dicomUrl,
+          //  record.id
+        ),
 
         // Modality
         _clickableCell(
@@ -569,13 +564,13 @@ class _DicomsListPageState extends State<DicomsListPage> {
         _clickableCell(
           Text(
             record.radiologistName == "Unknown"
-                ? "Not assigned to Doctor yet"
+                ? "Not assigned yet"
                 : record.radiologistName,
           ),
           context,
           record.reportId,
           record.dicomUrl,
-         // record.id,
+          // record.id,
         ),
 
         // QR Code Viewer
@@ -677,268 +672,270 @@ class _DicomsListPageState extends State<DicomsListPage> {
     }
   }
 
-void _showCommentDialog(RecordModel record) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Comments',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.blue[800],
+  void _showCommentDialog(RecordModel record) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            'Comments',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.blue[800],
+            ),
           ),
-        ),
-        content: FutureBuilder<List<DicomComment>>(
-          future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox(
-                height: 200,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              final comments = snapshot.data ?? [];
-              if (comments.isEmpty) {
+          content: FutureBuilder<List<DicomComment>>(
+            future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return SizedBox(
-                  height: 100,
-                  child: Center(
-                    child: Text(
-                      "No comments available",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                final comments = snapshot.data ?? [];
+                if (comments.isEmpty) {
+                  return SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        "No comments available",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 450,
+                  width: 500,
+                  child: ListView.builder(
+                    itemCount: comments.length,
+                    itemBuilder: (context, index) {
+                      final comment = comments[index];
+
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(comment.image),
+                                  radius: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        comment.name,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        comment.userType,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  _formatDate(comment.createdAt),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ...comment.dicomComments.map(
+                              (c) => Container(
+                                margin: EdgeInsets.only(bottom: 6),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  c,
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               }
-
-              return SizedBox(
-                height: 450,
-                width: 500,
-                child: ListView.builder(
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    final comment = comments[index];
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF8F9FA),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(comment.image),
-                                radius: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      comment.name,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      comment.userType,
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                _formatDate(comment.createdAt),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          ...comment.dicomComments.map(
-                            (c) => Container(
-                              margin: EdgeInsets.only(bottom: 6),
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                c,
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            ),
+            },
           ),
-        ],
-      );
-    },
-  );
-}
-
-String _formatDate(DateTime date) {
-  final localDate = date.toLocal();
-  return "${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')} "
-         "${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}";
-}
-
-
-void _addCommentDialog(RecordModel record) {
-  final TextEditingController _commentController = TextEditingController();
-  bool isLoading = false;
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Text(
-              'Add Comment',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.blue[800],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Close',
+                style:
+                    TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
               ),
             ),
-            content: SizedBox(
-              width: 400,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _commentController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Write your comment...',
-                      filled: true,
-                      fillColor: Color(0xFFF8F9FA),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final localDate = date.toLocal();
+    return "${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')} "
+        "${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}";
+  }
+
+  void _addCommentDialog(RecordModel record) {
+    final TextEditingController _commentController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Add Comment',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.blue[800],
+                ),
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _commentController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Write your comment...',
+                        filled: true,
+                        fillColor: Color(0xFFF8F9FA),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 12),
+                  ],
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[800],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
-                onPressed: isLoading
-                    ? null
-                    : () async {
-                        final commentText = _commentController.text.trim();
-                        if (commentText.isEmpty) return;
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[800],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final commentText = _commentController.text.trim();
+                          if (commentText.isEmpty) return;
 
-                        setState(() {
-                          isLoading = true;
-                        });
-
-                        try {
-                          await context
-                              .read<UploadedDicomsCubit>()
-                              .addComment(record.id, commentText);
-
-                          Navigator.pop(context); // Close dialog
-                        } catch (e) {
                           setState(() {
-                            isLoading = false;
+                            isLoading = true;
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error: $e")),
-                          );
-                        }
-                      },
-                child: isLoading
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        'Add',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
 
+                          try {
+                            await context
+                                .read<UploadedDicomsCubit>()
+                                .addComment(record.id, commentText);
 
+                            Navigator.pop(context); // Close dialog
+                          } catch (e) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error: $e")),
+                            );
+                          }
+                        },
+                  child: isLoading
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Add',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   Widget _buildRedirectButton(RecordModel record, BuildContext context) {
     return Material(
@@ -963,7 +960,12 @@ void _addCommentDialog(RecordModel record) {
                     // Close dialog
                     Navigator.of(context).pop();
                     // Call the reassign function
-                    context.read<UploadedDicomsCubit>().reassign(record.id);
+                    final userId = context.read<CenterCubit>().state;
+                    context.read<UploadedDicomsCubit>().reassign(record.id,userId);
+                    
+                    // context
+                    //     .read<UploadedDicomsCubit>()
+                    //     .fetchUploadedDicoms(userId);
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,

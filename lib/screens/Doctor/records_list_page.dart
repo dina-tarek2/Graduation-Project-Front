@@ -30,52 +30,63 @@ class _RecordsListPageState extends State<RecordsListPage>
   String selectedStatus = "All";
   // handle deadline part
   DeadlineChecker? _deadlineChecker;
+  List<RecordsListModel> _currentRecords = []; // حفظ الريكوردز الحالية
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // إضافة مراقب دورة حياة التطبيق
+    WidgetsBinding.instance.addObserver(this);
 
     final userId = context.read<CenterCubit>().state;
     context.read<RecordsListCubit>().fetchRecords(userId);
-
-    // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   print("Setting up deadline checker after frame");
-    //   setupDeadlineChecker();
-    // });
   }
 
+  // فانكشن محدثة لإعداد مراقب المواعيد النهائية بناءً على الشروط
   void setupDeadlineChecker() {
-    if (_deadlineChecker == null) {
-      print("Creating new deadline checker");
-      _deadlineChecker = DeadlineChecker(context);
-      _deadlineChecker!.startDeadlineChecking();
+    // التحقق من وجود ريكوردز بحالة "Diagonize"
+    bool hasDiagnoseRecords = _currentRecords
+        .any((record) => record.status.toLowerCase() == "diagonize");
+
+    if (hasDiagnoseRecords) {
+      if (_deadlineChecker == null) {
+        print("Creating new deadline checker - Found Diagnose records");
+        _deadlineChecker = DeadlineChecker(context);
+        _deadlineChecker!.startDeadlineChecking();
+      } else {
+        print("Deadline checker already exists for Diagnose records");
+      }
     } else {
-      print("Deadline checker already exists");
+      // إيقاف المراقب إذا لم تكن هناك ريكوردز بحالة "Diagonize"
+      if (_deadlineChecker != null) {
+        print("No Diagnose records found - stopping deadline checker");
+        _deadlineChecker!.stopDeadlineChecking();
+        _deadlineChecker = null;
+      }
     }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // التأكد من أن المدقق يعمل بعد تغيير التبعيات
-    if (_deadlineChecker == null) {
-      setupDeadlineChecker();
-    }
+    // لا نقوم بإعداد المراقب هنا، سيتم إعداده في BlocConsumer
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // إعادة تشغيل المدقق عند عودة التطبيق للواجهة
     if (state == AppLifecycleState.resumed) {
-      print("App resumed - restarting deadline checker");
-      _deadlineChecker?.stopDeadlineChecking();
-      _deadlineChecker = DeadlineChecker(context);
-      _deadlineChecker!.startDeadlineChecking();
+      print("App resumed - checking if restart needed");
+      // إعادة تشغيل المراقب فقط إذا كان هناك ريكوردز بحالة "Diagonize"
+      bool hasDiagnoseRecords = _currentRecords
+          .any((record) => record.status.toLowerCase() == "diagonize");
+
+      if (hasDiagnoseRecords) {
+        _deadlineChecker?.stopDeadlineChecking();
+        _deadlineChecker = DeadlineChecker(context);
+        _deadlineChecker!.startDeadlineChecking();
+        print("Deadline checker restarted for Diagnose records");
+      }
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      // إيقاف المدقق عند توقف التطبيق مؤقتًا
       print("App paused - stopping deadline checker");
       _deadlineChecker?.stopDeadlineChecking();
     }
@@ -131,7 +142,7 @@ class _RecordsListPageState extends State<RecordsListPage>
                   0.4, // controls search width
               child: _buildSearchBox(),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 200),
             _buildStatusFilterChips(),
           ],
         ),
@@ -147,10 +158,10 @@ class _RecordsListPageState extends State<RecordsListPage>
       ),
       child: TextField(
         decoration: InputDecoration(
-          hintText: "Search by Name or ID",
+          hintText: "Search by Name",
           prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
         ),
         onChanged: (value) {
           setState(() {
@@ -162,7 +173,6 @@ class _RecordsListPageState extends State<RecordsListPage>
   }
 
   Widget _buildStatusFilterChips() {
-
     List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
     return Wrap(
       spacing: 8,
@@ -194,10 +204,40 @@ class _RecordsListPageState extends State<RecordsListPage>
   Widget _buildRecordsTable() {
     return BlocConsumer<RecordsListCubit, RecordsListState>(
       listener: (context, state) {
-        // إعادة فحص المواعيد النهائية كلما تغيرت البيانات
         if (state is RecordsListSuccess) {
-          print("Data loaded - checking deadlines");
-          _deadlineChecker?.checkDeadlines();
+          // حفظ الريكوردز الحالية
+          _currentRecords = state.records;
+
+          print("Data loaded successfully - checking for Diagnose records");
+
+          // فحص وجود ريكوردز بحالة "Diagonize"
+          bool hasDiagnoseRecords = state.records
+              .any((record) => record.status.toLowerCase() == "diagonize");
+
+          if (hasDiagnoseRecords) {
+            print(
+                "Found ${state.records.where((record) => record.status.toLowerCase() == "diagonize").length} Diagnose records - setting up deadline checker");
+
+            // إعداد مراقب المواعيد النهائية
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setupDeadlineChecker();
+              _deadlineChecker?.checkDeadlines();
+            });
+          } else {
+            print("No Diagnose records found - deadline checker not needed");
+            // إيقاف المراقب إذا كان يعمل
+            if (_deadlineChecker != null) {
+              _deadlineChecker!.stopDeadlineChecking();
+              _deadlineChecker = null;
+            }
+          }
+        } else if (state is RecordsListFailure) {
+          // في حالة الفشل، إيقاف المراقب
+          _currentRecords = [];
+          if (_deadlineChecker != null) {
+            _deadlineChecker!.stopDeadlineChecking();
+            _deadlineChecker = null;
+          }
         }
       },
       builder: (context, state) {
@@ -239,12 +279,6 @@ class _RecordsListPageState extends State<RecordsListPage>
             return matchesSearch && matchesStatus;
           }).toList();
 
-          // تأخير إعداد مراقب المواعيد النهائية لضمان اكتمال بناء الواجهة
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            print("Setting up deadline checker after frame");
-            setupDeadlineChecker();
-          });
-
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -272,9 +306,6 @@ class _RecordsListPageState extends State<RecordsListPage>
                         label: Text("Patient Name", style: _columnStyle())),
                     DataColumn(
                         label: Text("Created Date", style: _columnStyle())),
-                    // DataColumn(label: Text("Age", style: _columnStyle())),
-                    // DataColumn(label: Text("Body Part", style: _columnStyle())),
-                    // DataColumn(label: Text("Series", style: _columnStyle())),
                     DataColumn(label: Text("Deadline", style: _columnStyle())),
                     DataColumn(label: Text("Modality", style: _columnStyle())),
                     DataColumn(label: Text("Center", style: _columnStyle())),
@@ -309,15 +340,9 @@ class _RecordsListPageState extends State<RecordsListPage>
       List<dynamic> dicomUrl, String recordId) {
     return DataCell(
       MouseRegion(
-        cursor: SystemMouseCursors.click, // يجعل المؤشر يتغير عند المرور فوقه
+        cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => MedicalReportPage(
-            //           reportId: reportid, Dicom_url: Dicom_url)),
-            // );
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
               'url': dicomUrl,
@@ -338,10 +363,9 @@ class _RecordsListPageState extends State<RecordsListPage>
       color: WidgetStateProperty.resolveWith<Color?>(
         (Set<WidgetState> states) {
           if (record.isEmergency) {
-            return Colors.red
-                .withValues(alpha: 0.1); // لون الصف لو الحالة طارئة
+            return Colors.red.withValues(alpha: 0.1);
           }
-          return null; // الافتراضي
+          return null;
         },
       ),
       cells: [
@@ -464,150 +488,154 @@ class _RecordsListPageState extends State<RecordsListPage>
     }
   }
 
-void _showCommentDialog(RecordsListModel record) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Comments',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.blue[800],
+  void _showCommentDialog(RecordsListModel record) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            'Comments',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.blue[800],
+            ),
           ),
-        ),
-        content: FutureBuilder<List<DicomComment>>(
-          future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox(
-                height: 200,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              final comments = snapshot.data ?? [];
-              if (comments.isEmpty) {
+          content: FutureBuilder<List<DicomComment>>(
+            future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return SizedBox(
-                  height: 100,
-                  child: Center(
-                    child: Text(
-                      "No comments available",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                final comments = snapshot.data ?? [];
+                if (comments.isEmpty) {
+                  return SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        "No comments available",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
                     ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 450,
+                  width: 500,
+                  child: ListView.builder(
+                    itemCount: comments.length,
+                    itemBuilder: (context, index) {
+                      final comment = comments[index];
+
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(comment.image),
+                                  radius: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        comment.name,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        comment.userType,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  _formatDate(comment.createdAt),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ...comment.dicomComments.map(
+                              (c) => Container(
+                                margin: EdgeInsets.only(bottom: 6),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  c,
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               }
-
-              return SizedBox(
-                height: 450,
-                width: 500,
-                child: ListView.builder(
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    final comment = comments[index];
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF8F9FA),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(comment.image),
-                                radius: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      comment.name,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      comment.userType,
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                _formatDate(comment.createdAt),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          ...comment.dicomComments.map(
-                            (c) => Container(
-                              margin: EdgeInsets.only(bottom: 6),
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                c,
-                                style: TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-            ),
+            },
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Close',
+                style:
+                    TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-String _formatDate(DateTime date) {
-  final local = date.toLocal();
-  return "${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} "
-         "${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}";
-}
+  String _formatDate(DateTime date) {
+    final local = date.toLocal();
+    return "${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} "
+        "${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}";
+  }
 
   TextStyle _columnStyle() => TextStyle(
       fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueGrey[800]);
