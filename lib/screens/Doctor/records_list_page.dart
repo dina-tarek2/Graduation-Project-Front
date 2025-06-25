@@ -173,12 +173,7 @@ class _RecordsListPageState extends State<RecordsListPage>
   }
 
   Widget _buildStatusFilterChips() {
-<<<<<<< HEAD
-
     List<String> statusOptions = ["All", "Diagnose", "Completed", "Cancled"];
-=======
-    List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
->>>>>>> 377cc5fb8b50c116a15bc2d30cb17fc263d8ee63
     return Wrap(
       spacing: 8,
       children: statusOptions.map((status) {
