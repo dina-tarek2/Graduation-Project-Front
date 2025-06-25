@@ -31,7 +31,6 @@ import 'package:graduation_project_frontend/widgets/custom_toast.dart'
 import 'package:graduation_project_frontend/widgets/notifications_popup.dart';
 import 'package:graduation_project_frontend/widgets/sidebar_navigation.dart';
 import 'package:intl/intl.dart';
-// import 'package:graduation_project_frontend/widgets/build_profile_avater.dart';
 
 class MainScaffold extends StatefulWidget {
   final String role;
@@ -89,7 +88,7 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
-        SettingPage(
+        SettingsPage(
           role: widget.role,
         ),
       ];
@@ -105,7 +104,7 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
-        SettingPage(
+        SettingsPage(
           role: widget.role,
           
         ),

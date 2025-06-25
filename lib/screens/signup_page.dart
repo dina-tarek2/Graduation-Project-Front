@@ -20,7 +20,7 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupPageState extends State<SignupPage> with TickerProviderStateMixin {
   bool isLoading = false;
   String? selectedRole;
   bool isChecked = false;
@@ -31,6 +31,11 @@ class _SignupPageState extends State<SignupPage> {
   File? frontIdFile;
   File? backIdFile;
   final ImagePicker _picker = ImagePicker();
+
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   final List<String> availableSpecializations = [
     'Chest Radiology',
@@ -43,6 +48,46 @@ class _SignupPageState extends State<SignupPage> {
   ];
 
   List<String> selectedSpecializations = [];
+  int currentStep = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.elasticOut,
+    ));
+
+    _fadeController.forward();
+    _slideController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
 
   void _pickFrontIdImage() async {
     await context.read<RegisterCubit>().pickFrontIdImage();
@@ -82,410 +127,22 @@ class _SignupPageState extends State<SignupPage> {
       body: BlocConsumer<RegisterCubit, RegisterState>(
         listener: (context, state) {
           if (state is OtpVerfication) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    child: VerifyOtpPage(
-                      message: state.message,
-                      role: selectedRole!,
-                    ),
-                  ),
-                );
-              },
-            );
+            _showOtpDialog(state);
           } else if (state is RegisterFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
-            );
+            _showErrorSnackBar(state.error);
           }
         },
         builder: (context, state) {
-          return Form(
-            key: formKey,
-            child: Row(
-              children: [
-                // Left side - photo
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/signInDoc2.jpg"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Right side - form
-                Expanded(
-                  flex: 4,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: blue,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(45.0),
-                        topLeft: Radius.circular(45.0),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 46),
-                      child: ListView(
-                        children: [
-                          const SizedBox(height: 75),
-                          Text("Get Started Now",
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 20),
-
-                          // Email field
-                          Column(
-                            children: [
-                              CustomFormTextField(
-                                hintText: 'Enter your email',
-                                icon: Icons.email,
-                                controller: context
-                                    .read<RegisterCubit>()
-                                    .emailController,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-
-                          CustomFormTextField(
-                            hintText: 'Contact No.',
-                            icon: Icons.phone,
-                            controller: context
-                                .read<RegisterCubit>()
-                                .contactNumberController,
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Role Selection Dropdown
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8.0),
-                            child: DropdownButtonFormField<String>(
-                              value: selectedRole,
-                              decoration: InputDecoration(
-                                labelText: "Role",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              items: ["Doctor", "Technician"].map((role) {
-                                return DropdownMenuItem<String>(
-                                  value: role,
-                                  child: Text(role),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedRole = value;
-                                  // Reset specializations when role changes
-                                  if (value != "Doctor") {
-                                    selectedSpecializations.clear();
-                                    // Reset ID photos when changing from Doctor
-                                    frontIdFileName = null;
-                                    backIdFileName = null;
-                                    frontIdFile = null;
-                                    backIdFile = null;
-                                  }
-                                });
-                              },
-                            ),
-                          ),
-
-                          // Conditional fields based on selected role
-                          if (selectedRole == "Doctor") ...[
-                            const SizedBox(height: 10),
-
-                            // Modern Specialization Multi-Select Widget
-                            _buildSpecializationSelector(),
-
-                            const SizedBox(height: 10),
-                            CustomFormTextField(
-                              hintText: 'Enter your first name',
-                              icon: Icons.person,
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .firstNameController,
-                            ),
-                            const SizedBox(height: 10),
-                            CustomFormTextField(
-                              hintText: 'Enter your last name',
-                              icon: Icons.person_outline,
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .lastNameController,
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            // Front ID Photo Upload
-                            _buildIdPhotoUpload(
-                              title: "Front ID Photo",
-                              fileName: frontIdFileName,
-                              onTap: _pickFrontIdImage,
-                              onRemove: _removeFrontIdImage,
-                              icon: Icons.credit_card,
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            // Back ID Photo Upload
-                            _buildIdPhotoUpload(
-                              title: "Back ID Photo",
-                              fileName: backIdFileName,
-                              onTap: _pickBackIdImage,
-                              onRemove: _removeBackIdImage,
-                              icon: Icons.credit_card_off,
-                            ),
-                          ],
-
-                          if (selectedRole == "Technician") ...[
-                            CustomFormTextField(
-                              hintText: "Center Name",
-                              icon: Icons.business,
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .centerNameController,
-                            ),
-                            CustomFormTextField(
-                              hintText: 'Street',
-                              icon: Icons.location_on,
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .streetController,
-                            ),
-                            CustomFormTextField(
-                              hintText: 'City',
-                              icon: Icons.location_city,
-                              controller:
-                                  context.read<RegisterCubit>().cityController,
-                            ),
-                            CustomFormTextField(
-                              hintText: 'State',
-                              icon: Icons.map,
-                              controller:
-                                  context.read<RegisterCubit>().stateController,
-                            ),
-                            CustomFormTextField(
-                              hintText: 'Zipcode',
-                              icon: Icons.local_post_office,
-                              controller: context
-                                  .read<RegisterCubit>()
-                                  .zipcodeController,
-                            ),
-                            InkWell(
-                              onTap: () => context
-                                  .read<RegisterCubit>()
-                                  .pickLicenseImage(),
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border:
-                                      Border.all(color: Colors.grey.shade300),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.1),
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.cloud_upload_outlined,
-                                      color: Colors.grey,
-                                    ),
-                                    SizedBox(width: 8),
-                                    BlocBuilder<RegisterCubit, RegisterState>(
-                                      builder: (context, state) {
-                                        return Text(
-                                          context
-                                                      .read<RegisterCubit>()
-                                                      .licenseImageFile ==
-                                                  null
-                                              ? "Upload Radiology Practice License Image"
-                                              : context
-                                                  .read<RegisterCubit>()
-                                                  .licenseImageFile!
-                                                  .path
-                                                  .split(Platform.pathSeparator)
-                                                  .last,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-
-                          const SizedBox(height: 20),
-
-                          // Password field
-                          CustomFormTextField(
-                            obscureText: BlocProvider.of<RegisterCubit>(context)
-                                .isRegisterPasswordShowing,
-                            hintText: 'Set your password',
-                            icon: Icons.lock,
-                            suffixIcon: Icon(
-                                BlocProvider.of<RegisterCubit>(context)
-                                    .suffixIcon),
-                            suffixIconOnPressed: () {
-                              BlocProvider.of<RegisterCubit>(context)
-                                  .changeRegisterPasswordSuffixIcon();
-                            },
-                            controller: context
-                                .read<RegisterCubit>()
-                                .passwordController,
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Terms checkbox
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: isChecked,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    isChecked = value!;
-                                  });
-                                },
-                                fillColor:
-                                    WidgetStateProperty.resolveWith<Color>(
-                                        (Set<WidgetState> states) {
-                                  if (states.contains(WidgetState.selected)) {
-                                    return blue;
-                                  }
-                                  return Colors.white;
-                                }),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    isChecked = !isChecked;
-                                  });
-                                },
-                                child: Text("I agree to Term & Condition"),
-                              ),
-                            ],
-                          ),
-
-                          // Sign up button
-                          state is RegisterLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : CustomButton(
-                                  onTap: () async {
-                                    if (formKey.currentState!.validate()) {
-                                      if (selectedRole == null) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content:
-                                                  Text("Please choose role")),
-                                        );
-                                        return;
-                                      }
-
-                                      if (selectedRole == "Doctor") {
-                                        if (frontIdFileName == null) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    "Please upload front ID photo")),
-                                          );
-                                          return;
-                                        }
-                                        if (backIdFileName == null) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    "Please upload back ID photo")),
-                                          );
-                                          return;
-                                        }
-
-                                        print(
-                                            "Selected Specializations: $selectedSpecializations");
-                                        print(
-                                            "Front ID Photo: $frontIdFileName");
-                                        print("Back ID Photo: $backIdFileName");
-                                      }
-
-                                      // final registerCubit =
-                                      //     context.read<RegisterCubit>();
-                                      // registerCubit.register(selectedRole!);
-                                      final registerCubit =
-                                          context.read<RegisterCubit>();
-
-                                      registerCubit.register(
-                                        selectedRole!,
-                                        specializations:
-                                            selectedSpecializations,
-                                        frontIdImage: frontIdFile,
-                                        backIdImage: backIdFile,
-                                      );
-                                    }
-                                  },
-                                  text: 'Sign up',
-                                ),
-                          const SizedBox(height: 10),
-
-                          // Sign in link
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Already have an account? ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pushNamed(context, SigninPage.id);
-                                },
-                                child: const Text(
-                                  ' Sign In',
-                                  style: TextStyle(
-                                    color: blue,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: Container(
+              decoration: _buildGradientBackground(),
+              child: Row(
+                children: [
+                  _buildLeftPanel(),
+                  _buildRightPanel(state),
+                ],
+              ),
             ),
           );
         },
@@ -493,7 +150,750 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  Widget _buildIdPhotoUpload({
+  BoxDecoration _buildGradientBackground() {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          blue.withOpacity(0.1),
+          Colors.white,
+          blue.withOpacity(0.05),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeftPanel() {
+    return Expanded(
+      flex: 5,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(50),
+            bottomRight: Radius.circular(50),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: Offset(5, 0),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(50),
+            bottomRight: Radius.circular(50),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/signInDoc2.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      blue.withOpacity(0.8),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 60,
+                left: 40,
+                right: 40,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Join Our Medical",
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                    Text(
+                      "Community",
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Connect with healthcare professionals worldwide and advance your medical career.",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white.withOpacity(0.9),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRightPanel(RegisterState state) {
+    return Expanded(
+      flex: 4,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          margin: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 30,
+                offset: Offset(-10, 0),
+              ),
+            ],
+          ),
+          child: Form(
+            key: formKey,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+              child: ListView(
+                children: [
+                  _buildHeader(),
+                  SizedBox(height: 40),
+                  _buildProgressIndicator(),
+                  SizedBox(height: 30),
+                  _buildFormContent(state),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Icon(
+            Icons.medical_services,
+            color: blue,
+            size: 30,
+          ),
+        ),
+        SizedBox(height: 20),
+        Text(
+          "Create Account",
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          "Join our platform and start your journey",
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        children: [
+          _buildProgressStep(0, "Basic Info", Icons.person),
+          _buildProgressConnector(0),
+          _buildProgressStep(1, "Role", Icons.work),
+          _buildProgressConnector(1),
+          _buildProgressStep(2, "Complete", Icons.check_circle),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressStep(int step, String label, IconData icon) {
+    bool isActive = currentStep >= step;
+    bool isCurrent = currentStep == step;
+
+    return Expanded(
+      child: Column(
+        children: [
+          AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isActive ? blue : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isCurrent ? blue : Colors.transparent,
+                width: 3,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.white : Colors.grey.shade500,
+              size: 20,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: isActive ? blue : Colors.grey.shade500,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressConnector(int step) {
+    bool isActive = currentStep > step;
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: EdgeInsets.only(bottom: 30),
+        decoration: BoxDecoration(
+          color: isActive ? blue : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(1),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormContent(RegisterState state) {
+    return Column(
+      children: [
+        _buildBasicInfoFields(),
+        SizedBox(height: 20),
+        _buildRoleSelection(),
+        if (selectedRole != null) ...[
+          SizedBox(height: 20),
+          _buildRoleSpecificFields(),
+        ],
+        SizedBox(height: 30),
+        _buildPasswordField(),
+        SizedBox(height: 25),
+        _buildTermsCheckbox(),
+        SizedBox(height: 30),
+        _buildSignUpButton(state),
+        SizedBox(height: 20),
+        _buildSignInLink(),
+      ],
+    );
+  }
+
+  Widget _buildBasicInfoFields() {
+    return Column(
+      children: [
+        _buildAnimatedTextField(
+          controller: context.read<RegisterCubit>().emailController,
+          hintText: 'Enter your email address',
+          icon: Icons.email_outlined,
+          delay: 100,
+        ),
+        SizedBox(height: 16),
+        _buildAnimatedTextField(
+          controller: context.read<RegisterCubit>().contactNumberController,
+          hintText: 'Contact number',
+          icon: Icons.phone_outlined,
+          delay: 200,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required int delay,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    VoidCallback? suffixIconOnPressed,
+  }) {
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 500 + delay),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, 20 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: TextFormField(
+                controller: controller,
+                obscureText: obscureText,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  prefixIcon: Icon(icon, color: blue),
+                  suffixIcon: suffixIcon != null
+                      ? IconButton(
+                          icon: suffixIcon,
+                          onPressed: suffixIconOnPressed,
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: blue, width: 2),
+                  ),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'This field is required';
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRoleSelection() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: DropdownButtonFormField<String>(
+        value: selectedRole,
+        decoration: InputDecoration(
+          labelText: "Select your role",
+          prefixIcon: Icon(Icons.work_outline, color: blue),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: blue, width: 2),
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+        items: ["Doctor", "Technician"].map((role) {
+          return DropdownMenuItem<String>(
+            value: role,
+            child: Text(role),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedRole = value;
+            currentStep = value != null ? 1 : 0;
+            if (value != "Doctor") {
+              selectedSpecializations.clear();
+              frontIdFileName = null;
+              backIdFileName = null;
+              frontIdFile = null;
+              backIdFile = null;
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildRoleSpecificFields() {
+    if (selectedRole == "Doctor") {
+      return _buildDoctorFields();
+    } else if (selectedRole == "Technician") {
+      return _buildTechnicianFields();
+    }
+    return SizedBox.shrink();
+  }
+
+  Widget _buildDoctorFields() {
+    return Column(
+      children: [
+        _buildModernSpecializationSelector(),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().firstNameController,
+                hintText: 'First name',
+                icon: Icons.person_outline,
+                delay: 300,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().lastNameController,
+                hintText: 'Last name',
+                icon: Icons.person_outline,
+                delay: 400,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        _buildModernIdPhotoUpload(
+          title: "Front ID Photo",
+          fileName: frontIdFileName,
+          onTap: _pickFrontIdImage,
+          onRemove: _removeFrontIdImage,
+          icon: Icons.credit_card,
+        ),
+        SizedBox(height: 16),
+        _buildModernIdPhotoUpload(
+          title: "Back ID Photo",
+          fileName: backIdFileName,
+          onTap: _pickBackIdImage,
+          onRemove: _removeBackIdImage,
+          icon: Icons.credit_card,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTechnicianFields() {
+    return Column(
+      children: [
+        _buildAnimatedTextField(
+          controller: context.read<RegisterCubit>().centerNameController,
+          hintText: "Medical center name",
+          icon: Icons.business_outlined,
+          delay: 300,
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().streetController,
+                hintText: 'Street address',
+                icon: Icons.location_on_outlined,
+                delay: 400,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().cityController,
+                hintText: 'City',
+                icon: Icons.location_city_outlined,
+                delay: 500,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().stateController,
+                hintText: 'State',
+                icon: Icons.map_outlined,
+                delay: 600,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildAnimatedTextField(
+                controller: context.read<RegisterCubit>().zipcodeController,
+                hintText: 'ZIP code',
+                icon: Icons.local_post_office_outlined,
+                delay: 700,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        _buildLicenseUpload(),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return _buildAnimatedTextField(
+      controller: context.read<RegisterCubit>().passwordController,
+      hintText: 'Create a strong password',
+      icon: Icons.lock_outline,
+      delay: 800,
+      obscureText:
+          BlocProvider.of<RegisterCubit>(context).isRegisterPasswordShowing,
+      suffixIcon: Icon(BlocProvider.of<RegisterCubit>(context).suffixIcon),
+      suffixIconOnPressed: () {
+        BlocProvider.of<RegisterCubit>(context)
+            .changeRegisterPasswordSuffixIcon();
+      },
+    );
+  }
+
+  Widget _buildTermsCheckbox() {
+    return Row(
+      children: [
+        Transform.scale(
+          scale: 1.2,
+          child: Checkbox(
+            value: isChecked,
+            onChanged: (bool? value) {
+              setState(() {
+                isChecked = value!;
+              });
+            },
+            activeColor: blue,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                isChecked = !isChecked;
+              });
+            },
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                children: [
+                  TextSpan(text: "I agree to the "),
+                  TextSpan(
+                    text: "Terms & Conditions",
+                    style: TextStyle(
+                      color: blue,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  TextSpan(text: " and "),
+                  TextSpan(
+                    text: "Privacy Policy",
+                    style: TextStyle(
+                      color: blue,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignUpButton(RegisterState state) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [blue, blue.withOpacity(0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: blue.withOpacity(0.3),
+            blurRadius: 15,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: state is RegisterLoading
+          ? Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              ),
+            )
+          : Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: _handleSignUp,
+                child: Center(
+                  child: Text(
+                    'Create Account',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildSignInLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Already have an account? ',
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 14,
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, SigninPage.id);
+          },
+          child: Text(
+            'Sign In',
+            style: TextStyle(
+              color: blue,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModernSpecializationSelector() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        color: Colors.white,
+      ),
+      child: ExpansionTile(
+        leading: Icon(Icons.medical_services, color: blue),
+        title: Text(
+          selectedSpecializations.isEmpty
+              ? "Select Specializations"
+              : "${selectedSpecializations.length} specialization(s) selected",
+          style: TextStyle(
+            fontSize: 16,
+            color: selectedSpecializations.isEmpty
+                ? Colors.grey.shade600
+                : Colors.black87,
+          ),
+        ),
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: availableSpecializations.map((specialization) {
+                final isSelected =
+                    selectedSpecializations.contains(specialization);
+                return Container(
+                  margin: EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: isSelected
+                        ? blue.withOpacity(0.1)
+                        : Colors.grey.shade50,
+                    border: Border.all(
+                      color: isSelected ? blue : Colors.grey.shade200,
+                    ),
+                  ),
+                  child: CheckboxListTile(
+                    title: Text(
+                      specialization,
+                      style: TextStyle(
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected ? blue : Colors.black87,
+                      ),
+                    ),
+                    value: isSelected,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value == true) {
+                          selectedSpecializations.add(specialization);
+                        } else {
+                          selectedSpecializations.remove(specialization);
+                        }
+                        if (selectedSpecializations.isNotEmpty) {
+                          currentStep = 2;
+                        }
+                      });
+                    },
+                    activeColor: blue,
+                    controlAffinity: ListTileControlAffinity.leading,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernIdPhotoUpload({
     required String title,
     required String? fileName,
     required VoidCallback onTap,
@@ -503,293 +903,265 @@ class _SignupPageState extends State<SignupPage> {
     final bool hasFile = fileName != null;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: hasFile ? blue : Colors.grey.shade300,
-              width: hasFile ? 2 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasFile
-                    ? blue.withOpacity(0.1)
-                    : Colors.grey.withOpacity(0.1),
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: hasFile ? blue.withOpacity(0.1) : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  hasFile ? Icons.check_circle : icon,
-                  color: hasFile ? blue : Colors.grey.shade600,
-                  size: 24,
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: hasFile ? blue : Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      hasFile ? fileName! : "Tap to upload image",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: hasFile
-                            ? Colors.green.shade700
-                            : Colors.grey.shade600,
-                        fontWeight:
-                            hasFile ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              if (hasFile)
-                GestureDetector(
-                  onTap: () {
-                    // Simply call onRemove without parameters
-                    onRemove();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.red.shade600,
-                      size: 20,
-                    ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: hasFile ? blue : Colors.grey.shade200,
+          width: hasFile ? 2 : 1,
+        ),
+        color: Colors.white,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color:
+                        hasFile ? blue.withOpacity(0.1) : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                )
-              else
-                Icon(
-                  Icons.cloud_upload_outlined,
-                  color: Colors.grey.shade400,
+                  child: Icon(
+                    hasFile ? Icons.check_circle : icon,
+                    color: hasFile ? blue : Colors.grey.shade500,
+                  ),
                 ),
-            ],
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: hasFile ? blue : Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        hasFile ? fileName! : "Tap to upload image",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: hasFile
+                              ? Colors.green.shade600
+                              : Colors.grey.shade500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (hasFile)
+                  IconButton(
+                    onPressed: onRemove,
+                    icon: Icon(Icons.close, color: Colors.red.shade400),
+                  )
+                else
+                  Icon(Icons.cloud_upload_outlined,
+                      color: Colors.grey.shade400),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSpecializationSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          padding: EdgeInsets.all(16),
+  Widget _buildLicenseUpload() {
+    return BlocBuilder<RegisterCubit, RegisterState>(
+      builder: (context, state) {
+        final hasLicense =
+            context.read<RegisterCubit>().licenseImageFile != null;
+        final fileName = hasLicense
+            ? context
+                .read<RegisterCubit>()
+                .licenseImageFile!
+                .path
+                .split(Platform.pathSeparator)
+                .last
+            : null;
+
+        return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hasLicense ? blue : Colors.grey.shade200,
+              width: hasLicense ? 2 : 1,
+            ),
             color: Colors.white,
           ),
-          child: Row(
-            children: [
-              Icon(Icons.medical_services, color: Colors.grey.shade600),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  selectedSpecializations.isEmpty
-                      ? "Select Specializations"
-                      : "${selectedSpecializations.length} specialization(s) selected",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: selectedSpecializations.isEmpty
-                        ? Colors.grey.shade600
-                        : Colors.black87,
-                  ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => context.read<RegisterCubit>().pickLicenseImage(),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: hasLicense
+                            ? blue.withOpacity(0.1)
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        hasLicense
+                            ? Icons.check_circle
+                            : Icons.verified_user_outlined,
+                        color: hasLicense ? blue : Colors.grey.shade500,
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Radiology Practice License",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: hasLicense ? blue : Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            hasLicense ? fileName! : "Upload license image",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: hasLicense
+                                  ? Colors.green.shade600
+                                  : Colors.grey.shade500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.cloud_upload_outlined,
+                      color: Colors.grey.shade400,
+                    ),
+                  ],
                 ),
               ),
-              Icon(Icons.medical_information, color: blue),
-            ],
+            ),
           ),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade200),
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.grey.shade50,
-          ),
-          child: Column(
-            children: availableSpecializations.map((specialization) {
-              final isSelected =
-                  selectedSpecializations.contains(specialization);
+        );
+      },
+    );
+  }
 
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: isSelected ? blue.withOpacity(0.1) : Colors.white,
-                  border: Border.all(
-                    color: isSelected ? blue : Colors.grey.shade300,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: blue.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: CheckboxListTile(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  title: Text(
-                    specialization,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? blue : Colors.black87,
-                      fontSize: 14,
-                    ),
-                  ),
-                  value: isSelected,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      if (value == true) {
-                        selectedSpecializations.add(specialization);
-                        print("Added: $specialization");
-                      } else {
-                        selectedSpecializations.remove(specialization);
-                        print("Removed: $specialization");
-                      }
-                      print(
-                          "Current Selected Specializations: $selectedSpecializations");
-                    });
-                  },
-                  activeColor: blue,
-                  checkColor: Colors.white,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        if (selectedSpecializations.isNotEmpty)
-          Container(
-            margin: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Selected Specializations:",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: blue,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: selectedSpecializations.map((specialization) {
-                    return Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            blue.withOpacity(0.1),
-                            blue.withOpacity(0.05)
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: blue.withOpacity(0.3)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: blue.withOpacity(0.1),
-                            blurRadius: 3,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 16,
-                            color: blue,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            specialization,
-                            style: TextStyle(
-                              color: blue,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedSpecializations.remove(specialization);
-                              });
-                              print("Removed from chips: $specialization");
-                              print(
-                                  "Updated Selected Specializations: $selectedSpecializations");
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: blue.withOpacity(0.2),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 12,
-                                color: blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+  void _handleSignUp() async {
+    if (!formKey.currentState!.validate()) return;
+
+    if (!isChecked) {
+      _showErrorSnackBar("Please accept the terms and conditions");
+      return;
+    }
+
+    if (selectedRole == null) {
+      _showErrorSnackBar("Please select your role");
+      return;
+    }
+
+    if (selectedRole == "Doctor") {
+      if (selectedSpecializations.isEmpty) {
+        _showErrorSnackBar("Please select at least one specialization");
+        return;
+      }
+      if (frontIdFileName == null) {
+        _showErrorSnackBar("Please upload front ID photo");
+        return;
+      }
+      if (backIdFileName == null) {
+        _showErrorSnackBar("Please upload back ID photo");
+        return;
+      }
+    }
+
+    if (selectedRole == "Technician") {
+      if (context.read<RegisterCubit>().licenseImageFile == null) {
+        _showErrorSnackBar("Please upload your practice license");
+        return;
+      }
+    }
+
+    final registerCubit = context.read<RegisterCubit>();
+    registerCubit.register(
+      selectedRole!,
+      specializations: selectedSpecializations,
+      frontIdImage: frontIdFile,
+      backIdImage: backIdFile,
+    );
+  }
+
+  void _showOtpDialog(OtpVerfication state) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.4,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: Offset(0, 10),
                 ),
               ],
             ),
+            child: VerifyOtpPage(
+              message: state.message,
+              role: selectedRole!,
+            ),
           ),
-      ],
+        );
+      },
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 4),
+      ),
     );
   }
 }

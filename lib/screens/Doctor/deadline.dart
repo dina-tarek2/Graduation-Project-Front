@@ -216,6 +216,7 @@ class DeadlineChecker {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          backgroundColor: Colors.white70,
           title: _buildAlertTitle(),
           content: _buildAlertContent(record, formattedDeadline, minutesRemaining),
           actions: _buildAlertActions(dialogContext, record),

@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/models/centers_model.dart';
 import 'dart:io';
-import 'package:graduation_project_frontend/constants/colors.dart';
 
 class CenterProfile extends StatefulWidget {
   final String centerId;
