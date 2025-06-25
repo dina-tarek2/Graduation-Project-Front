@@ -156,7 +156,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
     List<String> statusOptions = [
       "All",
       "Ready",
-      "Diagonize",
+      "Diagnose",
       "Completed",
       "Cancled"
     ];
@@ -422,7 +422,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
         DataCell(
           Switch(
             value: emergencyStates[record.id] ?? record.flag,
-            onChanged: record.status.toLowerCase() != "ready"
+            onChanged: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? null // يعطل السويتش لو الحالة Completed
                 : (val) {
                     setState(() {
@@ -434,10 +435,12 @@ class _DicomsListPageState extends State<DicomsListPage> {
                       {"flag": val.toString()},
                     );
                   },
-            activeColor: record.status.toLowerCase() != "ready"
+            activeColor: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? Colors.grey[400]
                 : Colors.red[700],
-            activeTrackColor: record.status.toLowerCase() != "ready"
+            activeTrackColor: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? Colors.grey[200]
                 : Colors.red[100],
             inactiveThumbColor: Colors.grey[400],
@@ -445,7 +448,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             splashRadius: 20,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-              if (record.status.toLowerCase() != "ready") {
+              if (record.status.toLowerCase() == "completed" ||
+                  record.status.toLowerCase() == "canceled") {
                 return Colors.grey[200]!;
               }
               if (states.contains(WidgetState.selected)) {
@@ -455,7 +459,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             }),
             trackOutlineColor:
                 WidgetStateProperty.resolveWith<Color?>((states) {
-              if (record.status.toLowerCase() != "ready") {
+              if (record.status.toLowerCase() == "completed" ||
+                  record.status.toLowerCase() == "canceled") {
                 return Colors.grey[200];
               }
               if (states.contains(WidgetState.selected)) {
@@ -661,7 +666,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
     switch (status.toLowerCase()) {
       case "ready":
         return Colors.green;
-      case "diagonize":
+      case "diagnose":
         return Colors.orange;
       case "completed":
         return Colors.blue;
@@ -961,8 +966,10 @@ class _DicomsListPageState extends State<DicomsListPage> {
                     Navigator.of(context).pop();
                     // Call the reassign function
                     final userId = context.read<CenterCubit>().state;
-                    context.read<UploadedDicomsCubit>().reassign(record.id,userId);
-                    
+                    context
+                        .read<UploadedDicomsCubit>()
+                        .reassign(record.id, userId);
+
                     // context
                     //     .read<UploadedDicomsCubit>()
                     //     .fetchUploadedDicoms(userId);
