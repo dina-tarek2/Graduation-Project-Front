@@ -118,93 +118,93 @@ class _RecordsListPageState extends State<RecordsListPage>
     );
   }
 
-  Widget _buildFilterSection() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
+Widget _buildFilterSection() {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.2),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
         ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width *
-                  0.4, // controls search width
-              child: _buildSearchBox(),
-            ),
-            const SizedBox(width: 200),
-            _buildStatusFilterChips(),
-          ],
+      ],
+    ),
+    child: Row(
+      children: [
+        // Search box takes remaining space before filter buttons
+        Expanded(
+          child: _buildSearchBox(),
         ),
-      ),
-    );
-  }
+        const SizedBox(width: 12),
+        // Filter chips fill the rest of the row, scrollable
+        Flexible(
+          flex: 0,
+          child: _buildStatusFilterChips(),
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildSearchBox() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+
+Widget _buildSearchBox() {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: TextField(
+      decoration: InputDecoration(
+        hintText: "Search by Name",
+        prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
       ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: "Search by Name",
-          prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
-        ),
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value.toLowerCase();
-          });
+      onChanged: (value) {
+        setState(() {
+          searchQuery = value.toLowerCase();
+        });
+      },
+    ),
+  );
+}
+
+Widget _buildStatusFilterChips() {
+  List<String> statusOptions = ["All", "Diagnose", "Completed", "Canceled"];
+
+  return Wrap(
+    spacing: 8.0,
+    runSpacing: 8.0,
+    children: statusOptions.map((status) {
+      return ChoiceChip(
+        label: Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
+        selected: selectedStatus == status,
+        onSelected: (isSelected) {
+          if (isSelected) {
+            setState(() {
+              selectedStatus = status;
+            });
+          }
         },
-      ),
-    );
-  }
+        selectedColor: _getStatusColor(status).withOpacity(0.8),
+        backgroundColor: Colors.grey[300],
+        labelStyle: TextStyle(
+          color: selectedStatus == status ? Colors.white : Colors.black87,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      );
+    }).toList(),
+  );
+}
 
-  Widget _buildStatusFilterChips() {
-<<<<<<< HEAD
 
-    List<String> statusOptions = ["All", "Diagnose", "Completed", "Cancled"];
-=======
-    List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
->>>>>>> 377cc5fb8b50c116a15bc2d30cb17fc263d8ee63
-    return Wrap(
-      spacing: 8,
-      children: statusOptions.map((status) {
-        return ChoiceChip(
-          label:
-              Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
-          selected: selectedStatus == status,
-          onSelected: (isSelected) {
-            if (isSelected) {
-              setState(() {
-                selectedStatus = status;
-              });
-            }
-          },
-          selectedColor: _getStatusColor(status).withValues(alpha: 0.8),
-          backgroundColor: Colors.grey[300],
-          labelStyle: TextStyle(
-            color: selectedStatus == status ? Colors.white : Colors.black87,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        );
-      }).toList(),
-    );
-  }
+
 
   Widget _buildRecordsTable() {
     return BlocConsumer<RecordsListCubit, RecordsListState>(

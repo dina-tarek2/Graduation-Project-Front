@@ -216,7 +216,7 @@ class _SigninPageState extends State<SigninPage> with TickerProviderStateMixin {
                       ),
                     ),
                     Text(
-                      "AI Radiology",
+                      "Radintal",
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,

@@ -5,11 +5,9 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus
-  emoji_picker_flutter
   file_selector_windows
   flutter_inappwebview_windows
   record_windows
-  rive_common
   url_launcher_windows
   webview_windows
 )
