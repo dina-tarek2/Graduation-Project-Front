@@ -16,7 +16,8 @@ class NewDicomPage extends StatefulWidget {
   _NewDicomPageState createState() => _NewDicomPageState();
 }
 
-class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMixin {
+class _NewDicomPageState extends State<NewDicomPage>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -30,7 +31,7 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    
+
     final userId = context.read<CenterCubit>().state;
     context.read<RecordsListCubit>().fetchRecords(userId);
     _animationController.forward();
@@ -353,7 +354,7 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
         ),
         boxShadow: [
           BoxShadow(
-            color: isEmergency 
+            color: isEmergency
                 ? Colors.red.withOpacity(0.15)
                 : Colors.black.withOpacity(0.08),
             blurRadius: 20,
@@ -366,7 +367,7 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
           ),
         ],
         border: Border.all(
-          color: isEmergency 
+          color: isEmergency
               ? Colors.red.shade200
               : const Color(0xFF62B6CB).withOpacity(0.3),
           width: 1.5,
@@ -530,20 +531,21 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
     );
   }
 
-  Widget _buildTimeInfo(int hours, int minutes, bool isOverdue, bool isEmergency) {
+  Widget _buildTimeInfo(
+      int hours, int minutes, bool isOverdue, bool isEmergency) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isOverdue 
+        color: isOverdue
             ? Colors.red.shade50
-            : isEmergency 
+            : isEmergency
                 ? Colors.orange.shade50
                 : Colors.green.shade50,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isOverdue 
+          color: isOverdue
               ? Colors.red.shade200
-              : isEmergency 
+              : isEmergency
                   ? Colors.orange.shade200
                   : Colors.green.shade200,
         ),
@@ -553,18 +555,18 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isOverdue 
+              color: isOverdue
                   ? Colors.red.shade100
-                  : isEmergency 
+                  : isEmergency
                       ? Colors.orange.shade100
                       : Colors.green.shade100,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               isOverdue ? Icons.schedule : Icons.timer_outlined,
-              color: isOverdue 
+              color: isOverdue
                   ? Colors.red.shade600
-                  : isEmergency 
+                  : isEmergency
                       ? Colors.orange.shade600
                       : Colors.green.shade600,
               size: 20,
@@ -579,9 +581,8 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
                   isOverdue ? "Overdue" : "Deadline",
                   style: TextStyle(
                     fontSize: 12,
-                    color: isOverdue 
-                        ? Colors.red.shade600
-                        : Colors.grey.shade600,
+                    color:
+                        isOverdue ? Colors.red.shade600 : Colors.grey.shade600,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -593,7 +594,7 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: isOverdue 
+                    color: isOverdue
                         ? Colors.red.shade700
                         : const Color(0xFF081C34),
                   ),
@@ -613,7 +614,8 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
           children: [
             Expanded(
               child: _buildGradientButton(
-                onPressed: () => context.read<RecordsListCubit>().approveRecord(record.id),
+                onPressed: () =>
+                    context.read<RecordsListCubit>().approveRecord(record.id),
                 icon: Icons.check_circle_outline,
                 label: "Approve",
                 colors: [const Color(0xFF081C34), const Color(0xFF0F2344)],
@@ -623,7 +625,8 @@ class _NewDicomPageState extends State<NewDicomPage> with TickerProviderStateMix
             const SizedBox(width: 12),
             Expanded(
               child: _buildGradientButton(
-                onPressed: () => context.read<RecordsListCubit>().cancelRecord(record.id),
+                onPressed: () =>
+                    context.read<RecordsListCubit>().cancelRecord(record.id),
                 icon: Icons.cancel_outlined,
                 label: "Reject",
                 colors: [Colors.red.shade400, Colors.red.shade500],

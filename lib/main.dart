@@ -173,7 +173,7 @@ class MyApp extends StatelessWidget {
               userId: context.read<CenterCubit>().state,
               userType: context.read<UserCubit>().state,
             ),
-        SettingPage.id: (context) => SettingPage(role: context.read<UserCubit>().state),
+        SettingsPage.id: (context) => SettingsPage(role: context.read<UserCubit>().state),
         // MainScaffold.id :(context) => MainScaffold(),
 
         //doctor

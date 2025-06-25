@@ -88,7 +88,7 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
-        SettingPage(
+        SettingsPage(
           role: widget.role,
         ),
       ];
@@ -104,7 +104,7 @@ class MainScaffoldState extends State<MainScaffold> {
           userType: context.read<UserCubit>().state,
         ),
         AboutUsPage(),
-        SettingPage(
+        SettingsPage(
           role: widget.role,
           
         ),
