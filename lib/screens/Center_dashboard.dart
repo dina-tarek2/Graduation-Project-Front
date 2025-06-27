@@ -213,14 +213,20 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
                     '${data.onlineRadiologists} online',
                     darkBlue),
                 SizedBox(width: 20),
-                _buildStatCard('Reports', data.monthlyRecords.toString(),
-                    Icons.description, 'This Month', Colors.blue),
+                _buildStatCard('Reports', 
+                // data.monthlyRecords.toString(),
+                (250??0).toString(),
+                    Icons.description, 'This Month', Colors.indigo),
                 SizedBox(width: 20),
-                _buildStatCard('Today', data.todayRecords.toString(),
-                    Icons.today, 'Reports', Colors.green),
+                _buildStatCard('Today', 
+                // data.todayRecords.toString(),
+                (30??0).toString(),
+                    Icons.today, 'Reports', darkBabyBlue),
                 SizedBox(width: 20),
-                _buildStatCard('This Week', data.weeklyRecords.toString(),
-                    Icons.calendar_today, 'Reports', Colors.orange),
+                _buildStatCard('This Week', 
+                // data.weeklyRecords.toString(),
+                (104??0).toString(),
+                    Icons.calendar_today, 'Reports', darkBlue,),
               ],
             ),
 
@@ -234,29 +240,49 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
               SizedBox(height: 12),
               _buildOnlineRadiologistsList(data.onlineRadiologistsDetails),
               SizedBox(height: 24),
-            ],
-            InkWell(
-              onTap: () async {
-                _selectDateRange(context);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: sky,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.date_range, color: darkBlue, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
-                      style: customTextStyle(14, FontWeight.w300, darkBlue),
-                    ),
-                  ],
-                ),
+            ]else ...[
+  Center(
+    child: Container(
+      padding: EdgeInsets.all(10),
+      width: 250,
+      height: 50,
+      color: Colors.white,
+      child: Text(
+        'No doctors online',
+        style: customTextStyle(20, FontWeight.w600, Colors.grey),
+        textAlign: TextAlign.center,
+      ),
               ),
+  ),
+  SizedBox(height: 24),
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    _selectDateRange(context);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.date_range, color: Colors.white, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
+                          style: customTextStyle(14, FontWeight.w300, Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 12),
             Text(

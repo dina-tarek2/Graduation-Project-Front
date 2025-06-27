@@ -72,12 +72,12 @@ class DoctorAvgTimeWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           Stack(
             alignment: Alignment.center,
             children: [
               SizedBox(
-                height: 120,
+                height: 200,
                 child: SizedBox(
                   width: double.infinity,
                   child: PieChart(

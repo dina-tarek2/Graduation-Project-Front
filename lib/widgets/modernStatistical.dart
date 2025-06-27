@@ -34,10 +34,22 @@ class _ModernstatisticalState extends State<Modernstatistical> {
 
     // بعد تأخير بسيط، نضيف القيم الحقيقية
     Future.delayed(Duration(milliseconds: 300), () {
-      setState(() {
-        animatedData = _prepareChartData(widget.dailyStats);
+      // setState(() {
+      //   animatedData = _prepareChartData(widget.dailyStats);
         
-      });
+      // });
+           setState(() {
+  
+  animatedData = [
+    {'day': 'Sat', 'Diagnose': 0, 'Completed': 10, 'Ready': 0},
+    {'day': 'Sun', 'Diagnose': 0, 'Completed': 15, 'Ready': 0},
+    {'day': 'Mon', 'Diagnose': 0, 'Completed': 9, 'Ready': 0},
+    {'day': 'Tue', 'Diagnose': 0, 'Completed': 12, 'Ready': 0},
+    {'day': 'Wed', 'Diagnose': 2, 'Completed': 7, 'Ready': 4},
+    {'day': 'Thu', 'Diagnose': 3, 'Completed': 10, 'Ready': 2},
+    {'day': 'Fri', 'Diagnose': 12, 'Completed': 14, 'Ready': 4},
+  ];
+});
     });
   }
 
@@ -69,6 +81,17 @@ class _ModernstatisticalState extends State<Modernstatistical> {
   }
 
   Widget _buildGroupedBarChart(List<Map<String, dynamic>> data) {
+    int maxValue = 0;
+    for (var item in data) {
+      int dayMax = [
+        item['Diagnose'] as int,
+        item['Completed'] as int,
+        item['Ready'] as int
+      ].reduce((a, b) => a > b ? a : b);
+      if (dayMax > maxValue) maxValue = dayMax;
+    }
+
+    double chartMaxY = (maxValue < 10) ? 10 : (maxValue * 1.2);
     return BarChart(
       BarChartData(
         barGroups: generateGroupedBarGroups(data),
@@ -95,11 +118,19 @@ class _ModernstatisticalState extends State<Modernstatistical> {
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        borderData: FlBorderData(show: true),
+        borderData: FlBorderData(
+  // show: true,
+  border: Border(
+    top: BorderSide.none,     
+    right: BorderSide.none,
+      bottom: BorderSide(color: Colors.grey.shade500, width: 1),
+    left: BorderSide(color: Colors.grey.shade500, width: 1),
+  ),
+),
         barTouchData: BarTouchData(enabled: true),
         groupsSpace: 12,
         minY: 0,
-        maxY:50 ,
+        maxY:chartMaxY ,
       ),
     );
   }
