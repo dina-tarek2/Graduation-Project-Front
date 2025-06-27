@@ -19,7 +19,9 @@ import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/new_dicom_page.dart';
 import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
 import 'package:graduation_project_frontend/screens/aboutUs.dart';
+import 'package:graduation_project_frontend/screens/privacy_policy_page.dart';
 import 'package:graduation_project_frontend/screens/splashScreen.dart';
+import 'package:graduation_project_frontend/screens/terms_conditions_page.dart';
 import 'package:graduation_project_frontend/screens/welcomePage.dart';
 import 'package:graduation_project_frontend/widgets/DoctorReportsChart.dart';
 // Cubits
@@ -55,7 +57,6 @@ import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart
 
 import 'cubit/setting_cubit.dart';
 import 'screens/SettingPage.dart';
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); //-
@@ -135,9 +136,8 @@ void main() {
         BlocProvider(create: (context) => DoctorCubit(DioConsumer(dio: Dio()))),
         BlocProvider(
             create: (context) => NotificationCubit(DioConsumer(dio: Dio()))),
-            BlocProvider(
-  create: (context) => DoctorHomeCubit(DioConsumer(dio: Dio()))),
-
+        BlocProvider(
+            create: (context) => DoctorHomeCubit(DioConsumer(dio: Dio()))),
       ],
       child: MyApp(), // Use MyApp instead of an empty Container
     ),
@@ -173,7 +173,9 @@ class MyApp extends StatelessWidget {
               userId: context.read<CenterCubit>().state,
               userType: context.read<UserCubit>().state,
             ),
-        SettingsPage.id: (context) => SettingsPage(role: context.read<UserCubit>().state),
+        SettingsPage.id: (context) => SettingsPage(
+            role: context.read<UserCubit>().state,
+            centerId: context.read<CenterCubit>().state),
         // MainScaffold.id :(context) => MainScaffold(),
 
         //doctor
@@ -211,7 +213,9 @@ class MyApp extends StatelessWidget {
         AboutUsPage.id: (context) => AboutUsPage(),
         DoctorAvgTimeWidget.id: (context) => DoctorAvgTimeWidget(
               avgMinutes: 20,
-            )
+            ),
+        PrivacyPolicyPage.id: (context) => const PrivacyPolicyPage(),
+        TermsConditionsPage.id: (context) => const TermsConditionsPage(),
       },
     );
   }
