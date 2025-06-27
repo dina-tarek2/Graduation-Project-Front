@@ -532,7 +532,7 @@ class _ManageDoctorsPageState extends State<ManageDoctorsPage> {
                 ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: () {
-                    _showAddDoctorDialogByEmail(context);
+                    _showAddDoctorDialog(context);
                   },
                   tooltip: "Add New Doctor",
                   backgroundColor: blue,

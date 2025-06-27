@@ -750,7 +750,11 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+          MaterialPageRoute(
+            builder: (_) => MainScaffold.fromString(
+              role:role.toString(),
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -1056,7 +1060,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => MainScaffold(role: role)),
+                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
                             );
                             return;
                           }
@@ -1074,7 +1078,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => MainScaffold(role: role)),
+                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
                             );
                           } catch (e) {
                             setState(() {
@@ -1174,7 +1178,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => MainScaffold(role: role)),
+                          builder: (_) => MainScaffold.fromString(role: role.toString())),
                     );
                   }
                 } catch (e) {

@@ -111,7 +111,7 @@ class _SigninPageState extends State<SigninPage> with TickerProviderStateMixin {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => MainScaffold(role: state.role),
+                builder: (context) => MainScaffold.fromString(role: state.role.toString()),
               ),
             );
           } else if (state is LoginError) {

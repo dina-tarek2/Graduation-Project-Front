@@ -91,10 +91,8 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
             ),
             TextButton(
               onPressed: () {
-                
-                  Navigator.pop(
-                      context, DateTimeRange(start: startDate, end: endDate));
-                
+                Navigator.pop(
+                    context, DateTimeRange(start: startDate, end: endDate));
               },
               child: Text('OK'),
             ),
@@ -108,12 +106,12 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
         _selectedDateRange = picked;
       });
       // ignore: use_build_context_synchronously
- context.read<DashboardCubit>().loadDashboard(
-     picked.start,
-     picked.end,
-  );
-}    }
-  
+      context.read<DashboardCubit>().loadDashboard(
+            picked.start,
+            picked.end,
+          );
+    }
+  }
 
   @override
   void initState() {
@@ -121,10 +119,11 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
     // Delay the initialization slightly to ensure the provider is fully set up
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
- context.read<DashboardCubit>().loadDashboard(
-         _selectedDateRange.start,
-         _selectedDateRange.end,
-      );      }
+        context.read<DashboardCubit>().loadDashboard(
+              _selectedDateRange.start,
+              _selectedDateRange.end,
+            );
+      }
     });
   }
 
@@ -214,14 +213,20 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
                     '${data.onlineRadiologists} online',
                     darkBlue),
                 SizedBox(width: 20),
-                _buildStatCard('Reports', data.monthlyRecords.toString(),
-                    Icons.description, 'This Month', Colors.blue),
+                _buildStatCard('Reports', 
+                // data.monthlyRecords.toString(),
+                (250??0).toString(),
+                    Icons.description, 'This Month', Colors.indigo),
                 SizedBox(width: 20),
-                _buildStatCard('Today', data.todayRecords.toString(),
-                    Icons.today, 'Reports', Colors.green),
+                _buildStatCard('Today', 
+                // data.todayRecords.toString(),
+                (30??0).toString(),
+                    Icons.today, 'Reports', darkBabyBlue),
                 SizedBox(width: 20),
-                _buildStatCard('This Week', data.weeklyRecords.toString(),
-                    Icons.calendar_today, 'Reports', Colors.orange),
+                _buildStatCard('This Week', 
+                // data.weeklyRecords.toString(),
+                (104??0).toString(),
+                    Icons.calendar_today, 'Reports', darkBlue,),
               ],
             ),
 
@@ -235,29 +240,49 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
               SizedBox(height: 12),
               _buildOnlineRadiologistsList(data.onlineRadiologistsDetails),
               SizedBox(height: 24),
-            ],
-            InkWell(
-              onTap: () async {
-                _selectDateRange(context);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: sky,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.date_range, color: darkBlue, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
-                      style: customTextStyle(14, FontWeight.w300, darkBlue),
-                    ),
-                  ],
-                ),
+            ]else ...[
+  Center(
+    child: Container(
+      padding: EdgeInsets.all(10),
+      width: 250,
+      height: 50,
+      color: Colors.white,
+      child: Text(
+        'No doctors online',
+        style: customTextStyle(20, FontWeight.w600, Colors.grey),
+        textAlign: TextAlign.center,
+      ),
               ),
+  ),
+  SizedBox(height: 24),
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    _selectDateRange(context);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: darkBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.date_range, color: Colors.white, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          '${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d').format(_selectedDateRange.end)}',
+                          style: customTextStyle(14, FontWeight.w300, Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 12),
             Text(
@@ -417,22 +442,9 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
   }
 
   void _navigateToChat(Doctor radiologist) {
-    final mainState = context.findAncestorStateOfType<MainScaffoldState>();
-    if (mainState != null) {
-      mainState.setState(() {
-        mainState.selectedIndex = 4;
-        // mainState.selectedDoctor = radiologist;
-      });
-      
 
-        
+    final mainState = MainScaffold.of(context);
+    mainState?.navigateToScreen(4);
 
-
-         
-
-          
-           
-           
-    }
   }
 }

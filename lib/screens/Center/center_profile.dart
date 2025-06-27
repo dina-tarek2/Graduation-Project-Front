@@ -15,7 +15,8 @@ class CenterProfile extends StatefulWidget {
   _CenterProfileState createState() => _CenterProfileState();
 }
 
-class _CenterProfileState extends State<CenterProfile> with TickerProviderStateMixin {
+class _CenterProfileState extends State<CenterProfile>
+    with TickerProviderStateMixin {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   late AnimationController _animationController;
@@ -88,26 +89,27 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
           flexibleSpace: FlexibleSpaceBar(
             background: _buildHeroSection(center),
           ),
-          leading: Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1E293B)),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+          // leading: Container(
+          //   margin: const EdgeInsets.all(8),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withOpacity(0.9),
+          //     borderRadius: BorderRadius.circular(12),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Colors.black.withOpacity(0.1),
+          //         blurRadius: 8,
+          //         offset: const Offset(0, 2),
+          //       ),
+          //     ],
+          //   ),
+          //   child: IconButton(
+          //     icon: const Icon(Icons.arrow_back_ios_new,
+          //         color: Color(0xFF1E293B)),
+          //     onPressed: () => Navigator.pop(context),
+          //   ),
+          // ),
         ),
-        
+
         // Profile Content
         SliverToBoxAdapter(
           child: FadeTransition(
@@ -134,7 +136,6 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
       ),
       child: Stack(
         children: [
-          // Decorative elements
           Positioned(
             top: -50,
             right: -50,
@@ -159,16 +160,16 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
               ),
             ),
           ),
-          
+
           // Profile content
           Positioned(
-            bottom: 40,
+            bottom: 25,
             left: 0,
             right: 0,
             child: Column(
               children: [
                 _buildProfileAvatar(center),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
                   center.centerName,
                   style: const TextStyle(
@@ -304,11 +305,11 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
           // ID Card
           _buildIdCard(center),
           const SizedBox(height: 20),
-          
+
           // Information Cards
           _buildInfoCard(center),
           const SizedBox(height: 20),
-          
+
           // Address Card
           _buildAddressCard(center),
         ],
@@ -663,8 +664,9 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
   }
 
   void _showEditDialog(String title, String currentValue, String fieldKey) {
-    TextEditingController controller = TextEditingController(text: currentValue);
-    
+    TextEditingController controller =
+        TextEditingController(text: currentValue);
+
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
@@ -692,7 +694,8 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF081C34), width: 2),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF081C34), width: 2),
                   ),
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -840,7 +843,7 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDestructive 
+          color: isDestructive
               ? const Color(0xFFEF4444).withOpacity(0.1)
               : const Color(0xFF081C34).withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -849,7 +852,9 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
           children: [
             Icon(
               icon,
-              color: isDestructive ? const Color(0xFFEF4444) : const Color(0xFF081C34),
+              color: isDestructive
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF081C34),
               size: 32,
             ),
             const SizedBox(height: 8),
@@ -858,7 +863,9 @@ class _CenterProfileState extends State<CenterProfile> with TickerProviderStateM
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDestructive ? const Color(0xFFEF4444) : const Color(0xFF1E293B),
+                color: isDestructive
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFF1E293B),
               ),
             ),
           ],

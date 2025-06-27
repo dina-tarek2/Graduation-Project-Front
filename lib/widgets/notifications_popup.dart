@@ -181,20 +181,21 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                                 }
                                 if(n.type=='massage'){
                                 Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (_) => MainScaffold(
-                                      role: context.read<UserCubit>().state,
-                                      index: 4,
+                                 MaterialPageRoute(
+                                      builder: (_) => MainScaffold.fromString(
+                                        role: context.read<UserCubit>().state.toString(),
+                                        initialIndex: 4,
+                                      ),
                                     ),
-                                  ),
                                 );
                               }else if(n.type=='study'){
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder: (_) => MainScaffold(
-                                      role: context.read<UserCubit>().state,
-                                      index: 1,
-                                    ),
+                                     builder: (_) => MainScaffold.fromString(
+                                        role: context.read<UserCubit>().state
+                                            .toString(),
+                                        initialIndex: 1,
+                                      ),
                                   ),
                                 );
                               }
@@ -237,9 +238,9 @@ class _NotificationsPopupState extends State<NotificationsPopup> {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (_) => MainScaffold(
-                          role: context.read<UserCubit>().state,
-                          index: 11,
+                         builder: (_) => MainScaffold.fromString(
+                          role: context.read<UserCubit>().state.toString(),
+                          initialIndex: 11,
                         ),
                       ),
                     );

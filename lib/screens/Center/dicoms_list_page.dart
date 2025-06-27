@@ -35,6 +35,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
   Map<String, bool> emergencyStates = {};
 
   bool cancelflag = false;
+  bool ShowAction = true;
 
   Timer? _timer;
 
@@ -309,6 +310,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SingleChildScrollView( // يسمح بالتمرير العمودي للجدول بأكمله
               scrollDirection: Axis.vertical,
+
               child: LayoutBuilder( // إضافة LayoutBuilder هنا
                 builder: (context, constraints) {
                   return SingleChildScrollView( // يسمح بالتمرير الأفقي لـ DataTable
@@ -340,6 +342,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                     ),
                   );
                 }
+
               ),
             ),
           );

@@ -20,6 +20,22 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   // Settings state
   final _settingsNotifier = _SettingsNotifier();
+  double centerWalletBalance = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.role == "RadiologyCenter") {
+      _fetchCenterWalletBalance();
+    }
+  }
+
+  void _fetchCenterWalletBalance() async {
+    // مثال: Replace with actual API call
+    setState(() {
+      centerWalletBalance = 1200.00; // القيمة التي تأتي من API
+    });
+  }
 
   @override
   void dispose() {
@@ -31,7 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    String _normalUnit = 'Hours'; //
     return Scaffold(
       body: ValueListenableBuilder<_SettingsState>(
         valueListenable: _settingsNotifier,
@@ -68,29 +84,68 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                   _SettingsSection(
-                    title: 'Appearance',
-                    children: [
-                      _SettingsTile.switchTile(
-                        icon: Icons.dark_mode_outlined,
-                        title: 'Dark Mode',
-                        subtitle: 'Use dark theme',
-                        value: settings.darkTheme,
-                        onChanged: (value) =>
-                            _settingsNotifier.updateTheme(value),
-                      ),
-                      _SettingsTile.dropdownTile(
-                        icon: Icons.language_outlined,
-                        title: 'Language',
-                        value: settings.language,
-                        items: const ['English', 'Arabic', 'French', 'Spanish'],
-                        onChanged: (value) =>
-                            _settingsNotifier.updateLanguage(value),
-                      ),
-                    ],
-                  ),
-                  _SettingsSection(
                     title: 'Account',
                     children: [
+                      if (widget.role == "RadiologyCenter") ...[
+                        _SettingsTile.infoTile(
+                          icon: Icons.account_balance_wallet_outlined,
+                          title: 'Wallet Balance',
+                          value:
+                              'EGP ${centerWalletBalance.toStringAsFixed(2)}',
+                        ),
+                        _SettingsTile.navigationTile(
+                          icon: Icons.add_card_outlined,
+                          title: 'Recharge Wallet',
+                          onTap: () => _showRechargeDialog(context),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.timer_outlined),
+                            const SizedBox(width: 12),
+                            const Text("Normal Deadline"),
+                            const Spacer(),
+                            DropdownButton<String>(
+                              value: _normalUnit,
+                              items: ['Hours', 'Days']
+                                  .map((e) => DropdownMenuItem(
+                                      value: e, child: Text(e)))
+                                  .toList(),
+                              onChanged: (val) {
+                                setState(() {
+                                  _normalUnit = val!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        _SettingsTile.sliderTile(
+                          icon: Icons.access_time_outlined,
+                          title: _normalUnit == 'Hours' ? 'Hours' : 'Days',
+                          value: _normalUnit == 'Hours'
+                              ? settings.normalDeadline.toDouble()
+                              : settings.normalDeadlineDays.toDouble(),
+                          min: 1,
+                          max: _normalUnit == 'Hours' ? 48 : 10,
+                          onChanged: (value) {
+                            if (_normalUnit == 'Hours') {
+                              _settingsNotifier
+                                  .updateNormalDeadline(value.toInt());
+                            } else {
+                              _settingsNotifier
+                                  .updateNormalDeadlineDays(value.toInt());
+                            }
+                          },
+                        ),
+                        _SettingsTile.sliderTile(
+                          icon: Icons.local_fire_department_outlined,
+                          title: 'Emergency Deadline (hrs)',
+                          value: settings.emergencyDeadline.toDouble(),
+                          min: 1,
+                          max: 24,
+                          onChanged: (value) => _settingsNotifier
+                              .updateEmergencyDeadline(value.toInt()),
+                        ),
+                      ],
                       _SettingsTile.navigationTile(
                         icon: Icons.lock_outline,
                         title: 'Change Password',
@@ -138,6 +193,46 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _openTerms() {
     // Implement terms opening
+  }
+  void _showRechargeDialog(BuildContext context) {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Recharge Wallet'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Amount to Recharge',
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: const Text('Recharge'),
+            onPressed: () {
+              final amount = double.tryParse(controller.text);
+              if (amount != null && amount > 0) {
+                _rechargeWallet(amount);
+                Navigator.pop(context);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _rechargeWallet(double amount) async {
+    // Example: Replace with API logic
+    setState(() {
+      centerWalletBalance += amount;
+    });
   }
 }
 
@@ -246,7 +341,10 @@ class _ProfileHeader extends StatelessWidget {
     return FilledButton.tonalIcon(
       onPressed: () => Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => MainScaffold(role: role, index: 10),
+          builder: (_) => MainScaffold.fromString(
+            role: role.toString(),
+            initialIndex: 10,
+          ),
         ),
       ),
       icon: const Icon(Icons.edit_outlined, size: 18),
@@ -337,16 +435,22 @@ class _SettingsTile extends StatelessWidget {
     required IconData icon,
     required String title,
     required double value,
-    bool enabled = true,
     required ValueChanged<double> onChanged,
+    bool enabled = true,
+    double min = 0,
+    double max = 1,
   }) {
     return _SettingsTile(
       icon: icon,
       title: title,
       trailing: SizedBox(
-        width: 150,
+        width: 200,
         child: Slider.adaptive(
           value: value,
+          min: min,
+          max: max,
+          divisions: (max - min).toInt(),
+          label: value.toInt().toString(),
           onChanged: enabled ? onChanged : null,
         ),
       ),
@@ -453,8 +557,9 @@ class _SettingsState {
   final bool locationAccess;
   final bool autoUpdate;
   final String language;
-  final bool analyticsEnabled;
-  final bool biometricEnabled;
+  final int normalDeadline;
+  final int normalDeadlineDays;
+  final int emergencyDeadline;
 
   const _SettingsState({
     this.notificationsEnabled = true,
@@ -463,8 +568,9 @@ class _SettingsState {
     this.locationAccess = true,
     this.autoUpdate = false,
     this.language = 'English',
-    this.analyticsEnabled = true,
-    this.biometricEnabled = false,
+    this.normalDeadline = 24,
+    this.normalDeadlineDays = 2,
+    this.emergencyDeadline = 6,
   });
 
   _SettingsState copyWith({
@@ -476,6 +582,9 @@ class _SettingsState {
     String? language,
     bool? analyticsEnabled,
     bool? biometricEnabled,
+    int? normalDeadline,
+    int? normalDeadlineDays,
+    int? emergencyDeadline,
   }) {
     return _SettingsState(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -484,8 +593,8 @@ class _SettingsState {
       locationAccess: locationAccess ?? this.locationAccess,
       autoUpdate: autoUpdate ?? this.autoUpdate,
       language: language ?? this.language,
-      analyticsEnabled: analyticsEnabled ?? this.analyticsEnabled,
-      biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      normalDeadline: normalDeadline ?? this.normalDeadline,
+      emergencyDeadline: emergencyDeadline ?? this.emergencyDeadline,
     );
   }
 }
@@ -495,6 +604,18 @@ class _SettingsNotifier extends ValueNotifier<_SettingsState> {
 
   void updateNotifications(bool enabled) {
     value = value.copyWith(notificationsEnabled: enabled);
+  }
+
+  void updateNormalDeadline(int hours) {
+    value = value.copyWith(normalDeadline: hours);
+  }
+
+  void updateNormalDeadlineDays(int days) {
+    value = value.copyWith(normalDeadlineDays: days);
+  }
+
+  void updateEmergencyDeadline(int hours) {
+    value = value.copyWith(emergencyDeadline: hours);
   }
 
   void updateVolume(double volume) {

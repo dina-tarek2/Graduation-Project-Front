@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
@@ -95,27 +96,26 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
           flexibleSpace: FlexibleSpaceBar(
             background: _buildHeroSection(doctor),
           ),
-          leading: Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1E293B)),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+          // leading: Container(
+          //   margin: const EdgeInsets.all(8),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withOpacity(0.9),
+          //     borderRadius: BorderRadius.circular(12),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Colors.black.withOpacity(0.1),
+          //         blurRadius: 8,
+          //         offset: const Offset(0, 2),
+          //       ),
+          //     ],
+          //   ),
+          //   child: IconButton(
+              
+          //   ),
+          // ),
         ),
         
-        // Profile Content with a fade-in animation.
+        // // Profile Content with a fade-in animation.
         SliverToBoxAdapter(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -170,13 +170,13 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
           
           // Centered profile information.
           Positioned(
-            bottom: 40,
+            bottom: 25,
             left: 0,
             right: 0,
             child: Column(
               children: [
                 _buildProfileAvatar(doctor),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Text(
                   "${doctor.firstName} ${doctor.lastName}",
                   style: const TextStyle(
