@@ -423,6 +423,16 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
         mainState.selectedIndex = 4;
         // mainState.selectedDoctor = radiologist;
       });
+      
+
+        
+
+
+         
+
+          
+           
+           
     }
   }
 }

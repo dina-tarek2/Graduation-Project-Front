@@ -709,9 +709,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             const SizedBox(height: 20),
             if (total > 0) ...[
               _buildProgressBar('Ready', stats['Ready'] ?? 0, total, Colors.blue),
-              const SizedBox(height: 16),
+              const SizedBox(height: 100),
               _buildProgressBar('In Diagnosis', stats['Diagnose'] ?? 0, total, Colors.deepOrange),
-              const SizedBox(height: 16),
+              const SizedBox(height: 100),
               _buildProgressBar('Completed', stats['Completed'] ?? 0, total, Colors.green),
             ] else
               Container(

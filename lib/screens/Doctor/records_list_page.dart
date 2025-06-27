@@ -205,7 +205,6 @@ Widget _buildStatusFilterChips() {
 
 
 
-
   Widget _buildRecordsTable() {
     return BlocConsumer<RecordsListCubit, RecordsListState>(
       listener: (context, state) {

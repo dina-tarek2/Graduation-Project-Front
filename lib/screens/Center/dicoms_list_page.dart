@@ -459,7 +459,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
         DataCell(
           Switch(
             value: emergencyStates[record.id] ?? record.flag,
-            onChanged: record.status.toLowerCase() != "ready"
+            onChanged: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? null // يعطل السويتش لو الحالة Completed
                 : (val) {
                     setState(() {
@@ -471,10 +472,12 @@ class _DicomsListPageState extends State<DicomsListPage> {
                           {"flag": val.toString()},
                         );
                   },
-            activeColor: record.status.toLowerCase() != "ready"
+            activeColor: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? Colors.grey[400]
                 : Colors.red[700],
-            activeTrackColor: record.status.toLowerCase() != "ready"
+            activeTrackColor: record.status.toLowerCase() == "completed" ||
+                    record.status.toLowerCase() == "canceled"
                 ? Colors.grey[200]
                 : Colors.red[100],
             inactiveThumbColor: Colors.grey[400],
@@ -482,7 +485,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             splashRadius: 20,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-              if (record.status.toLowerCase() != "ready") {
+              if (record.status.toLowerCase() == "completed" ||
+                  record.status.toLowerCase() == "canceled") {
                 return Colors.grey[200]!;
               }
               if (states.contains(WidgetState.selected)) {
@@ -492,7 +496,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
             }),
             trackOutlineColor:
                 WidgetStateProperty.resolveWith<Color?>((states) {
-              if (record.status.toLowerCase() != "ready") {
+              if (record.status.toLowerCase() == "completed" ||
+                  record.status.toLowerCase() == "canceled") {
                 return Colors.grey[200];
               }
               if (states.contains(WidgetState.selected)) {
@@ -643,53 +648,50 @@ class _DicomsListPageState extends State<DicomsListPage> {
     }
   }
 
-  void _showCommentDialog(RecordModel record) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            'Comments',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.blue[800],
-            ),
+void _showCommentDialog(RecordModel record) {
+  final ScrollController _scrollController = ScrollController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Comments',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.blue[800],
           ),
-          content: FutureBuilder<List<DicomComment>>(
+        ),
+        content: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5,
+          width: MediaQuery.of(context).size.width * 0.3,
+          child: FutureBuilder<List<DicomComment>>(
             future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
-                );
+                return Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
                 final comments = snapshot.data ?? [];
+
                 if (comments.isEmpty) {
-                  return SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: Text(
-                        "No comments available",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
+                  return Center(
+                    child: Text(
+                      "No comments available",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   );
                 }
 
-                return ConstrainedBox( // استخدام ConstrainedBox للتحكم في الأبعاد
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.7, // أقصى ارتفاع 70% من الشاشة
-                    maxWidth: 600, // أقصى عرض
-                  ),
+                return Scrollbar(
+                  controller: _scrollController,
+                  thumbVisibility: true,
                   child: ListView.builder(
-                    shrinkWrap: true, // مهم لجعل ListView يأخذ المساحة التي يحتاجها فقط داخل ConstrainedBox
+                    controller: _scrollController,
                     itemCount: comments.length,
                     itemBuilder: (context, index) {
                       final comment = comments[index];
@@ -714,7 +716,11 @@ class _DicomsListPageState extends State<DicomsListPage> {
                             Row(
                               children: [
                                 CircleAvatar(
-                                  backgroundImage: NetworkImage(comment.image),
+                                  backgroundImage: (comment.image != null &&
+                                          comment.image.isNotEmpty)
+                                      ? NetworkImage(comment.image)
+                                      : AssetImage('assets/default_avatar.png')
+                                          as ImageProvider,
                                   radius: 24,
                                 ),
                                 const SizedBox(width: 12),
@@ -749,7 +755,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            ...comment.dicomComments.map(
+                            ...?comment.dicomComments?.map(
                               (c) => Container(
                                 margin: EdgeInsets.only(bottom: 6),
                                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -772,25 +778,31 @@ class _DicomsListPageState extends State<DicomsListPage> {
               }
             },
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Close',
-                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-              ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  String _formatDate(DateTime date) {
-    final localDate = date.toLocal();
-    return "${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')} "
-           "${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}";
+String _formatDate(DateTime dateTime) {
+  try {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  } catch (e) {
+    return '';
   }
+}
+
+
+
 
 
   void _addCommentDialog(RecordModel record) {
@@ -982,7 +994,9 @@ class _DicomsListPageState extends State<DicomsListPage> {
                     Navigator.of(context).pop();
                     // Call the reassign function
                     final userId = context.read<CenterCubit>().state;
+
                     context.read<UploadedDicomsCubit>().reassign(record.id, userId);
+
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
