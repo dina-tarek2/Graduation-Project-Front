@@ -38,7 +38,7 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'https://d67c-41-33-141-180.ngrok-free.app/upload',
+        'https://b87a-102-47-200-63.ngrok-free.app/upload',
         data: {'dicom_url': dicomUrl?[0]},
         options: Options(headers: {'Content-Type': 'application/json'}),
       );

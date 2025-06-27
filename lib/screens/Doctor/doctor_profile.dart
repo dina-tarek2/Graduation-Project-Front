@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
@@ -17,7 +19,8 @@ class DoctorProfile extends StatefulWidget {
   _DoctorProfileState createState() => _DoctorProfileState();
 }
 
-class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateMixin {
+class _DoctorProfileState extends State<DoctorProfile>
+    with TickerProviderStateMixin {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   late AnimationController _animationController;
@@ -59,7 +62,9 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
 
   // Main build method for the widget.
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: BlocBuilder<DoctorProfileCubit, DoctorProfileState>(
@@ -72,7 +77,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
               ),
             );
           } else if (state is DoctorProfileSuccess) {
-            return _buildModernDoctorProfile(state.doctor);
+            return _buildModernDoctorProfile(state.doctor, widget.role);
           } else if (state is DoctorProfileError) {
             return _buildErrorState(state.error);
           }
@@ -83,7 +88,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
   }
 
   // Builds the main profile view with a SliverAppBar and content.
-  Widget _buildModernDoctorProfile(Doctor doctor) {
+  Widget _buildModernDoctorProfile(Doctor doctor, String role) {
     return CustomScrollView(
       slivers: [
         // Modern App Bar with Hero Section
@@ -110,16 +115,16 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
           //     ],
           //   ),
           //   child: IconButton(
-              
+
           //   ),
           // ),
         ),
-        
+
         // // Profile Content with a fade-in animation.
         SliverToBoxAdapter(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: _buildProfileContent(doctor),
+            child: _buildProfileContent(doctor, role),
           ),
         ),
       ],
@@ -167,7 +172,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
               ),
             ),
           ),
-          
+
           // Centered profile information.
           Positioned(
             bottom: 25,
@@ -308,7 +313,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
   }
 
   // Builds the main content area below the hero section.
-  Widget _buildProfileContent(Doctor doctor) {
+  Widget _buildProfileContent(Doctor doctor, String role) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -316,11 +321,11 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
           // ID Card
           _buildIdCard(doctor),
           const SizedBox(height: 20),
-          
+
           // Information Cards
-          _buildInfoCard(doctor),
+          _buildInfoCard(doctor, role),
           const SizedBox(height: 20),
-          
+
           // Specializations Card
           _buildSpecializationsCard(doctor),
         ],
@@ -415,7 +420,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
   }
 
   // Builds the card displaying personal information.
-  Widget _buildInfoCard(Doctor doctor) {
+  Widget _buildInfoCard(Doctor doctor, String role) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -447,6 +452,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
             doctor.firstName,
             "firstName",
             doctor,
+            role,
           ),
           _buildModernInfoRow(
             Icons.person_outline,
@@ -454,6 +460,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
             doctor.lastName,
             "lastName",
             doctor,
+            role,
           ),
           _buildModernInfoRow(
             Icons.phone_outlined,
@@ -461,6 +468,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
             doctor.contactNumber,
             "contactNumber",
             doctor,
+            role,
           ),
         ],
       ),
@@ -496,21 +504,26 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
                   color: Color(0xFF1E293B),
                 ),
               ),
-              GestureDetector(
-                onTap: () => _showSpecializationDialog(doctor), // Updated call
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF081C34).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.edit_outlined,
-                    color: Color(0xFF081C34),
-                    size: 20,
-                  ),
-                ),
-              ),
+              widget.role == "Radiologist"
+                  ? GestureDetector(
+                      onTap: () =>
+                          _showSpecializationDialog(doctor), // Updated call
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF081C34).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.edit_outlined,
+                          color: Color(0xFF081C34),
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      width: 0,
+                    ),
             ],
           ),
           const SizedBox(height: 16),
@@ -519,7 +532,8 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
             runSpacing: 8,
             children: doctor.specialization.map((spec) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF081C34), Color(0xFF0F2A4A)],
@@ -556,6 +570,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
     String value,
     String fieldKey,
     Doctor doctor,
+    String role,
   ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -598,21 +613,25 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () => _showEditDialog(title, value, fieldKey),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF081C34).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.edit_outlined,
-                color: Color(0xFF081C34),
-                size: 18,
-              ),
-            ),
-          ),
+          widget.role == "Radiologist"
+              ? GestureDetector(
+                  onTap: () => _showEditDialog(title, value, fieldKey),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF081C34).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      color: Color(0xFF081C34),
+                      size: 18,
+                    ),
+                  ),
+                )
+              : SizedBox(
+                  width: 0,
+                ),
         ],
       ),
     );
@@ -679,8 +698,9 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
 
   // Shows a dialog to edit a profile field.
   void _showEditDialog(String title, String currentValue, String fieldKey) {
-    TextEditingController controller = TextEditingController(text: currentValue);
-    
+    TextEditingController controller =
+        TextEditingController(text: currentValue);
+
     showDialog(
       context: context,
       builder: (BuildContext context) => Dialog(
@@ -708,7 +728,8 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF081C34), width: 2),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF081C34), width: 2),
                   ),
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -858,7 +879,7 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDestructive 
+          color: isDestructive
               ? const Color(0xFFEF4444).withOpacity(0.1)
               : const Color(0xFF081C34).withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -867,7 +888,9 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
           children: [
             Icon(
               icon,
-              color: isDestructive ? const Color(0xFFEF4444) : const Color(0xFF081C34),
+              color: isDestructive
+                  ? const Color(0xFFEF4444)
+                  : const Color(0xFF081C34),
               size: 32,
             ),
             const SizedBox(height: 8),
@@ -876,7 +899,9 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isDestructive ? const Color(0xFFEF4444) : const Color(0xFF1E293B),
+                color: isDestructive
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFF1E293B),
               ),
             ),
           ],
@@ -921,7 +946,8 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
     ];
 
     Map<String, bool> isSelected = {
-      for (var spec in specializations) spec: doctor.specialization.contains(spec)
+      for (var spec in specializations)
+        spec: doctor.specialization.contains(spec)
     };
 
     showDialog<List<String>>(
@@ -930,7 +956,8 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -952,12 +979,12 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              color: isSelected[spec]! 
+                              color: isSelected[spec]!
                                   ? const Color(0xFF081C34).withOpacity(0.1)
                                   : const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected[spec]! 
+                                color: isSelected[spec]!
                                     ? const Color(0xFF081C34)
                                     : const Color(0xFFE2E8F0),
                               ),
@@ -966,7 +993,9 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
                               title: Text(
                                 spec,
                                 style: TextStyle(
-                                  fontWeight: isSelected[spec]! ? FontWeight.w600 : FontWeight.normal,
+                                  fontWeight: isSelected[spec]!
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                   color: const Color(0xFF1E293B),
                                 ),
                               ),
@@ -1007,7 +1036,8 @@ class _DoctorProfileState extends State<DoctorProfile> with TickerProviderStateM
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              List<String> updatedSpecializations = isSelected.entries
+                              List<String> updatedSpecializations = isSelected
+                                  .entries
                                   .where((entry) => entry.value)
                                   .map((entry) => entry.key)
                                   .toList();
