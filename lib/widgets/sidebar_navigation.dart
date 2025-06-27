@@ -165,9 +165,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Upload Dicom'),
         buildNavItem(2, Icons.groups_rounded, 'Manage Doctors'),
-        buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
-        buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(3, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(4, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(5, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(6, Icons.settings_outlined, 'Setting')
       ]);
     } else if (widget.role == "Radiologist") {
@@ -175,9 +175,9 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
         buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
         buildNavItem(1, Icons.cloud_upload_rounded, 'Dicom List'),
         buildNavItem(2, Icons.paste_rounded, 'New Reports'),
-        buildNavItem(3, Icons.contact_mail_rounded, 'Contact Us'),
-        buildNavItem(4, Icons.chat_bubble_rounded, 'Chat'),
-        buildNavItem(5, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(3, Icons.chat_bubble_rounded, 'Chat'),
+        buildNavItem(4, FontAwesomeIcons.circleInfo, 'About Us'),
+        buildNavItem(5, Icons.contact_mail_rounded, 'Contact Us'),
         buildNavItem(6, Icons.settings_outlined, 'Setting')
       ]);
     } else if (widget.role == "Admin") {

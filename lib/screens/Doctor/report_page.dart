@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_project_frontend/constants/colors.dart'; // Assuming this defines custom colors
 import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
 import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:graduation_project_frontend/cubit/login_cubit.dart'; // Assuming UserCubit is part of login_cubit.dart
 import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
 import 'package:graduation_project_frontend/models/Doctor/report_page_model.dart';
+import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
 import 'package:graduation_project_frontend/widgets/custom_text_field.dart'; // Assuming this is your custom text field
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart'; // Assuming this is your main scaffold
 
@@ -20,7 +22,8 @@ class MedicalReportPage extends StatefulWidget {
   static const String id = "MedicalReportPage"; // Use const for static final
 
   final String? reportId;
-  final List<dynamic>? Dicom_url; // This variable is not used in the provided code
+  final List<dynamic>?
+      Dicom_url; // This variable is not used in the provided code
   final String? recordId;
 
   @override
@@ -46,7 +49,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -87,7 +90,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   }
 
   /// Builds the custom app bar for the medical report page.
-  SliverAppBar _buildModernAppBar(bool isRecordCompleted, String role) {
+  SliverAppBar _buildModernAppBar(
+      bool isRecordCompleted, String role, RecordsListModel record) {
     return SliverAppBar(
       expandedHeight: 120,
       floating: false,
@@ -97,7 +101,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       foregroundColor: Colors.black87,
       flexibleSpace: FlexibleSpaceBar(
         // Adjusted left padding to make space for the back icon
-        titlePadding: const EdgeInsets.only(left: 80.0, bottom: 16), // Increased left padding
+        titlePadding: const EdgeInsets.only(
+            left: 80.0, bottom: 16), // Increased left padding
         title: const Text(
           'Medical Report',
           style: TextStyle(
@@ -120,12 +125,13 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           ),
         ),
       ),
-      actions: [_buildActionButtons(isRecordCompleted, role)],
+      actions: [_buildActionButtons(isRecordCompleted, role, record)],
     );
   }
 
   /// Builds the action buttons shown in the app bar (Edit, Cancel, Send, Save).
-  Widget _buildActionButtons(bool isRecordCompleted, String role) {
+  Widget _buildActionButtons(
+      bool isRecordCompleted, String role, RecordsListModel record) {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Row(
@@ -136,11 +142,16 @@ class _MedicalReportPageState extends State<MedicalReportPage>
             // Updated to ElevatedButton.icon for text with icon
             ElevatedButton.icon(
               onPressed: isRecordCompleted ? null : () => _toggleEditing(true),
-              icon: Icon(Icons.edit_rounded, color: isRecordCompleted ? Colors.grey.shade400 : Colors.blue.shade600),
+              icon: Icon(Icons.edit_rounded,
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.blue.shade600),
               label: Text(
                 'Edit',
                 style: TextStyle(
-                  color: isRecordCompleted ? Colors.grey.shade400 : Colors.blue.shade800,
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.blue.shade800,
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -150,18 +161,25 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                   side: BorderSide(color: Colors.blue.shade300, width: 0.8),
                 ),
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
             const SizedBox(width: 10),
             // Updated to ElevatedButton.icon for text with icon
             ElevatedButton.icon(
-              onPressed: isRecordCompleted ? null : () => _showDoctorCancelDialog(context, role),
-              icon: Icon(Icons.cancel_rounded, color: isRecordCompleted ? Colors.grey.shade400 : Colors.red.shade600),
+              onPressed:
+                  isRecordCompleted ? null : () => _addCommentDialog(record,role),
+              icon: Icon(Icons.cancel_rounded,
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.red.shade600),
               label: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: isRecordCompleted ? Colors.grey.shade400 : Colors.red.shade800,
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.red.shade800,
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -171,18 +189,24 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                   side: BorderSide(color: Colors.red.shade300, width: 0.8),
                 ),
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
             const SizedBox(width: 10),
             // Updated to ElevatedButton.icon for text with icon
             ElevatedButton.icon(
               onPressed: isRecordCompleted ? null : () => _sendReport(role),
-              icon: Icon(Icons.send_rounded, color: isRecordCompleted ? Colors.grey.shade400 : Colors.green.shade600),
+              icon: Icon(Icons.send_rounded,
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.green.shade600),
               label: Text(
                 'Send',
                 style: TextStyle(
-                  color: isRecordCompleted ? Colors.grey.shade400 : Colors.green.shade800, // Fixed: Used isRecordCompleted
+                  color: isRecordCompleted
+                      ? Colors.grey.shade400
+                      : Colors.green.shade800, // Fixed: Used isRecordCompleted
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -192,7 +216,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                   side: BorderSide(color: Colors.green.shade300, width: 0.8),
                 ),
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
           ],
@@ -227,17 +252,22 @@ class _MedicalReportPageState extends State<MedicalReportPage>
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: Colors.transparent, // Ensures the InkWell splash effect is visible
+        color:
+            Colors.transparent, // Ensures the InkWell splash effect is visible
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: onPressed != null ? color.withOpacity(0.1) : Colors.grey.shade200,
+              color: onPressed != null
+                  ? color.withOpacity(0.1)
+                  : Colors.grey.shade200,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: onPressed != null ? color.withOpacity(0.3) : Colors.grey.shade300,
+                color: onPressed != null
+                    ? color.withOpacity(0.3)
+                    : Colors.grey.shade300,
               ),
             ),
             child: Icon(
@@ -310,19 +340,41 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   Widget _buildInfoGrid(RecordsListModel record) {
     // List of info items, including editable 'Body Part'
     final items = [
-      {'label': 'Name', 'value': record.patientName ?? '-', 'icon': Icons.person_outline, 'editable': false},
-      {'label': 'Age', 'value': record.age?.toString() ?? '-', 'icon': Icons.cake_outlined, 'editable': false},
-      {'label': 'Gender', 'value': record.sex ?? '-', 'icon': Icons.wc_outlined, 'editable': false},
-      {'label': 'Body Part', 'value': record.bodyPartExamined ?? '-', 'icon': Icons.accessibility_new_rounded, 'editable': false},
+      {
+        'label': 'Name',
+        'value': record.patientName ?? '-',
+        'icon': Icons.person_outline,
+        'editable': false
+      },
+      {
+        'label': 'Age',
+        'value': record.age?.toString() ?? '-',
+        'icon': Icons.cake_outlined,
+        'editable': false
+      },
+      {
+        'label': 'Gender',
+        'value': record.sex ?? '-',
+        'icon': Icons.wc_outlined,
+        'editable': false
+      },
+      {
+        'label': 'Body Part',
+        'value': record.bodyPartExamined ?? '-',
+        'icon': Icons.accessibility_new_rounded,
+        'editable': false
+      },
     ];
 
     return GridView.builder(
       shrinkWrap: true, // Takes only the space it needs
-      physics: const NeverScrollableScrollPhysics(), // Disables scrolling for the grid itself
+      physics:
+          const NeverScrollableScrollPhysics(), // Disables scrolling for the grid itself
       // Adjusted childAspectRatio to make boxes less tall and more compact
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4, // Two columns
-        childAspectRatio: 3.2, // Adjusted for slightly taller boxes to fit larger text, smaller than 7.0 but larger than 4.0
+        childAspectRatio:
+            3.2, // Adjusted for slightly taller boxes to fit larger text, smaller than 7.0 but larger than 4.0
         crossAxisSpacing: 8, // Reduced horizontal spacing
         mainAxisSpacing: 8, // Reduced vertical spacing
       ),
@@ -347,15 +399,18 @@ class _MedicalReportPageState extends State<MedicalReportPage>
     bool isEditable = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(8), // Further reduced padding for compactness
+      padding:
+          const EdgeInsets.all(8), // Further reduced padding for compactness
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
         // Applied subtle blue border and a more visible shadow for a modern look
-        border: Border.all(color: Colors.blue.shade100, width: 0.8), // Subtle blue border
+        border: Border.all(
+            color: Colors.blue.shade100, width: 0.8), // Subtle blue border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08), // Slightly more visible shadow
+            color:
+                Colors.black.withOpacity(0.08), // Slightly more visible shadow
             blurRadius: 10, // Increased blur for softness
             offset: const Offset(0, 4), // Larger offset for more depth
           ),
@@ -363,7 +418,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+        mainAxisAlignment:
+            MainAxisAlignment.center, // Center content vertically
         children: [
           Row(
             children: [
@@ -381,13 +437,15 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           ),
           const SizedBox(height: 6), // Increased spacing
           if (isEditable)
-          // CustomFormTextField for editable body part.
-          // Assumes CustomFormTextField handles its own internal styling
-          // and doesn't need external 'style' or 'fillColor' parameters.
-            Expanded( // Ensures the text field expands correctly within the row
+            // CustomFormTextField for editable body part.
+            // Assumes CustomFormTextField handles its own internal styling
+            // and doesn't need external 'style' or 'fillColor' parameters.
+            Expanded(
+              // Ensures the text field expands correctly within the row
               child: CustomFormTextField(
                 controller: _bodyPartsController,
-                labelText: null, // Set to null if the design doesn't require a floating label
+                labelText:
+                    null, // Set to null if the design doesn't require a floating label
                 readOnly: !_isEditingReport,
                 isMultiline: false, // Body Part is expected to be a single line
               ),
@@ -410,17 +468,21 @@ class _MedicalReportPageState extends State<MedicalReportPage>
 
   /// Builds the report status section, displaying status or allowing selection when editing.
   Widget _buildStatusSection() {
-    debugPrint('Building _buildStatusSection. _isEditingReport: $_isEditingReport, _selectedReportStatus: $_selectedReportStatus');
+    debugPrint(
+        'Building _buildStatusSection. _isEditingReport: $_isEditingReport, _selectedReportStatus: $_selectedReportStatus');
     // When not editing, return the compact status display
     if (!_isEditingReport) {
       return Container(
-        margin: const EdgeInsets.only(left: 8), // Small left margin to separate from text/icon
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Very compact padding
+        margin: const EdgeInsets.only(
+            left: 8), // Small left margin to separate from text/icon
+        padding: const EdgeInsets.symmetric(
+            horizontal: 8, vertical: 4), // Very compact padding
         decoration: BoxDecoration(
           color: _getStatusColor().withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _getStatusColor().withOpacity(0.3)),
-          boxShadow: [ // Add a subtle shadow to the small status box
+          boxShadow: [
+            // Add a subtle shadow to the small status box
             BoxShadow(
               color: Colors.grey.shade200,
               blurRadius: 5,
@@ -431,7 +493,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
         child: Row(
           mainAxisSize: MainAxisSize.min, // Keep row content compact
           children: [
-            Icon(_getStatusIcon(), color: _getStatusColor(), size: 25), // Smaller icon for very compact box
+            Icon(_getStatusIcon(),
+                color: _getStatusColor(),
+                size: 25), // Smaller icon for very compact box
             const SizedBox(width: 15), // Smaller spacing
             Text(
               _selectedReportStatus ?? 'Normal',
@@ -450,7 +514,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       title: 'Select Status',
       icon: Icons.radio_button_checked_rounded,
       child: Column(
-        children: _reportStatusOptions.map((status) => _buildStatusOption(status)).toList(),
+        children: _reportStatusOptions
+            .map((status) => _buildStatusOption(status))
+            .toList(),
       ),
     );
   }
@@ -468,7 +534,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           });
         },
         borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer( // Provides smooth visual feedback on selection
+        child: AnimatedContainer(
+          // Provides smooth visual feedback on selection
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -482,7 +549,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           child: Row(
             children: [
               Icon(
-                isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
                 color: isSelected ? Colors.blue.shade600 : Colors.grey.shade400,
               ),
               const SizedBox(width: 12),
@@ -491,7 +560,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? Colors.blue.shade800 : Colors.grey.shade700,
+                  color:
+                      isSelected ? Colors.blue.shade800 : Colors.grey.shade700,
                 ),
               ),
             ],
@@ -635,7 +705,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       await context.read<ReportPageCubit>().updateReportOrRecord(
         id: widget.recordId!,
         isReport: false,
-        body: {'body_part_examined': newBodyPart.isNotEmpty ? newBodyPart : ' '},
+        body: {
+          'body_part_examined': newBodyPart.isNotEmpty ? newBodyPart : ' '
+        },
       );
 
       // Re-fetch data to ensure UI reflects the latest state from the backend
@@ -645,7 +717,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       setState(() {
         _isEditingReport = false; // Exit editing mode
         // Update the local status variable from the cubit's updated result
-        _selectedReportStatus = context.read<ReportPageCubit>().resultController.text.trim();
+        _selectedReportStatus =
+            context.read<ReportPageCubit>().resultController.text.trim();
       });
 
       if (mounted) Navigator.pop(context); // Close loading dialog
@@ -664,7 +737,10 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       await context.read<ReportPageCubit>().updateReportOrRecord(
         id: widget.recordId!,
         isReport: false,
-        body: {"status": "Completed", "flag": false}, // Mark record as completed
+        body: {
+          "status": "Completed",
+          "flag": false
+        }, // Mark record as completed
       );
 
       if (mounted) Navigator.pop(context); // Close loading dialog
@@ -674,7 +750,11 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+          MaterialPageRoute(
+            builder: (_) => MainScaffold.fromString(
+              role:role.toString(),
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -691,11 +771,14 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 8),
-            Expanded(child: Text(message)), // Ensures message fits on smaller screens
+            Expanded(
+                child:
+                    Text(message)), // Ensures message fits on smaller screens
           ],
         ),
         backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating, // Makes the snack bar float above content
+        behavior: SnackBarBehavior
+            .floating, // Makes the snack bar float above content
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(12), // Adds space around the snack bar
       ),
@@ -734,7 +817,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   Widget build(BuildContext context) {
     // Access the user role once from the cubit's state
     final role = context.read<UserCubit>().state;
-    debugPrint('Building MedicalReportPage. Current editing mode: $_isEditingReport, Selected status: $_selectedReportStatus');
+    debugPrint(
+        'Building MedicalReportPage. Current editing mode: $_isEditingReport, Selected status: $_selectedReportStatus');
 
     return MultiBlocListener(
       listeners: [
@@ -744,14 +828,18 @@ class _MedicalReportPageState extends State<MedicalReportPage>
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   // Update controller texts from cubit data
-                  _findingsController.text = reportState.report.diagnosisReportFinding ?? '';
-                  _impressionController.text = reportState.report.diagnosisReportImpression ?? '';
-                  _commentsController.text = reportState.report.diagnosisReportComment ?? '';
+                  _findingsController.text =
+                      reportState.report.diagnosisReportFinding ?? '';
+                  _impressionController.text =
+                      reportState.report.diagnosisReportImpression ?? '';
+                  _commentsController.text =
+                      reportState.report.diagnosisReportComment ?? '';
 
                   // Update _selectedReportStatus if not in editing mode
                   if (!_isEditingReport) {
                     setState(() {
-                      _selectedReportStatus = reportState.report.result ?? 'Normal';
+                      _selectedReportStatus =
+                          reportState.report.result ?? 'Normal';
                     });
                   }
                 }
@@ -764,7 +852,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
             if (recordState is RecordLoaded) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  _bodyPartsController.text = recordState.record.bodyPartExamined ?? '';
+                  _bodyPartsController.text =
+                      recordState.record.bodyPartExamined ?? '';
                 }
               });
             }
@@ -786,21 +875,27 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
+                    Icon(Icons.error_outline,
+                        size: 64, color: Colors.red.shade400),
                     const SizedBox(height: 16),
                     Text(
                       'Error: ${reportState.errmessage}',
-                      style: TextStyle(color: Colors.red.shade600, fontSize: 16),
+                      style:
+                          TextStyle(color: Colors.red.shade600, fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
                         if (widget.reportId != null) {
-                          context.read<ReportPageCubit>().fetchReport(widget.reportId!);
+                          context
+                              .read<ReportPageCubit>()
+                              .fetchReport(widget.reportId!);
                         }
                         if (widget.recordId != null) {
-                          context.read<RecordsListCubit>().getRecordById(widget.recordId!);
+                          context
+                              .read<RecordsListCubit>()
+                              .getRecordById(widget.recordId!);
                         }
                       },
                       icon: const Icon(Icons.refresh),
@@ -808,8 +903,10 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.blue.shade600,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
                       ),
                     ),
                   ],
@@ -827,7 +924,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
               return BlocBuilder<RecordsListCubit, RecordsListState>(
                 builder: (context, recordState) {
                   if (recordState is! RecordLoaded) {
-                    return const Center(child: CircularProgressIndicator(strokeWidth: 3));
+                    return const Center(
+                        child: CircularProgressIndicator(strokeWidth: 3));
                   }
 
                   final record = recordState.record;
@@ -838,7 +936,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                     opacity: _fadeAnimation,
                     child: CustomScrollView(
                       slivers: [
-                        _buildModernAppBar(isRecordCompleted, role), // AppBar
+                        _buildModernAppBar(
+                            isRecordCompleted, role, record), // AppBar
                         SliverToBoxAdapter(
                           child: Column(
                             children: [
@@ -866,7 +965,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                                 minLines: 2,
                                 maxLines: 8,
                               ),
-                              const SizedBox(height: 100), // Bottom padding for scrollability
+                              const SizedBox(
+                                  height:
+                                      100), // Bottom padding for scrollability
                             ],
                           ),
                         ),
@@ -885,14 +986,145 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   }
 
   /// Shows a confirmation dialog for a doctor to cancel a report, with an optional comment.
+  void _addCommentDialog(RecordsListModel record,String role) {
+    final TextEditingController _commentController = TextEditingController();
+    bool isLoading = false;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.cancel_rounded, color: Colors.red.shade600),
+                  const SizedBox(width: 8),
+                  const Text("Cancel Report"),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _commentController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Write your comment if want...',
+                        filled: true,
+                        fillColor: Color(0xFFF8F9FA),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => {Navigator.pop(context)},
+                  child: Text(
+                    'Keep Report',
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[800],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final commentText = _commentController.text.trim();
+                          if (commentText.isEmpty) {
+                            context
+                                .read<RecordsListCubit>()
+                                .cancelRecord(record.id);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
+                            );
+                            return;
+                          }
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          try {
+                            await context
+                                .read<UploadedDicomsCubit>()
+                                .addComment(record.id, commentText);
+                            context
+                                .read<RecordsListCubit>()
+                                .cancelRecord(record.id);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
+                            );
+                          } catch (e) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error: $e")),
+                            );
+                          }
+                        },
+                  child: isLoading
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Confirm Cancel',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showDoctorCancelDialog(BuildContext context, String role) {
-    final TextEditingController cancelCommentController = TextEditingController();
+    final TextEditingController cancelCommentController =
+        TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
               Icon(Icons.cancel_rounded, color: Colors.red.shade600),
@@ -910,7 +1142,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Comment (optional)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: Colors.grey.shade50,
                 ),
@@ -925,9 +1158,6 @@ class _MedicalReportPageState extends State<MedicalReportPage>
             ElevatedButton(
               onPressed: () async {
                 if (!mounted) return; // Check if widget is still in tree
-                Navigator.of(context).pop(); // Close the dialog first
-                _showLoadingDialog(); // Show loading indicator
-
                 try {
                   final cancelComment = cancelCommentController.text.trim();
                   await context.read<ReportPageCubit>().updateReportOrRecord(
@@ -935,8 +1165,10 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                     isReport: false,
                     body: {
                       "status": "Cancelled",
-                      "flag": false, // Assuming flag should be false on cancellation
-                      "cancelComment": cancelComment.isNotEmpty ? cancelComment : null,
+                      "flag":
+                          false, // Assuming flag should be false on cancellation
+                      "cancelComment":
+                          cancelComment.isNotEmpty ? cancelComment : null,
                     },
                   );
                   if (mounted) Navigator.pop(context); // Close loading dialog
@@ -945,7 +1177,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                     // Navigate back after successful cancellation
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+                      MaterialPageRoute(
+                          builder: (_) => MainScaffold.fromString(role: role.toString())),
                     );
                   }
                 } catch (e) {
@@ -956,7 +1189,8 @@ class _MedicalReportPageState extends State<MedicalReportPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade600,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text("Confirm Cancel"),
             ),
@@ -973,18 +1207,22 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text("Cancel Editing?"),
-        content: const Text("Your changes will be discarded. Are you sure you want to cancel?"),
+        content: const Text(
+            "Your changes will be discarded. Are you sure you want to cancel?"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false), // User chooses to keep editing
+            onPressed: () =>
+                Navigator.pop(context, false), // User chooses to keep editing
             child: const Text('Keep Editing'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true), // User confirms discarding changes
+            onPressed: () => Navigator.pop(
+                context, true), // User confirms discarding changes
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade600,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Discard Changes'),
           ),
@@ -1001,9 +1239,12 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       if (reportState is ReportPageSuccess && recordState is RecordLoaded) {
         setState(() {
           _isEditingReport = false; // Exit editing mode
-          _findingsController.text = reportState.report.diagnosisReportFinding ?? '';
-          _impressionController.text = reportState.report.diagnosisReportImpression ?? '';
-          _commentsController.text = reportState.report.diagnosisReportComment ?? '';
+          _findingsController.text =
+              reportState.report.diagnosisReportFinding ?? '';
+          _impressionController.text =
+              reportState.report.diagnosisReportImpression ?? '';
+          _commentsController.text =
+              reportState.report.diagnosisReportComment ?? '';
           _selectedReportStatus = reportState.report.result ?? 'Normal';
           _bodyPartsController.text = recordState.record.bodyPartExamined ?? '';
         });

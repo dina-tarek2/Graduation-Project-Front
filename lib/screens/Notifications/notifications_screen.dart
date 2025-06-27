@@ -34,7 +34,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => MainScaffold(role: role)),
+              MaterialPageRoute(builder: (_) => MainScaffold.fromString(role: role.toString())),
             );
           },
         ),
@@ -208,18 +208,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       if (notification.type == 'massage') {
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
-                                      builder: (_) => MainScaffold(
-                                        role: context.read<UserCubit>().state,
-                                        index: 4,
+                                      builder: (_) => MainScaffold.fromString(
+                                        role: context.read<UserCubit>().state
+                                            .toString(),
+                                        initialIndex: 4,
                                       ),
                                     ),
                                   );
                                 } else if (notification.type == 'study') {
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
-                                      builder: (_) => MainScaffold(
-                                        role: context.read<UserCubit>().state,
-                                        index: 1,
+                                      builder: (_) => MainScaffold.fromString(
+                                        role: context.read<UserCubit>().state
+                                            .toString(),
+                                        initialIndex: 1,
                                       ),
                                     ),
                                   );

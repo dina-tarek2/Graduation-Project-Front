@@ -173,7 +173,7 @@ class _RecordsListPageState extends State<RecordsListPage>
   }
 
   Widget _buildStatusFilterChips() {
-    List<String> statusOptions = ["All", "Diagonize", "Completed", "Cancled"];
+    List<String> statusOptions = ["All", "Diagnose", "Completed", "Cancled"];
     return Wrap(
       spacing: 8,
       children: statusOptions.map((status) {
@@ -477,7 +477,7 @@ class _RecordsListPageState extends State<RecordsListPage>
     switch (status.toLowerCase()) {
       case "ready":
         return Colors.green;
-      case "diagonize":
+      case "diagnose":
         return Colors.orange;
       case "completed":
         return Colors.blue;
