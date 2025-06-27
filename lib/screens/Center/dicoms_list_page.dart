@@ -32,6 +32,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
   Map<String, bool> emergencyStates = {};
 
   bool cancelflag = false;
+  bool ShowAction = true;
 
   Timer? _timer;
 
@@ -285,7 +286,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
                   columns: [
                     DataColumn(label: Text("Comment", style: _columnStyle())),
                     DataColumn(label: Text("Action", style: _columnStyle())),
-                    DataColumn(label: Text("Emergency", style: _columnStyle())),
+                    DataColumn(label: Text("Urgent", style: _columnStyle())),
                     DataColumn(label: Text("Status", style: _columnStyle())),
                     DataColumn(
                         label: Text("Patient Name", style: _columnStyle())),

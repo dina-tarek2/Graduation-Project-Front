@@ -30,10 +30,23 @@ class _ModernstatisticalState extends State<Modernstatistical2> {
 
     Future.delayed(Duration(milliseconds: 300), () {
       if (mounted) {
+        // setState(() {
+        //   animatedData =
+        //       _prepareChartDataFromWeeklyObject(widget.weeklyStatusCounts);
+        // });
         setState(() {
-          animatedData =
-              _prepareChartDataFromWeeklyObject(widget.weeklyStatusCounts);
-        });
+  
+  animatedData = [
+    {'day': 'Sat', 'Diagnose': 0, 'Completed': 10, 'Ready': 0},
+    {'day': 'Sun', 'Diagnose': 0, 'Completed': 15, 'Ready': 0},
+    {'day': 'Mon', 'Diagnose': 0, 'Completed': 9, 'Ready': 0},
+    {'day': 'Tue', 'Diagnose': 0, 'Completed': 12, 'Ready': 0},
+    {'day': 'Wed', 'Diagnose': 2, 'Completed': 7, 'Ready': 4},
+    {'day': 'Thu', 'Diagnose': 3, 'Completed': 10, 'Ready': 2},
+    {'day': 'Fri', 'Diagnose': 5, 'Completed': 4, 'Ready': 14},
+  ];
+});
+
       }
     });
   }

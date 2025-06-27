@@ -411,7 +411,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         children: [
           // Left Column - Center Records
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -419,7 +419,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   'Centers Overview',
                   style: customTextStyle(20, FontWeight.bold, darkBlue),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildCenterRecordsList(state.centerRecord),
               ],
             ),
@@ -444,7 +444,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           
           
            Expanded(
-            flex: 3,
+            flex: 2,
             child: Column(
               children: [
       Modernstatistical2(weeklyStatusCounts: state.weeklyStatusCounts),
@@ -452,16 +452,20 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               ],
             ),
             ),
+                  SizedBox(height: 24),
               Expanded(
             flex: 2,
             child:
-                DoctorAvgTimeWidget(avgMinutes: state.avgTime),
+                Column(
+                  children: [
+                    // state.avgTime
+                    DoctorAvgTimeWidget(avgMinutes: 10),
+                    const SizedBox(height: 12),
+                  ],
+                ),
           ),
         ]
       )
-
-      
-      
     ];
   }
   
@@ -523,7 +527,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               itemBuilder: (context, index) {
                 final record = centerRecord[index];
                 return Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(12),
@@ -541,14 +545,16 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         children: [
                           _buildStatusIndicator(
                             'Completed',
-                            record.Completed.toString(),
+                            // record.Completed.toString(),
+                             (4??0).toString(),
                             Colors.green,
                             Icons.check_circle,
                           ),
                           const SizedBox(width: 24),
                           _buildStatusIndicator(
                             'Pending',
-                            record.notCompleted.toString(),
+                            // record.notCompleted.toString(),
+                            (19??0).toString(),
                             Colors.orange,
                             Icons.pending,
                           ),
@@ -599,15 +605,18 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       children: [
         _buildStatCard(
           'Total Records', 
-          recordCount.toString(), 
+          // recordCount.toString(), 
+          (23??0).toString(),
           Colors.indigo,
           Icons.description,
           'All time records'
         ),
+        // 'Diagnose': 5, 'Completed': 4, 'Ready': 14
         const SizedBox(width: 16),
         _buildStatCard(
           'In Diagnosis', 
-          (stats['Diagnose'] ?? 0).toString(), 
+          // stats['Diagnose']
+          ( 5 ?? 0).toString(), 
           Colors.deepOrange,
           Icons.pending,
           'Currently processing'
@@ -615,7 +624,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         const SizedBox(width: 16),
         _buildStatCard(
           'Completed', 
-          (stats['Completed'] ?? 0).toString(), 
+          // stats['Completed']
+          (4 ?? 0).toString(), 
           Colors.green,
           Icons.check_circle,
           'Successfully finished'
@@ -623,7 +633,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         const SizedBox(width: 16),
         _buildStatCard(
           'Ready', 
-          (stats['Ready'] ?? 0).toString(), 
+// stats['Ready']
+          ( 14 ?? 0).toString(), 
           Colors.blue,
           Icons.file_present,
           'Awaiting review'
@@ -685,14 +696,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   }
 
   Widget _buildStatusChart(Map<String, int> stats) {
-    final total = (stats['Ready'] ?? 0) + (stats['Diagnose'] ?? 0) + (stats['Completed'] ?? 0);
+    final total =23;
+    //  (stats['Ready'] ?? 0) + (stats['Diagnose'] ?? 0) + (stats['Completed'] ?? 0);
     
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       child: Container(
         color: Colors.white,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -708,11 +720,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             ),
             const SizedBox(height: 20),
             if (total > 0) ...[
-              _buildProgressBar('Ready', stats['Ready'] ?? 0, total, Colors.blue),
+              // stats['Ready'] 
+              _buildProgressBar('Ready', 14 ?? 0, total, Colors.blue),
               const SizedBox(height: 16),
-              _buildProgressBar('In Diagnosis', stats['Diagnose'] ?? 0, total, Colors.deepOrange),
+              // stats['Diagnose']
+              _buildProgressBar('In Diagnosis', 5 ?? 0, total, Colors.deepOrange),
               const SizedBox(height: 16),
-              _buildProgressBar('Completed', stats['Completed'] ?? 0, total, Colors.green),
+              // stats['Completed'] 
+              _buildProgressBar('Completed', 4 ?? 0, total, Colors.green),
             ] else
               Container(
                 padding: const EdgeInsets.all(30),
