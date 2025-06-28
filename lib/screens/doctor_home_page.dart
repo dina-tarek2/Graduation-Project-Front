@@ -545,16 +545,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         children: [
                           _buildStatusIndicator(
                             'Completed',
-                            // record.Completed.toString(),
-                             (4??0).toString(),
+                            record.Completed.toString(),
                             Colors.green,
                             Icons.check_circle,
                           ),
                           const SizedBox(width: 24),
                           _buildStatusIndicator(
                             'Pending',
-                            // record.notCompleted.toString(),
-                            (19??0).toString(),
+                             record.notCompleted.toString(),
                             Colors.orange,
                             Icons.pending,
                           ),
@@ -605,8 +603,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       children: [
         _buildStatCard(
           'Total Records', 
-          // recordCount.toString(), 
-          (23??0).toString(),
+          recordCount.toString(), 
           Colors.indigo,
           Icons.description,
           'All time records'
@@ -615,8 +612,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         const SizedBox(width: 16),
         _buildStatCard(
           'In Diagnosis', 
-          // stats['Diagnose']
-          ( 5 ?? 0).toString(), 
+          stats['Diagnose'].toString(), 
           Colors.deepOrange,
           Icons.pending,
           'Currently processing'
@@ -624,8 +620,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         const SizedBox(width: 16),
         _buildStatCard(
           'Completed', 
-          // stats['Completed']
-          (4 ?? 0).toString(), 
+          stats['Completed'].toString(), 
           Colors.green,
           Icons.check_circle,
           'Successfully finished'
@@ -633,8 +628,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         const SizedBox(width: 16),
         _buildStatCard(
           'Ready', 
-// stats['Ready']
-          ( 14 ?? 0).toString(), 
+stats['Ready'].toString(),
           Colors.blue,
           Icons.file_present,
           'Awaiting review'
@@ -720,14 +714,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             ),
             const SizedBox(height: 20),
             if (total > 0) ...[
-              // stats['Ready'] 
-              _buildProgressBar('Ready', 14 ?? 0, total, Colors.blue),
+              
+              _buildProgressBar('Ready', stats['Ready'] ?? 0, total, Colors.blue),
               const SizedBox(height: 16),
-              // stats['Diagnose']
-              _buildProgressBar('In Diagnosis', 5 ?? 0, total, Colors.deepOrange),
+              
+              _buildProgressBar('In Diagnosis', stats['Diagnose'] ?? 0, total, Colors.deepOrange),
               const SizedBox(height: 16),
-              // stats['Completed'] 
-              _buildProgressBar('Completed', 4 ?? 0, total, Colors.green),
+              
+              _buildProgressBar('Completed', stats['Completed']  ?? 0, total, Colors.green),
             ] else
               Container(
                 padding: const EdgeInsets.all(30),

@@ -34,22 +34,11 @@ class _ModernstatisticalState extends State<Modernstatistical> {
 
     // بعد تأخير بسيط، نضيف القيم الحقيقية
     Future.delayed(Duration(milliseconds: 300), () {
-      // setState(() {
-      //   animatedData = _prepareChartData(widget.dailyStats);
+      setState(() {
+        animatedData = _prepareChartData(widget.dailyStats);
         
-      // });
-           setState(() {
+      });
   
-  animatedData = [
-    {'day': 'Sat', 'Diagnose': 0, 'Completed': 10, 'Ready': 0},
-    {'day': 'Sun', 'Diagnose': 0, 'Completed': 15, 'Ready': 0},
-    {'day': 'Mon', 'Diagnose': 0, 'Completed': 9, 'Ready': 0},
-    {'day': 'Tue', 'Diagnose': 0, 'Completed': 12, 'Ready': 0},
-    {'day': 'Wed', 'Diagnose': 2, 'Completed': 7, 'Ready': 4},
-    {'day': 'Thu', 'Diagnose': 3, 'Completed': 10, 'Ready': 2},
-    {'day': 'Fri', 'Diagnose': 12, 'Completed': 14, 'Ready': 4},
-  ];
-});
     });
   }
 
