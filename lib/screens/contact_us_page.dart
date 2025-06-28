@@ -156,14 +156,14 @@ class ContactScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'We\'d love to hear from you',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                        ),
-                  ),
+                  // Text(
+                  // 'We\'d love to hear from you',
+                  //   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  //         color: Colors.white.withOpacity(0.9),
+                  //         fontSize: 16,
+                  //         fontWeight: FontWeight.w300,
+                  //       ),
+                  // ),
                   const SizedBox(height: 32),
                   // Feature highlights
                   Row(
