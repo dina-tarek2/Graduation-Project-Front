@@ -718,9 +718,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 ),
               ],
             ),
-            const SizedBox(height: 170),
+            const SizedBox(height: 20),
             if (total > 0) ...[
-
               // stats['Ready'] 
               _buildProgressBar('Ready', 14 ?? 0, total, Colors.blue),
               const SizedBox(height: 16),
@@ -729,7 +728,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               const SizedBox(height: 16),
               // stats['Completed'] 
               _buildProgressBar('Completed', 4 ?? 0, total, Colors.green),
-
             ] else
               Container(
                 padding: const EdgeInsets.all(30),
