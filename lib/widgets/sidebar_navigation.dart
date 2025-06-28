@@ -92,18 +92,23 @@ class _SidebarNavigationState extends State<SidebarNavigation> {
                             //   ),
                             // ),
                             // ),
-                            const SizedBox(width: 8),
+                         
                             Flexible(
-                              child: Text(
-                                'Radintal',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: darkBabyBlue,
-                                  letterSpacing: 0.5,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                              child: Image.asset(
+                                'assets/images/logo512.png', // Replace with your app logo
+                                width: 180,
+                                height: 40,
                               ),
+                              //  Text(
+                              //   'Radintal',
+                              //   style: TextStyle(
+                              //     fontSize: 18,
+                              //     fontWeight: FontWeight.bold,
+                              //     color: darkBabyBlue,
+                              //     letterSpacing: 0.5,
+                              //   ),
+                              //   overflow: TextOverflow.ellipsis,
+                              // ),
                             ),
                           ],
                         ),

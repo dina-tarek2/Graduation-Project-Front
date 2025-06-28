@@ -1,4 +1,4 @@
-// باقي الاستيرادات
+// advanced_notification.dart - Updated version
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
@@ -8,6 +8,7 @@ import 'package:graduation_project_frontend/cubit/Notification/notification_cubi
 import 'package:graduation_project_frontend/cubit/login_cubit.dart';
 import 'package:graduation_project_frontend/screens/Notifications/formatNotificationDate.dart';
 import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // إضافة للحفظ المحلي
 
 enum NotificationType { success, error, warning, info, notify }
 
@@ -105,9 +106,51 @@ class AdvancedNotification extends StatelessWidget {
     }
   }
 
+  // دالة للتحقق من إعدادات الصوت
+  Future<bool> _shouldPlaySound() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notificationsEnabled =
+          prefs.getBool('notifications_enabled') ?? true;
+      final notificationVolume = prefs.getDouble('notification_volume') ?? 0.5;
+
+      // إذا كانت الإشعارات مقفولة أو الصوت صفر، لا تشغل الصوت
+      return notificationsEnabled && notificationVolume > 0.0;
+    } catch (e) {
+      // في حالة وجود خطأ، شغل الصوت افتراضياً
+      return true;
+    }
+  }
+
+  // دالة للحصول على مستوى الصوت
+  Future<double> _getVolumeLevel() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getDouble('notification_volume') ?? 0.5;
+    } catch (e) {
+      return 0.5; // القيمة الافتراضية
+    }
+  }
+
   void show(BuildContext context) async {
-    final player = AudioPlayer();
-    await player.play(AssetSource('sounds/notification.mp3'));
+    // التحقق من إعدادات الصوت قبل تشغيله
+    final shouldPlaySound = await _shouldPlaySound();
+
+    if (shouldPlaySound) {
+      try {
+        final player = AudioPlayer();
+        final volume = await _getVolumeLevel();
+
+        // ضبط مستوى الصوت
+        await player.setVolume(volume);
+
+        // تشغيل الصوت
+        await player.play(AssetSource('sounds/notification.mp3'));
+      } catch (e) {
+        // في حالة فشل تشغيل الصوت، لا تفعل شيئاً
+        print('Failed to play notification sound: $e');
+      }
+    }
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final snackBar = _buildStyled(context);
@@ -403,8 +446,6 @@ class AdvancedNotification extends StatelessWidget {
     );
   }
 
-  // باقي أنواع الـ SnackBar بدون تعديل...
-
   SnackBar _buildNotifyCard(BuildContext context) {
     return SnackBar(
       behavior: SnackBarBehavior.floating,
@@ -556,5 +597,49 @@ void showAdvancedNotification(
         context.read<CenterCubit>().state,
       );
   scaffoldState?.reloadNotifyIcon();
-  
+}
+
+// كلاس مساعد لإدارة إعدادات الصوت
+class NotificationSoundManager {
+  static const String _notificationsEnabledKey = 'notifications_enabled';
+  static const String _notificationVolumeKey = 'notification_volume';
+
+  // حفظ إعدادات الإشعارات
+  static Future<void> saveNotificationSettings({
+    required bool enabled,
+    required double volume,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_notificationsEnabledKey, enabled);
+      await prefs.setDouble(_notificationVolumeKey, volume);
+    } catch (e) {
+      print('Failed to save notification settings: $e');
+    }
+  }
+
+  // جلب إعدادات الإشعارات
+  static Future<Map<String, dynamic>> getNotificationSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return {
+        'enabled': prefs.getBool(_notificationsEnabledKey) ?? true,
+        'volume': prefs.getDouble(_notificationVolumeKey) ?? 0.5,
+      };
+    } catch (e) {
+      return {'enabled': true, 'volume': 0.5};
+    }
+  }
+
+  // التحقق من إمكانية تشغيل الصوت
+  static Future<bool> canPlaySound() async {
+    final settings = await getNotificationSettings();
+    return settings['enabled'] == true && settings['volume'] > 0.0;
+  }
+
+  // الحصول على مستوى الصوت
+  static Future<double> getVolume() async {
+    final settings = await getNotificationSettings();
+    return settings['volume'] ?? 0.5;
+  }
 }

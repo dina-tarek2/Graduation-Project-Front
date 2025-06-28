@@ -6,31 +6,33 @@ import 'package:graduation_project_frontend/screens/welcomePage.dart';
 import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
 
 class SplashScreen extends StatefulWidget {
- static String id ="SplashScreen";
+  static String id = "SplashScreen";
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 2), // Duration of the splash screen animation
     );
-    
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
-    
+
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+
     // Start animation
     _animationController.forward();
-    
+
     // Navigate to main screen after delay
-    Timer(Duration(seconds: 10), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.of(context).pushReplacementNamed(WelcomeScreen.id);
     });
   }
@@ -44,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -53,30 +55,24 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             children: [
               // App logo or icon
               Image.asset(
-                'assets/images/logo2.jpg', // Replace with your app logo
+                'assets/images/logo512.png', // Replace with your app logo
                 width: 400,
-                height: 400,
+                height: 200,
               ),
-              SizedBox(height: 30),
-              
-              // App name with radiology theme
-              Text(
-                'Radiology Intelligent',
-                style: customTextStyle(32,FontWeight.w500, blue)
-               
-              ),
-              
               SizedBox(height: 10),
-              
+
+              // App name with radiology theme
+              Text('Radiology Intelligent',
+                  style: customTextStyle(32, FontWeight.w500, blue)),
+
+              SizedBox(height: 10),
+
               // Tagline
-              Text(
-                'Advanced DICOM Analysis & Diagnostic Support',
-                style: customTextStyle(16,FontWeight.w400, blue)
-               
-              ),
-              
+              Text('Advanced DICOM Analysis & Diagnostic Support',
+                  style: customTextStyle(16, FontWeight.w400, blue)),
+
               SizedBox(height: 25),
-              
+
               // Loading indicator
               Container(
                 width: 250,
@@ -85,14 +81,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                 ),
               ),
-              
+
               SizedBox(height: 20),
-              
+
               // Loading text
-              Text(
-                'Initializing AI Components...',
-                style: customTextStyle(14,FontWeight.w400, blue)
-                             ),
+              Text('Initializing AI Components...',
+                  style: customTextStyle(14, FontWeight.w400, blue)),
             ],
           ),
         ),

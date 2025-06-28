@@ -193,7 +193,7 @@ class MainScaffoldState extends State<MainScaffold>
           ChatScreen(userId: userId, userType: userType),
           const AboutUsPage(),
           ContactScreen(role: role.value),
-          SettingsPage(role: role.value),
+          SettingsPage(role: role.value,centerId: userId,),
         ];
 
       case UserRole.radiologist:
@@ -204,7 +204,7 @@ class MainScaffoldState extends State<MainScaffold>
           ChatScreenToDoctor(userId: userId, userType: userType),
           const AboutUsPage(),
           ContactScreen(role: role.value),
-          SettingsPage(role: role.value),
+          SettingsPage(role: role.value, centerId: userId),
         ];
 
       case UserRole.admin:
@@ -518,7 +518,7 @@ class MainScaffoldState extends State<MainScaffold>
       decoration: BoxDecoration(
         color: Colors.white70,
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-        // border: Border.all(width: 0.5, color: blue),
+        // border: Border.all(width: 0.8, color: blue),
       ),
       height: AppConstants.headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 20),
