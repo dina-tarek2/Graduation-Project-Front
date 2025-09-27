@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/DashboardCenter/medical_dashboard_state.dart';
-import 'package:graduation_project_frontend/repositories/medical_repository.dart';
+import 'package:radintel/cubit/DashboardCenter/medical_dashboard_state.dart';
+import 'package:radintel/repositories/medical_repository.dart';
 import 'package:intl/intl.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {

@@ -1,8 +1,8 @@
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
-import 'package:graduation_project_frontend/models/doctors_model.dart';
-import 'package:graduation_project_frontend/models/patient_model.dart';
-import 'package:graduation_project_frontend/models/reports_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/models/centerDashboard_model.dart';
+import 'package:radintel/models/doctors_model.dart';
+import 'package:radintel/models/patient_model.dart';
+import 'package:radintel/models/reports_model.dart';
 import 'package:intl/intl.dart';
 
 class MedicalRepository {

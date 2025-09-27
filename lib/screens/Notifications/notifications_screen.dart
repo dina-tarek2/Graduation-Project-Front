@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
-import 'package:graduation_project_frontend/cubit/Notification/notification_state.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/screens/Notifications/formatNotificationDate.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/Notification/notification_cubit.dart';
+import 'package:radintel/cubit/Notification/notification_state.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/screens/Notifications/formatNotificationDate.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

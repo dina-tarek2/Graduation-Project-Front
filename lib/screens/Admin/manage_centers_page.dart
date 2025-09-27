@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
-import 'package:graduation_project_frontend/screens/Admin/add_center_page.dart';
+import 'package:radintel/cubit/Admin/manage_centers_cubit.dart';
+import 'package:radintel/screens/Admin/add_center_page.dart';
 
 class ManageCentersPage extends StatefulWidget {
   static final id = "ManageCentersPage";

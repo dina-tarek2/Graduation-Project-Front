@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
 
 part 'contact_state.dart';
 
@@ -24,7 +24,7 @@ class ContactCubit extends Cubit<ContactState> {
           ApiKey.name: nameController.text,
           ApiKey.email: emailController.text,
           ApiKey.phone: phoneController.text,
-          ApiKey.massage: messageController.text,
+          ApiKey.message: messageController.text,
         },
       );
       // final message = response.data['message'] ?? "Message sent successfully";
@@ -43,3 +43,4 @@ class ContactCubit extends Cubit<ContactState> {
     return super.close();
   }
 }
+

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
+import 'package:radintel/models/centerDashboard_model.dart';
 
 abstract class DashboardState extends Equatable {
   @override

@@ -2,12 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
-import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:radintel/constants/colors.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:graduation_project_frontend/cubit/Notification/notification_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/screens/Notifications/formatNotificationDate.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:radintel/cubit/Notification/notification_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/screens/Notifications/formatNotificationDate.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // إضافة للحفظ المحلي
 
 enum NotificationType { success, error, warning, info, notify }

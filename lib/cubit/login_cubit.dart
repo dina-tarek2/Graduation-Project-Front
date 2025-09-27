@@ -3,10 +3,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:graduation_project_frontend/cubit/login_state.dart';
-import 'package:graduation_project_frontend/repositories/user_repository.dart';
+import 'package:radintel/cubit/login_state.dart';
+import 'package:radintel/repositories/user_repository.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:graduation_project_frontend/widgets/custom_toast.dart'
+import 'package:radintel/widgets/custom_toast.dart'
     as custom_toast;
 
 String? Id;
@@ -46,13 +46,15 @@ class LoginCubit extends Cubit<LoginState> {
       }
     });
     socket.on("initialNotifications", (notifications) {
-      for (int i = 0; i < notifications.length; i++) {
-        if (i % 2 == 0) {
-          notifications[i]['sound'] = "";
+      if (notifications is List) {
+        for (int i = 0; i < notifications.length; i++) {
+          if (i % 2 == 0) {
+            notifications[i]['sound'] = "";
+          }
+          ;
+          getNotify(notifications[i]);
+          Duration(seconds: 5);
         }
-        ;
-        getNotify(notifications[i]);
-        Duration(seconds: 5);
       }
     });
 
@@ -150,10 +152,18 @@ class LoginCubit extends Cubit<LoginState> {
     final response = await userRepository.login(
         email: emailController.text, password: passwordController.text);
     // String errorMessage = response['message'] ?? 'An unknown error occurred.';
-    response.fold((errorMassage) {
-      print("LoginError $errorMassage");
-
-      emit(LoginError(errorMassage));
+    response.fold((errorMessage) {
+      print("=== LOGIN ERROR DEBUG ===");
+      print("Error Message: $errorMessage");
+      print("Error Type: ${errorMessage.runtimeType}");
+      
+      // Check if it's the specific rate limiting error
+      if (errorMessage.contains("Too many authentication attempts")) {
+        print("=== RATE LIMITING ERROR DETECTED ===");
+        print("This is the rate limiting error from the backend");
+      }
+      
+      emit(LoginError(errorMessage));
     }, (SignInModel) {
       emit(LoginSuccess(SignInModel.role));
 

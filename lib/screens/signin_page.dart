@@ -2,16 +2,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_state.dart';
-import 'package:graduation_project_frontend/screens/forget_password.dart';
-import 'package:graduation_project_frontend/screens/signup_page.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/cubit/login_state.dart';
+import 'package:radintel/screens/forget_password.dart';
+import 'package:radintel/screens/signup_page.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/custom_button.dart';
+import 'package:radintel/widgets/custom_text_field.dart';
+import 'package:radintel/widgets/custom_toast.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SigninPage extends StatefulWidget {

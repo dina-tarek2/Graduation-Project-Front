@@ -1,5 +1,5 @@
  import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/models/reports_model.dart';
+import 'package:radintel/models/reports_model.dart';
 import 'package:intl/intl.dart';
 Widget buildReportCard(Report report) {
   final dateFormat = DateFormat('MMM dd, yyyy HH:mm');

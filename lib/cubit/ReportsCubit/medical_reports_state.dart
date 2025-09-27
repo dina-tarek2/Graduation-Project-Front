@@ -1,4 +1,4 @@
-import 'package:graduation_project_frontend/models/reports_model.dart';
+import 'package:radintel/models/reports_model.dart';
 
 enum MedicalReportsStatus { initial, loading, success, error }
 

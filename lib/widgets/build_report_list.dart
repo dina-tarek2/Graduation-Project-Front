@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_state.dart';
-import 'package:graduation_project_frontend/widgets/build_report_card.dart';
+import 'package:radintel/cubit/ReportsCubit/medical_reports_state.dart';
+import 'package:radintel/widgets/build_report_card.dart';
 
 Widget buildReportsList(MedicalReportsState state) {
     if (state.status == MedicalReportsStatus.loading) {

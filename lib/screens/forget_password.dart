@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/forgetPassword/forget_passeord_cubit.dart';
-import 'package:graduation_project_frontend/screens/otp_resetPassword.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/forgetPassword/forget_passeord_cubit.dart';
+import 'package:radintel/screens/otp_resetPassword.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/custom_text_field.dart';
+import 'package:radintel/widgets/custom_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgetPassword extends StatefulWidget {

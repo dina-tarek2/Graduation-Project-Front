@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/center_profile_cubit.dart';
+import 'package:radintel/cubit/for_Center/center_profile_cubit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/models/centers_model.dart';
+import 'package:radintel/models/centers_model.dart';
 import 'dart:io';
 
 class CenterProfile extends StatefulWidget {

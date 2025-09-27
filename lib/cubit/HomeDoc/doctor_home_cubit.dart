@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
-import 'package:graduation_project_frontend/models/centerRecord.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/models/centerDashboard_model.dart';
+import 'package:radintel/models/centerRecord.dart';
 
 part 'doctor_home_state.dart';
 

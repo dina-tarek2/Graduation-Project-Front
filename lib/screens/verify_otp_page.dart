@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/register_cubit.dart';
-import 'package:graduation_project_frontend/cubit/register_state.dart';
-import 'package:graduation_project_frontend/screens/signin_page.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/register_cubit.dart';
+import 'package:radintel/cubit/register_state.dart';
+import 'package:radintel/screens/signin_page.dart';
+import 'package:radintel/widgets/custom_button.dart';
+import 'package:radintel/widgets/custom_text_field.dart';
 
 class VerifyOtpPage extends StatefulWidget {
   final String role;

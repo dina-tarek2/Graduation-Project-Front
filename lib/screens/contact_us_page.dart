@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/contact_cubit.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/contact_cubit.dart';
+import 'package:radintel/widgets/custom_button.dart';
+import 'package:radintel/widgets/custom_text_field.dart';
+import 'package:radintel/widgets/custom_toast.dart';
 
 class ContactScreen extends StatelessWidget {
   static String id = 'ContactScreen';

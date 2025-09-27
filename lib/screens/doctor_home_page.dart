@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/HomeDoc/doctor_home_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/models/centerRecord.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/doctorAvgTime.dart';
-import 'package:graduation_project_frontend/widgets/modern2.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/HomeDoc/doctor_home_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/models/centerRecord.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/doctorAvgTime.dart';
+import 'package:radintel/widgets/modern2.dart';
 import 'package:intl/intl.dart';
 
 class DoctorDashboard extends StatefulWidget {

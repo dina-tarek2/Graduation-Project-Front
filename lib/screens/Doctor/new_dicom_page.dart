@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/screens/viewer.dart';
+import 'package:radintel/models/Doctor/records_list_model.dart';
+import 'package:radintel/cubit/For_Doctor/records_list_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/screens/viewer.dart';
 
 class NewDicomPage extends StatefulWidget {
   static final id = "NewDicomPage";

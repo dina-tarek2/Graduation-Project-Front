@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
+import 'package:radintel/screens/Doctor/report_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -38,8 +38,8 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
     try {
       final dio = Dio();
       final response = await dio.post(
-        'https://b87a-102-47-200-63.ngrok-free.app/upload',
-        data: {'dicom_url': dicomUrl?[0]},
+        'http://localhost:5000/upload',
+        data: {'dicom_url': dicomUrl?.isNotEmpty == true ? dicomUrl![0] : null},
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
@@ -110,7 +110,7 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
                 MaterialPageRoute(
                   builder: (context) => MedicalReportPage(
                     reportId: widget.reportId,
-                    Dicom_url: widget.url,
+                    Dicom_url: widget.url.isNotEmpty ? widget.url : [],
                     recordId: widget.recordId,
                   ),
                 ),
@@ -143,7 +143,7 @@ class _DicomWebViewPageState extends State<DicomWebViewPage> {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // import 'package:dio/dio.dart';
 // import 'package:flutter/material.dart';
-// import 'package:graduation_project_frontend/screens/Doctor/report_page.dart';
+// import 'package:radintel/screens/Doctor/report_page.dart';
 // import 'package:webview_windows/webview_windows.dart';
 
 // class DicomWebViewPage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/models/notification_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/models/notification_model.dart';
 import 'notification_state.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {

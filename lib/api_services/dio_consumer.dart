@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/api_interceptors.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/api_interceptors.dart';
+import 'package:radintel/api_services/end_points.dart';
 
 class DioConsumer extends ApiConsumer {
   final Dio dio;
@@ -13,6 +13,12 @@ class DioConsumer extends ApiConsumer {
     } else {
       dio.options.baseUrl = EndPoints.baseUrl;
     }
+    
+    // Configure Dio to handle 500 errors gracefully
+    dio.options.validateStatus = (status) {
+      return status != null && status < 500; // Don't throw for 4xx errors, only 5xx
+    };
+    
     //tosent header with request
     dio.interceptors.add(ApiInterceptors());
     // to print info about request
@@ -23,6 +29,41 @@ class DioConsumer extends ApiConsumer {
         responseBody: true,
         responseHeader: true,
         error: true));
+  }
+
+  // Helper method to handle DioException errors consistently
+  String _handleDioException(DioException e) {
+    print("DioException: ${e.message}");
+    
+    if (e.response != null) {
+      // Server responded with error status
+      String errorMessage;
+      
+      // Check for the specific rate limiting error format
+      if (e.response?.data != null && e.response?.data['error'] != null) {
+        errorMessage = e.response?.data['error'];
+        
+        // If it's a rate limiting error, add retry information
+        if (e.response?.data['retryAfter'] != null) {
+          int retryAfter = e.response?.data['retryAfter'];
+          int minutes = (retryAfter / 60).round();
+          errorMessage += " Please try again in $minutes minutes.";
+        }
+      } else {
+        errorMessage = e.response?.data?['message'] ?? 
+                      e.response?.data?['error'] ?? 
+                      'Server error: ${e.response?.statusCode}';
+      }
+      
+      return errorMessage;
+    } else if (e.type == DioExceptionType.connectionTimeout || 
+               e.type == DioExceptionType.receiveTimeout) {
+      return 'Connection timeout. Please check your internet connection.';
+    } else if (e.type == DioExceptionType.connectionError) {
+      return 'Network error. Please check your internet connection.';
+    } else {
+      return e.message ?? 'An unexpected error occurred.';
+    }
   }
 
   @override
@@ -40,8 +81,7 @@ class DioConsumer extends ApiConsumer {
       );
       return Response;
     } on DioException catch (e) {
-      print("DioException: ${e.message}");
-      throw (" ${e.response?.data['message'] ?? e.message}");
+      throw _handleDioException(e);
     }
   }
 
@@ -60,8 +100,7 @@ class DioConsumer extends ApiConsumer {
       );
       return Response;
     } on DioException catch (e) {
-      print("DioException: ${e.message}");
-      throw (" ${e.response?.data['message'] ?? e.message}");
+      throw _handleDioException(e);
     }
   }
 
@@ -80,8 +119,7 @@ class DioConsumer extends ApiConsumer {
       );
       return Response;
     } on DioException catch (e) {
-      print("DioException: ${e.message}");
-      throw (" ${e.response?.data['message'] ?? e.message}");
+      throw _handleDioException(e);
     }
   }
 
@@ -105,8 +143,7 @@ class DioConsumer extends ApiConsumer {
       );
       return response;
     } on DioException catch (e) {
-      print("DioException: ${e.message}");
-      throw (" ${e.response?.data['message'] ?? e.message}");
+      throw _handleDioException(e);
     }
   }
   @override
@@ -124,8 +161,7 @@ class DioConsumer extends ApiConsumer {
       );
       return response;
     } on DioException catch (e) {
-      print("DioException: ${e.message}");
-      throw (" ${e.response?.data['message'] ?? e.message}");
+      throw _handleDioException(e);
     }
   }
 }

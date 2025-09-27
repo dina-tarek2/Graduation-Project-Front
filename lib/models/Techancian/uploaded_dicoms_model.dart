@@ -95,11 +95,11 @@ class RecordModel {
       bodyPartExamined: json["body_part_examined"] as String? ?? "N/A",
       email: json["email"] as String? ?? "",
 
-      dicomId: json["DicomId"] as List ,
+      dicomId: json["DicomId"] is List ? json["DicomId"] : [],
       series: json["series"] as String? ?? "",
       status: json["status"] as String? ?? "Pending",
       deleted: json["deleted"] as bool? ?? false,
-      dicomUrl: json["Dicom_url"] as List ,
+      dicomUrl: json["Dicom_url"] is List ? json["Dicom_url"] : [],
 
       studyDescription: json["study_description"] as String? ?? "",
       deadline: DateTime.tryParse(json["deadline"] ?? ""),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:radintel/constants/colors.dart';
 import 'dart:async';
 
-import 'package:graduation_project_frontend/screens/welcomePage.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/screens/welcomePage.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class SplashScreen extends StatefulWidget {
   static String id = "SplashScreen";

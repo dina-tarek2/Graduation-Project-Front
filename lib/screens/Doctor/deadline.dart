@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
-import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
+import 'package:radintel/cubit/For_Doctor/records_list_cubit.dart';
+import 'package:radintel/models/Doctor/records_list_model.dart';
+import 'package:radintel/widgets/custom_button.dart';
 import 'package:intl/intl.dart';
 
 

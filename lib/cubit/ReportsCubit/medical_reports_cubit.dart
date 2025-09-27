@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_state.dart';
-import 'package:graduation_project_frontend/models/reports_model.dart';
-import 'package:graduation_project_frontend/repositories/medical_repository.dart';
+import 'package:radintel/cubit/ReportsCubit/medical_reports_state.dart';
+import 'package:radintel/models/reports_model.dart';
+import 'package:radintel/repositories/medical_repository.dart';
 
 class MedicalReportsCubit extends Cubit<MedicalReportsState> {
    final MedicalRepository repository;

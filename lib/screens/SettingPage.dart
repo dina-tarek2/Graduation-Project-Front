@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/center_profile_cubit.dart';
-import 'package:graduation_project_frontend/cubit/setting_cubit.dart';
-import 'package:graduation_project_frontend/screens/privacy_policy_page.dart';
-import 'package:graduation_project_frontend/screens/terms_conditions_page.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:radintel/cubit/doctor/doctor_profile_cubit.dart';
+import 'package:radintel/cubit/for_Center/center_profile_cubit.dart';
+import 'package:radintel/cubit/setting_cubit.dart';
+import 'package:radintel/screens/privacy_policy_page.dart';
+import 'package:radintel/screens/terms_conditions_page.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // إضافة للحفظ المحلي
 
@@ -41,11 +41,11 @@ class _SettingsPageState extends State<SettingsPage> {
       });
     }
 
-    // تحميل الإعدادات المحفوظة
+
     _loadSettings();
   }
 
-  // تحميل الإعدادات من SharedPreferences
+ 
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -450,7 +450,7 @@ class _WalletSection extends StatelessWidget {
             child: const Text('Recharge'),
           ),
         ],
-      ),
+      ),  
     );
   }
 

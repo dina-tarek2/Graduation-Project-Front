@@ -1,4 +1,4 @@
-import 'package:graduation_project_frontend/models/notification_model.dart';
+import 'package:radintel/models/notification_model.dart';
 
 abstract class NotificationState {}
 

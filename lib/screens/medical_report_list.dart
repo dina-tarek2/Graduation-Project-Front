@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
-import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_cubit.dart';
-import 'package:graduation_project_frontend/cubit/ReportsCubit/medical_reports_state.dart';
-import 'package:graduation_project_frontend/repositories/medical_repository.dart';
-import 'package:graduation_project_frontend/widgets/build_report_list.dart';
-import 'package:graduation_project_frontend/widgets/build_states_card.dart';
+import 'package:radintel/api_services/dio_consumer.dart';
+import 'package:radintel/cubit/ReportsCubit/medical_reports_cubit.dart';
+import 'package:radintel/cubit/ReportsCubit/medical_reports_state.dart';
+import 'package:radintel/repositories/medical_repository.dart';
+import 'package:radintel/widgets/build_report_list.dart';
+import 'package:radintel/widgets/build_states_card.dart';
 
 class MedicalReportsScreen extends StatelessWidget {
   static String id ='MedicalReportsScreen';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/models/centerDashboard_model.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class DashboardCards extends StatelessWidget {
   final Centerdashboard data;

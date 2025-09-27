@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide AnimationStyle; // hide AnimationStyle from material.dart
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart';
 import 'package:collection/collection.dart';
-import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
-import 'package:graduation_project_frontend/models/comments_moudel.dart';
-import 'package:graduation_project_frontend/screens/Center/upload_page.dart';
-import 'package:graduation_project_frontend/screens/viewer.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_button.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart'; // تأكد من استيراد AnimationStyle من هنا
+import 'package:radintel/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:radintel/models/comments_moudel.dart';
+import 'package:radintel/screens/Center/upload_page.dart';
+import 'package:radintel/screens/viewer.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/custom_button.dart';
+import 'package:radintel/widgets/custom_toast.dart'; // تأكد من استيراد AnimationStyle من هنا
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -367,7 +367,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
   }
 
   DataCell _clickableCell(Widget child, BuildContext context, String reportid,
-      List<dynamic> Dicom_url) {
+      List<dynamic> Dicom_url, String recordId) {
     return DataCell(
       MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -376,7 +376,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
             Navigator.pushNamed(context, DicomWebViewPage.id, arguments: {
               'reportId': reportid,
               'url': Dicom_url,
-              'recordId': reportid
+              'recordId': recordId
             });
           },
           child: child,
@@ -389,7 +389,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('HH:mm');
     final String link =
-        "https://abanoubsamaan5.github.io/my-react-app/#/showReport/${record.id}";
+         "https://patient-web-29xx.vercel.app/#/showReport/${record.id}";
     void launchURL() async {
       final Uri url = Uri.parse(link);
       if (await canLaunchUrl(url)) {
@@ -517,6 +517,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // Patient Name
@@ -529,6 +530,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // Created Date & Time
@@ -550,6 +552,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // Deadline Date & Time
@@ -571,6 +574,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // Modality
@@ -579,6 +583,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // Radiologist Name
@@ -592,6 +597,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
           context,
           record.reportId,
           record.dicomUrl,
+          record.id,
         ),
 
         // QR Code Viewer

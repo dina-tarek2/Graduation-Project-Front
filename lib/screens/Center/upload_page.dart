@@ -1,11 +1,11 @@
 // import 'package:flutter/gestures.dart';
 // import 'package:flutter/material.dart';
 // import 'package:dotted_border/dotted_border.dart';
-// import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
+// import 'package:radintel/cubit/for_Center/upload_page_cubit.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
-// import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-// import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+// import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
+// import 'package:radintel/cubit/login_cubit.dart';
+// import 'package:radintel/widgets/customTextStyle.dart';
 
 // class UploadScreen extends StatelessWidget {
 //   static final id = "UploadScreen";
@@ -192,11 +192,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/upload_page_cubit.dart';
+import 'package:radintel/cubit/for_Center/upload_page_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class UploadScreen extends StatefulWidget {
   static final id = "UploadScreen";

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/Admin/manage_centers_cubit.dart';
-import 'package:graduation_project_frontend/cubit/Admin/not_approved_centers_cubit.dart';
-import 'package:graduation_project_frontend/models/Admin/approved_centers_model.dart';
+import 'package:radintel/cubit/Admin/manage_centers_cubit.dart';
+import 'package:radintel/cubit/Admin/not_approved_centers_cubit.dart';
+import 'package:radintel/models/Admin/approved_centers_model.dart';
 
 class ViewCenterProfilePage extends StatefulWidget {
   static final id = "ViewCenterProfilePage";
