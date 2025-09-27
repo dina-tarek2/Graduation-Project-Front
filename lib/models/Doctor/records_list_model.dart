@@ -63,7 +63,7 @@ class RecordsListModel {
       modality: json['modality'] ?? '',
       bodyPartExamined: json['body_part_examined'] ?? '',
       email: json['email'] ?? '',
-      dicomId: json['DicomId'] ?? '',
+      dicomId: json['DicomId'] is List ? json['DicomId'] : [],
       series: json['series'] ?? '',
       status: json['status'] ?? '',
       deleted: json['deleted'] ?? false,
@@ -81,7 +81,7 @@ class RecordsListModel {
           DateTime.now().toIso8601String()), 
       updatedAt:
           DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
-      Dicom_url: json['Dicom_url'] ?? '',
+      Dicom_url: json['Dicom_url'] is List ? json['Dicom_url'] : [],
     );
   }
 }

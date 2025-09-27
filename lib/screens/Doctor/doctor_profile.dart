@@ -2,13 +2,13 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/cubit/doctor/doctor_profile_cubit.dart';
-import 'package:graduation_project_frontend/models/doctors_model.dart';
+import 'package:radintel/cubit/doctor/doctor_profile_cubit.dart';
+import 'package:radintel/models/doctors_model.dart';
 import 'dart:io';
-import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:radintel/constants/colors.dart';
 
 class DoctorProfile extends StatefulWidget {
   final String doctorId;

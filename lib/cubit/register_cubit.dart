@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
-import 'package:graduation_project_frontend/cubit/register_state.dart';
-import 'package:graduation_project_frontend/models/otp_model.dart';
-import 'package:graduation_project_frontend/models/signup_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
+import 'package:radintel/cubit/register_state.dart';
+import 'package:radintel/models/otp_model.dart';
+import 'package:radintel/models/signup_model.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/Admin/doctors_cubit.dart';
-import 'package:graduation_project_frontend/models/Admin/docotors_model.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/Admin/doctors_cubit.dart';
+import 'package:radintel/models/Admin/docotors_model.dart';
 
 class ManageDoctorsaPage extends StatefulWidget {
   static final id = "ManageDoctorsaPage";

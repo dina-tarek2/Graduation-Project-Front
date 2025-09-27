@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
-import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
-import 'package:graduation_project_frontend/models/comments_moudel.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
+import 'package:radintel/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:radintel/models/comments_moudel.dart';
+import 'package:radintel/widgets/custom_toast.dart';
 part 'uploaded_dicoms_state.dart';
 
 class UploadedDicomsCubit extends Cubit<UploadedDicomsState> {

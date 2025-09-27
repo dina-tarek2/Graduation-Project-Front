@@ -1,14 +1,15 @@
+
 import 'package:flutter/material.dart' hide AnimationStyle;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/DashboardCenter/medical_dashboard_cubit.dart';
-import 'package:graduation_project_frontend/cubit/DashboardCenter/medical_dashboard_state.dart';
-import 'package:graduation_project_frontend/models/centerDashboard_model.dart';
-import 'package:graduation_project_frontend/models/doctors_model.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
-import 'package:graduation_project_frontend/widgets/custom_toast.dart';
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart';
-import 'package:graduation_project_frontend/widgets/modernStatistical.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/DashboardCenter/medical_dashboard_cubit.dart';
+import 'package:radintel/cubit/DashboardCenter/medical_dashboard_state.dart';
+import 'package:radintel/models/centerDashboard_model.dart';
+import 'package:radintel/models/doctors_model.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/custom_toast.dart';
+import 'package:radintel/widgets/mainScaffold.dart';
+import 'package:radintel/widgets/modernStatistical.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -439,7 +440,9 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
   }
 
   void _navigateToChat(Doctor radiologist) {
+
     final mainState = MainScaffold.of(context);
     mainState?.navigateToScreen(4);
+
   }
 }

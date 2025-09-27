@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/constants/colors.dart'; // Assuming this defines custom colors
-import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
-import 'package:graduation_project_frontend/cubit/For_Doctor/report_page_cubit.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart'; // Assuming UserCubit is part of login_cubit.dart
-import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/models/Doctor/report_page_model.dart';
-import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
-import 'package:graduation_project_frontend/widgets/custom_text_field.dart'; // Assuming this is your custom text field
-import 'package:graduation_project_frontend/widgets/mainScaffold.dart'; // Assuming this is your main scaffold
+import 'package:intl/intl.dart';
+import 'package:radintel/constants/colors.dart'; // Assuming this defines custom colors
+import 'package:radintel/cubit/For_Doctor/records_list_cubit.dart';
+import 'package:radintel/cubit/For_Doctor/report_page_cubit.dart';
+import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:radintel/cubit/login_cubit.dart'; // Assuming UserCubit is part of login_cubit.dart
+import 'package:radintel/models/Doctor/records_list_model.dart';
+import 'package:radintel/models/Doctor/report_page_model.dart';
+import 'package:radintel/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:radintel/widgets/custom_text_field.dart'; // Assuming this is your custom text field
+import 'package:radintel/widgets/mainScaffold.dart'; // Assuming this is your main scaffold
 
 class MedicalReportPage extends StatefulWidget {
   const MedicalReportPage({
@@ -36,6 +37,10 @@ class _MedicalReportPageState extends State<MedicalReportPage>
   bool _isEditingReport = false;
   final List<String> _reportStatusOptions = ["Normal", "Critical", "Follow-up"];
   String? _selectedReportStatus;
+  
+  // Loading states for buttons
+  bool _isCancelling = false;
+  bool _isSending = false;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -68,7 +73,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
     _selectedReportStatus = "Normal";
 
     // Fetch initial data - actual controller texts will be set in BlocListeners
-    if (widget.reportId != null) {
+    if (widget.reportId != null && widget.reportId!.isNotEmpty) {
       context.read<ReportPageCubit>().fetchReport(widget.reportId!);
     }
     if (widget.recordId != null) {
@@ -168,14 +173,22 @@ class _MedicalReportPageState extends State<MedicalReportPage>
             const SizedBox(width: 10),
             // Updated to ElevatedButton.icon for text with icon
             ElevatedButton.icon(
-              onPressed:
-                  isRecordCompleted ? null : () => _addCommentDialog(record,role),
-              icon: Icon(Icons.cancel_rounded,
-                  color: isRecordCompleted
-                      ? Colors.grey.shade400
-                      : Colors.red.shade600),
+              onPressed: isRecordCompleted || _isCancelling ? null : () => _addCommentDialog(record, role),
+              icon: _isCancelling 
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.red.shade600,
+                      ),
+                    )
+                  : Icon(Icons.cancel_rounded,
+                      color: isRecordCompleted
+                          ? Colors.grey.shade400
+                          : Colors.red.shade600),
               label: Text(
-                'Cancel',
+                _isCancelling ? 'Cancelling...' : 'Cancel',
                 style: TextStyle(
                   color: isRecordCompleted
                       ? Colors.grey.shade400
@@ -196,13 +209,22 @@ class _MedicalReportPageState extends State<MedicalReportPage>
             const SizedBox(width: 10),
             // Updated to ElevatedButton.icon for text with icon
             ElevatedButton.icon(
-              onPressed: isRecordCompleted ? null : () => _sendReport(role),
-              icon: Icon(Icons.send_rounded,
-                  color: isRecordCompleted
-                      ? Colors.grey.shade400
-                      : Colors.green.shade600),
+              onPressed: isRecordCompleted || _isSending ? null : () => _sendReport(role),
+              icon: _isSending 
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.green.shade600,
+                      ),
+                    )
+                  : Icon(Icons.send_rounded,
+                      color: isRecordCompleted
+                          ? Colors.grey.shade400
+                          : Colors.green.shade600),
               label: Text(
-                'Send',
+                _isSending ? 'Sending...' : 'Send',
                 style: TextStyle(
                   color: isRecordCompleted
                       ? Colors.grey.shade400
@@ -711,7 +733,9 @@ class _MedicalReportPageState extends State<MedicalReportPage>
       );
 
       // Re-fetch data to ensure UI reflects the latest state from the backend
-      await context.read<ReportPageCubit>().fetchReport(widget.reportId!);
+      if (widget.reportId != null && widget.reportId!.isNotEmpty) {
+        await context.read<ReportPageCubit>().fetchReport(widget.reportId!);
+      }
       await context.read<RecordsListCubit>().getRecordById(widget.recordId!);
 
       setState(() {
@@ -729,9 +753,12 @@ class _MedicalReportPageState extends State<MedicalReportPage>
     }
   }
 
+
   /// Handles sending the report by marking the record as 'Completed'.
   Future<void> _sendReport(String role) async {
-    _showLoadingDialog(); // Show loading indicator
+    setState(() {
+      _isSending = true;
+    });
 
     try {
       await context.read<ReportPageCubit>().updateReportOrRecord(
@@ -743,7 +770,6 @@ class _MedicalReportPageState extends State<MedicalReportPage>
         }, // Mark record as completed
       );
 
-      if (mounted) Navigator.pop(context); // Close loading dialog
       _showSuccessSnackBar("Report sent and marked as Completed");
 
       // Navigate back to the main scaffold after successful submission
@@ -752,14 +778,19 @@ class _MedicalReportPageState extends State<MedicalReportPage>
           context,
           MaterialPageRoute(
             builder: (_) => MainScaffold.fromString(
-              role:role.toString(),
+              role: role.toString(),
             ),
           ),
         );
       }
     } catch (e) {
-      if (mounted) Navigator.pop(context); // Close loading dialog
       _showErrorSnackBar("Failed to send report: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
+        });
+      }
     }
   }
 
@@ -856,6 +887,23 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                       recordState.record.bodyPartExamined ?? '';
                 }
               });
+            } else if (recordState is RecordsListLoading) {
+              // Handle loading state for cancel operations
+              setState(() {
+                _isCancelling = true;
+              });
+            } else if (recordState is NewRecordSuccess) {
+              // Handle success state
+              setState(() {
+                _isCancelling = false;
+              });
+              _showSuccessSnackBar("Operation completed successfully");
+            } else if (recordState is RecordsListFailure) {
+              // Handle failure state
+              setState(() {
+                _isCancelling = false;
+              });
+              _showErrorSnackBar("Operation failed: ${recordState.error}");
             }
           },
         ),
@@ -864,9 +912,49 @@ class _MedicalReportPageState extends State<MedicalReportPage>
         backgroundColor: Colors.grey.shade50,
         body: BlocBuilder<ReportPageCubit, ReportPageState>(
           builder: (context, reportState) {
+            // Handle case when there's no reportId available
+            if (widget.reportId == null || widget.reportId!.isEmpty) {
+              return BlocBuilder<RecordsListCubit, RecordsListState>(
+                builder: (context, recordState) {
+                  if (recordState is! RecordLoaded) {
+                    return const Center(
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    );
+                  }
+                  
+                  final record = recordState.record;
+                  return _buildNoReportAvailableUI(record);
+                },
+              );
+            }
+
             if (reportState is ReportPageLoading) {
-              return const Center(
-                child: CircularProgressIndicator(strokeWidth: 3),
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(strokeWidth: 3),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Loading Report...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Progress bar
+                    Container(
+                      width: 200,
+                      child: LinearProgressIndicator(
+                        backgroundColor: Colors.grey[300],
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ],
+                ),
               );
             }
 
@@ -887,7 +975,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
-                        if (widget.reportId != null) {
+                        if (widget.reportId != null && widget.reportId!.isNotEmpty) {
                           context
                               .read<ReportPageCubit>()
                               .fetchReport(widget.reportId!);
@@ -941,6 +1029,10 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                         SliverToBoxAdapter(
                           child: Column(
                             children: [
+                              // Progress Bar Section
+                              _buildProgressBar(record),
+                              const SizedBox(height: 16),
+                              
                               // The status section is now displayed conditionally within _buildPatientInfoSection
                               // OR separately as a full selection card when editing.
                               _buildPatientInfoSection(record),
@@ -1053,40 +1145,45 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                       ? null
                       : () async {
                           final commentText = _commentController.text.trim();
-                          if (commentText.isEmpty) {
-                            context
-                                .read<RecordsListCubit>()
-                                .cancelRecord(record.id);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
-                            );
-                            return;
-                          }
+                          
                           setState(() {
                             isLoading = true;
                           });
 
                           try {
+                            if (commentText.isNotEmpty) {
+                              await context
+                                  .read<UploadedDicomsCubit>()
+                                  .addComment(record.id, commentText);
+                            }
+                            
                             await context
-                                .read<UploadedDicomsCubit>()
-                                .addComment(record.id, commentText);
-                            context
                                 .read<RecordsListCubit>()
                                 .cancelRecord(record.id);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => MainScaffold.fromString(role: role.toString())),
-                            );
+                            
+                            if (mounted) {
+                              Navigator.pop(context); // Close dialog
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => MainScaffold.fromString(role: role.toString())),
+                              );
+                            }
                           } catch (e) {
-                            setState(() {
-                              isLoading = false;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Error: $e")),
-                            );
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Error cancelling record: $e"),
+                                  backgroundColor: Colors.red.shade600,
+                                ),
+                              );
+                            }
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }
                           }
                         },
                   child: isLoading
@@ -1250,5 +1347,290 @@ class _MedicalReportPageState extends State<MedicalReportPage>
         });
       }
     }
+  }
+
+  /// Builds UI when no report is available yet
+  Widget _buildNoReportAvailableUI(RecordsListModel record) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Patient Information Card
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Patient Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[800],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow('Name', record.patientName),
+                  _buildInfoRow('Age', record.age?.toString() ?? 'N/A'),
+                  _buildInfoRow('Gender', record.sex),
+                  _buildInfoRow('Modality', record.modality),
+                  _buildInfoRow('Body Part', record.bodyPartExamined ?? 'N/A'),
+                  _buildInfoRow('Study Date', record.studyDate != null 
+                      ? DateFormat('yyyy-MM-dd').format(record.studyDate!) 
+                      : 'N/A'),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Progress Bar for No Report Case
+          _buildProgressBar(record),
+          
+          const SizedBox(height: 20),
+          
+          // No Report Available Card
+          Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.assignment_outlined,
+                    size: 64,
+                    color: Colors.orange[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No AI Report Available',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'This record does not have an AI-generated report yet. The report will be available once the AI analysis is completed.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Refresh the record data
+                      if (widget.recordId != null) {
+                        context.read<RecordsListCubit>().getRecordById(widget.recordId!);
+                      }
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Refresh"),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Helper method to build info rows
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds a progress bar showing report completion status
+  Widget _buildProgressBar(RecordsListModel record) {
+    // Calculate progress based on report status and completion
+    double progress = 0.0;
+    String statusText = '';
+    Color progressColor = Colors.grey;
+    
+    switch (record.status.toLowerCase()) {
+      case 'ready':
+        progress = 0.2;
+        statusText = 'Ready for Analysis';
+        progressColor = Colors.orange;
+        break;
+      case 'diagnose':
+        progress = 0.6;
+        statusText = 'Under Analysis';
+        progressColor = Colors.blue;
+        break;
+      case 'completed':
+        progress = 1.0;
+        statusText = 'Analysis Complete';
+        progressColor = Colors.green;
+        break;
+      case 'cancelled':
+        progress = 0.0;
+        statusText = 'Analysis Cancelled';
+        progressColor = Colors.red;
+        break;
+      default:
+        progress = 0.1;
+        statusText = 'Processing...';
+        progressColor = Colors.grey;
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Report Progress',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: progressColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: progressColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+              minHeight: 8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Progress percentage
+          Text(
+            '${(progress * 100).toInt()}% Complete',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          // Additional info based on status
+          if (record.status.toLowerCase() == 'diagnose') ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 16,
+                  color: Colors.blue[600],
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'AI is analyzing the medical images...',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ] else if (record.status.toLowerCase() == 'completed') ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  size: 16,
+                  color: Colors.green[600],
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Report is ready for review',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

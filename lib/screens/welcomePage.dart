@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/screens/signup_page.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/screens/signup_page.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static String id = "WelcomeScreen";

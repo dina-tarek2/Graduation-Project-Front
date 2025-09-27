@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/models/wallet_model.dart';
-import 'package:graduation_project_frontend/models/wallet_transaction_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/models/wallet_model.dart';
+import 'package:radintel/models/wallet_transaction_model.dart';
 part 'setting_state.dart';
 
 class SettingCubit extends Cubit<SettingState> {

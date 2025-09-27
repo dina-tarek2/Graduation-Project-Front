@@ -1,8 +1,9 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:radintel/constants/colors.dart';
 
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class Modernstatistical2 extends StatefulWidget {
   final Map<String, dynamic> weeklyStatusCounts;
@@ -243,3 +244,4 @@ class _ModernstatisticalState extends State<Modernstatistical2> {
     );
   }
 }
+

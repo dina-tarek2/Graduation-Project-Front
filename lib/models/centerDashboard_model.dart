@@ -1,4 +1,4 @@
-import 'package:graduation_project_frontend/models/doctors_model.dart';
+import 'package:radintel/models/doctors_model.dart';
 
 class Centerdashboard {
     final int onlineRadiologists;

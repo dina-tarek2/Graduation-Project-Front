@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
-import 'package:graduation_project_frontend/models/Admin/docotors_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
+import 'package:radintel/models/Admin/docotors_model.dart';
 
 part 'doctors_state.dart';
 

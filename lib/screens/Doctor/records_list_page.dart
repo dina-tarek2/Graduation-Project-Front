@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/cubit/login_cubit.dart';
-import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
-import 'package:graduation_project_frontend/screens/Doctor/deadline.dart';
+import 'package:radintel/cubit/login_cubit.dart';
+import 'package:radintel/models/Doctor/records_list_model.dart';
+import 'package:radintel/screens/Doctor/deadline.dart';
 
-import 'package:graduation_project_frontend/screens/viewer.dart';
+import 'package:radintel/screens/viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:graduation_project_frontend/cubit/For_Doctor/records_list_cubit.dart';
-import 'package:graduation_project_frontend/models/Techancian/uploaded_dicoms_model.dart';
+import 'package:radintel/cubit/For_Doctor/records_list_cubit.dart';
+import 'package:radintel/models/Techancian/uploaded_dicoms_model.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graduation_project_frontend/models/comments_moudel.dart';
-import 'package:graduation_project_frontend/cubit/for_Center/uploaded_dicoms_cubit.dart';
+import 'package:radintel/models/comments_moudel.dart';
+import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
 
 class RecordsListPage extends StatefulWidget {
   static const id = "RecordsListPage";
@@ -118,88 +118,92 @@ class _RecordsListPageState extends State<RecordsListPage>
     );
   }
 
-  Widget _buildFilterSection() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
+Widget _buildFilterSection() {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.2),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
         ),
-        child: Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width *
-                  0.4, // controls search width
-              child: _buildSearchBox(),
-            ),
-            const SizedBox(width: 200),
-            _buildStatusFilterChips(),
-          ],
+      ],
+    ),
+    child: Row(
+      children: [
+        // Search box takes remaining space before filter buttons
+        Expanded(
+          child: _buildSearchBox(),
         ),
-      ),
-    );
-  }
+        const SizedBox(width: 12),
+        // Filter chips fill the rest of the row, scrollable
+        Flexible(
+          flex: 0,
+          child: _buildStatusFilterChips(),
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildSearchBox() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+
+Widget _buildSearchBox() {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: TextField(
+      decoration: InputDecoration(
+        hintText: "Search by Name",
+        prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
       ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: "Search by Name",
-          prefixIcon: Icon(Icons.search, color: Colors.blueGrey),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
-        ),
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value.toLowerCase();
-          });
+      onChanged: (value) {
+        setState(() {
+          searchQuery = value.toLowerCase();
+        });
+      },
+    ),
+  );
+}
+
+Widget _buildStatusFilterChips() {
+  List<String> statusOptions = ["All", "Diagnose", "Completed", "Canceled"];
+
+  return Wrap(
+    spacing: 8.0,
+    runSpacing: 8.0,
+    children: statusOptions.map((status) {
+      return ChoiceChip(
+        label: Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
+        selected: selectedStatus == status,
+        onSelected: (isSelected) {
+          if (isSelected) {
+            setState(() {
+              selectedStatus = status;
+            });
+          }
         },
-      ),
-    );
-  }
+        selectedColor: _getStatusColor(status).withOpacity(0.8),
+        backgroundColor: Colors.grey[300],
+        labelStyle: TextStyle(
+          color: selectedStatus == status ? Colors.white : Colors.black87,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      );
+    }).toList(),
+  );
+}
 
-  Widget _buildStatusFilterChips() {
-    List<String> statusOptions = ["All", "Diagnose", "Completed", "Cancled"];
-    return Wrap(
-      spacing: 8,
-      children: statusOptions.map((status) {
-        return ChoiceChip(
-          label:
-              Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
-          selected: selectedStatus == status,
-          onSelected: (isSelected) {
-            if (isSelected) {
-              setState(() {
-                selectedStatus = status;
-              });
-            }
-          },
-          selectedColor: _getStatusColor(status).withValues(alpha: 0.8),
-          backgroundColor: Colors.grey[300],
-          labelStyle: TextStyle(
-            color: selectedStatus == status ? Colors.white : Colors.black87,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        );
-      }).toList(),
-    );
-  }
+
 
   Widget _buildRecordsTable() {
     return BlocConsumer<RecordsListCubit, RecordsListState>(

@@ -1,8 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
-import 'package:graduation_project_frontend/models/Doctor/records_list_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
+import 'package:radintel/models/Doctor/records_list_model.dart';
 import 'package:meta/meta.dart';
 
 part 'records_list_state.dart';
@@ -55,7 +56,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
     }
   }
 
-  // apprpove api
+  // approve api
   Future<void> approveRecord(String id) async {
     emit(RecordsListLoading());
     try {
@@ -65,10 +66,10 @@ class RecordsListCubit extends Cubit<RecordsListState> {
 
       if (response.statusCode == 200) {
         print("Record approved successfully");
-
         emit(NewRecordSuccess());
       } else {
-        throw Exception("Failed to approve record: ${response.statusCode}");
+        print("Server error: ${response.statusCode} - ${response.data}");
+        throw Exception("Failed to approve record: ${response.statusCode} - ${response.data}");
       }
     } catch (e) {
       print('Error approving record: $e');
@@ -87,7 +88,8 @@ class RecordsListCubit extends Cubit<RecordsListState> {
         print("Record canceled successfully");
         emit(NewRecordSuccess());
       } else {
-        throw Exception("Failed to cancel record: ${response.statusCode}");
+        print("Server error: ${response.statusCode} - ${response.data}");
+        throw Exception("Failed to cancel record: ${response.statusCode} - ${response.data}");
       }
     } catch (e) {
       print('Error canceling record: $e');

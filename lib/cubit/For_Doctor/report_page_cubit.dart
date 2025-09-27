@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/models/Doctor/report_page_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/models/Doctor/report_page_model.dart';
 
 part 'report_page_state.dart';
 
@@ -18,6 +18,12 @@ class ReportPageCubit extends Cubit<ReportPageState> {
 
   Future<void> fetchReport(String reportId) async {
     emit(ReportPageLoading());
+
+    // Check if reportId is empty or null
+    if (reportId.isEmpty) {
+      emit(ReportPageFailure(errmessage: "Report ID is empty or not available"));
+      return;
+    }
 
     try {
       final response = await api.get(

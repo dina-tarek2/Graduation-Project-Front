@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 // ignore: must_be_immutable
 class CustomButton extends StatelessWidget {

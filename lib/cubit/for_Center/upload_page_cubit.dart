@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:graduation_project_frontend/api_services/api_consumer.dart';
-import 'package:graduation_project_frontend/api_services/end_points.dart';
-import 'package:graduation_project_frontend/models/Techancian/upload_model.dart';
+import 'package:radintel/api_services/api_consumer.dart';
+import 'package:radintel/api_services/end_points.dart';
+import 'package:radintel/models/Techancian/upload_model.dart';
 import 'package:file_picker/file_picker.dart';
 
 part 'upload_page_state.dart';

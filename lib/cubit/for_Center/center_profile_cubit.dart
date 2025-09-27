@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
-import 'package:graduation_project_frontend/models/centers_model.dart';
+import 'package:radintel/api_services/dio_consumer.dart';
+import 'package:radintel/models/centers_model.dart';
 
 part 'center_profile_state.dart';
 

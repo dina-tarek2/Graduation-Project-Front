@@ -20,8 +20,9 @@ class DicomResponse {
 
   factory DicomResponse.fromJson(List<dynamic> json) {
     final count = json[0]['count']; 
-    final List<DicomFile> files =
-        (json[1] as List).map((file) => DicomFile.fromJson(file)).toList();
+    final List<DicomFile> files = json[1] is List
+        ? (json[1] as List).map((file) => DicomFile.fromJson(file)).toList()
+        : [];
     return DicomResponse(count: count, files: files);
   }
 }

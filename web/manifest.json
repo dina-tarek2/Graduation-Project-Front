@@ -1,11 +1,11 @@
 {
-    "name": "graduation_project_frontend",
-    "short_name": "graduation_project_frontend",
+    "name": "Radintel",
+    "short_name": "Radintel",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Radintel - AI-Powered Radiology Platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

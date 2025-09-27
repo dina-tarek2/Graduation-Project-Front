@@ -6,6 +6,7 @@ class ApiInterceptors  extends Interceptor{
   //headers are sent with request
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
       options.headers['token']='token';
+      options.headers['Content-Type']='application/json';
     super.onRequest(options, handler);
   }
 }

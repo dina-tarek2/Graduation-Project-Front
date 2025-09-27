@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/api_services/dio_consumer.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/cubit/chat/chat_cubit.dart';
-import 'package:graduation_project_frontend/screens/Center/center_profile.dart';
+import 'package:radintel/api_services/dio_consumer.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/cubit/chat/chat_cubit.dart';
+import 'package:radintel/screens/Center/center_profile.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 

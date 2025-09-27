@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:graduation_project_frontend/models/doctors_model.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
+import 'package:radintel/models/doctors_model.dart';
+import 'package:radintel/constants/colors.dart';
 
 class DoctorReportsChart extends StatelessWidget {
   final List<Doctor> doctors;

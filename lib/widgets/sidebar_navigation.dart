@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:graduation_project_frontend/constants/colors.dart';
-import 'package:graduation_project_frontend/widgets/customTextStyle.dart';
+import 'package:radintel/constants/colors.dart';
+import 'package:radintel/widgets/customTextStyle.dart';
 
 class SidebarNavigation extends StatefulWidget {
   final int selectedIndex;

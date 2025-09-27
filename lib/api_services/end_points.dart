@@ -26,7 +26,8 @@ class EndPoints {
   static String extendDeadline(String recordId) =>
       "Record/extendStudyDeadline/$recordId";
   static String analyzeImage(String id) =>
-      "AIReports/analyzeImage/$id"; //67c5a83c4b4c95a43a780f78
+      "AIReports/analyzeImage/$id";
+      // "AIReports/analyzeImage/$id";
   static String upload(String id, String? email, bool? flag) {
     String url = "upload_dicom?centerId=$id";
 
@@ -92,7 +93,6 @@ class ApiKey {
   static String message = "message";
   static String email = "email";
   static String name = "name";
-  static String massage = "massage";
   static String password = "password";
   static String phone = "phone";
 
