@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart' hide AnimationStyle; // hide AnimationStyle from material.dart
+import 'package:flutter/material.dart'
+    hide AnimationStyle; // hide AnimationStyle from material.dart
 import 'package:radintel/constants/colors.dart';
 import 'package:radintel/cubit/for_Center/uploaded_dicoms_cubit.dart';
 import 'package:radintel/cubit/login_cubit.dart';
@@ -18,7 +19,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // تم حذف تعريف enum AnimationStyle هنا، لضمان استخدام التعريف من custom_toast.dart
-
 
 class DicomsListPage extends StatefulWidget {
   static final id = "DicomsListPage";
@@ -97,7 +97,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
           ),
         ],
       ),
-      child: LayoutBuilder( // استخدام LayoutBuilder لتكييف المحتوى بناءً على العرض المتاح
+      child: LayoutBuilder(
+        // استخدام LayoutBuilder لتكييف المحتوى بناءً على العرض المتاح
         builder: (context, constraints) {
           // إذا كان العرض صغيراً جداً، اجعل الأزرار وقسم البحث في عمود
           if (constraints.maxWidth < 600) {
@@ -123,13 +124,15 @@ class _DicomsListPageState extends State<DicomsListPage> {
               children: [
                 CustomButton(
                   text: "Upload",
-                  width: 100, // يمكن أن يكون عرض ثابت هنا إذا كان هناك مساحة كافية
+                  width:
+                      100, // يمكن أن يكون عرض ثابت هنا إذا كان هناك مساحة كافية
                   onTap: () {
                     _showUploadDialog(context);
                   },
                 ),
                 SizedBox(width: 12),
-                Expanded( // استخدام Expanded لجعل مربع البحث يأخذ المساحة المتبقية
+                Expanded(
+                  // استخدام Expanded لجعل مربع البحث يأخذ المساحة المتبقية
                   child: _buildSearchBox(),
                 ),
                 SizedBox(width: 24), // تم تعديل المسافة هنا
@@ -150,7 +153,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
       barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext context) {
         return Center(
-          child: ConstrainedBox( // استخدام ConstrainedBox للتحكم في حجم UploadScreen
+          child: ConstrainedBox(
+            // استخدام ConstrainedBox للتحكم في حجم UploadScreen
             constraints: BoxConstraints(
               maxWidth: 800, // حد أقصى للعرض
               maxHeight: 600, // حد أقصى للارتفاع
@@ -308,42 +312,51 @@ class _DicomsListPageState extends State<DicomsListPage> {
               ],
             ),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: SingleChildScrollView( // يسمح بالتمرير العمودي للجدول بأكمله
+            child: SingleChildScrollView(
+              // يسمح بالتمرير العمودي للجدول بأكمله
               scrollDirection: Axis.vertical,
 
-              child: LayoutBuilder( // إضافة LayoutBuilder هنا
-                builder: (context, constraints) {
-                  return SingleChildScrollView( // يسمح بالتمرير الأفقي لـ DataTable
-                    scrollDirection: Axis.horizontal,
-                    child: ConstrainedBox( // استخدام ConstrainedBox لجعل الجدول يملأ العرض المتاح
-                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                      child: DataTable(
-                        columnSpacing: 30,
-                        // تم حذف خاصية headingRowColor هنا للعودة إلى الشكل القديم
-                        // تم حذف خاصية dataRowColor هنا للعودة إلى الشكل القديم
-                        columns: [
-                          DataColumn(label: Text("Comment", style: _columnStyle())),
-                          DataColumn(label: Text("Action", style: _columnStyle())),
-                          DataColumn(label: Text("Emergency", style: _columnStyle())),
-                          DataColumn(label: Text("Status", style: _columnStyle())),
-                          DataColumn(
-                              label: Text("Patient Name", style: _columnStyle())),
-                          DataColumn(
-                              label: Text("Study Date", style: _columnStyle())),
-                          DataColumn(label: Text("Deadline", style: _columnStyle())),
-                          DataColumn(label: Text("Modality", style: _columnStyle())),
-                          DataColumn(label: Text("Doctor", style: _columnStyle())),
-                          DataColumn(label: Text("QR Code", style: _columnStyle())),
-                        ],
-                        rows: filteredRecords
-                            .map((record) => _buildDataRow(record, context))
-                            .toList(),
-                      ),
+              child: LayoutBuilder(// إضافة LayoutBuilder هنا
+                  builder: (context, constraints) {
+                return SingleChildScrollView(
+                  // يسمح بالتمرير الأفقي لـ DataTable
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    // استخدام ConstrainedBox لجعل الجدول يملأ العرض المتاح
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: DataTable(
+                      columnSpacing: 30,
+                      // تم حذف خاصية headingRowColor هنا للعودة إلى الشكل القديم
+                      // تم حذف خاصية dataRowColor هنا للعودة إلى الشكل القديم
+                      columns: [
+                        DataColumn(
+                            label: Text("Comment", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Action", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Emergency", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Status", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Patient Name", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Study Date", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Deadline", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Modality", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("Doctor", style: _columnStyle())),
+                        DataColumn(
+                            label: Text("QR Code", style: _columnStyle())),
+                      ],
+                      rows: filteredRecords
+                          .map((record) => _buildDataRow(record, context))
+                          .toList(),
                     ),
-                  );
-                }
-
-              ),
+                  ),
+                );
+              }),
             ),
           );
         } else {
@@ -389,7 +402,7 @@ class _DicomsListPageState extends State<DicomsListPage> {
     final dateFormat = DateFormat('yyyy-MM-dd');
     final timeFormat = DateFormat('HH:mm');
     final String link =
-         "https://patient-web-29xx.vercel.app/#/showReport/${record.id}";
+        "https://patient-web-29xx.vercel.app/#/showReport/${record.id}";
     void launchURL() async {
       final Uri url = Uri.parse(link);
       if (await canLaunchUrl(url)) {
@@ -406,7 +419,8 @@ class _DicomsListPageState extends State<DicomsListPage> {
       cells: [
         DataCell(
           Row(
-            mainAxisSize: MainAxisSize.min, // لجعل الأزرار لا تتمدد أكثر من اللازم
+            mainAxisSize:
+                MainAxisSize.min, // لجعل الأزرار لا تتمدد أكثر من اللازم
             children: [
               // زر إضافة تعليق
               TextButton(
@@ -470,10 +484,10 @@ class _DicomsListPageState extends State<DicomsListPage> {
                       emergencyStates[record.id] = val;
                     });
                     context.read<UploadedDicomsCubit>().updateDicomflag(
-                          context,
-                          record.id,
-                          {"flag": val.toString()},
-                        );
+                      context,
+                      record.id,
+                      {"flag": val.toString()},
+                    );
                   },
             activeColor: record.status.toLowerCase() == "completed" ||
                     record.status.toLowerCase() == "canceled"
@@ -540,11 +554,15 @@ class _DicomsListPageState extends State<DicomsListPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                record.createdAt != null ? dateFormat.format(record.createdAt!) : 'N/A',
+                record.createdAt != null
+                    ? dateFormat.format(record.createdAt!)
+                    : 'N/A',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
-                record.createdAt != null ? timeFormat.format(record.createdAt!) : '',
+                record.createdAt != null
+                    ? timeFormat.format(record.createdAt!)
+                    : '',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
@@ -562,11 +580,15 @@ class _DicomsListPageState extends State<DicomsListPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                record.deadline != null ? dateFormat.format(record.deadline!) : 'N/A',
+                record.deadline != null
+                    ? dateFormat.format(record.deadline!)
+                    : 'N/A',
                 style: customTextStyle(14, FontWeight.bold, Colors.black),
               ),
               Text(
-                record.deadline != null ? timeFormat.format(record.deadline!) : '',
+                record.deadline != null
+                    ? timeFormat.format(record.deadline!)
+                    : '',
                 style: customTextStyle(12, FontWeight.normal, Colors.grey),
               ),
             ],
@@ -657,162 +679,175 @@ class _DicomsListPageState extends State<DicomsListPage> {
     }
   }
 
-void _showCommentDialog(RecordModel record) {
-  final ScrollController _scrollController = ScrollController();
+  void _showCommentDialog(RecordModel record) {
+    final ScrollController _scrollController = ScrollController();
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Comments',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.blue[800],
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            'Comments',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.blue[800],
+            ),
           ),
-        ),
-        content: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.5,
-          width: MediaQuery.of(context).size.width * 0.3,
-          child: FutureBuilder<List<DicomComment>>(
-            future: context.read<UploadedDicomsCubit>().fetchComment(record.id),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final comments = snapshot.data ?? [];
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width * 0.3,
+            child: FutureBuilder<List<DicomComment>>(
+              future:
+                  context.read<UploadedDicomsCubit>().fetchComment(record.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData ||
+                    snapshot.data == null ||
+                    snapshot.data!.isEmpty) {
+                  return SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        "No comments available",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  );
+                } else {
+                  final comments = snapshot.data ?? [];
 
-                if (comments.isEmpty) {
-                  return Center(
-                    child: Text(
-                      "No comments available",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                  if (comments.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No comments available",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return Scrollbar(
+                    controller: _scrollController,
+                    thumbVisibility: true,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: comments.length,
+                      itemBuilder: (context, index) {
+                        final comment = comments[index];
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFF8F9FA),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: (comment.image != null &&
+                                            comment.image.isNotEmpty)
+                                        ? NetworkImage(comment.image)
+                                        : AssetImage(
+                                                'assets/default_avatar.png')
+                                            as ImageProvider,
+                                    radius: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          comment.name,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          comment.userType,
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDate(comment.createdAt),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ...?comment.dicomComments?.map(
+                                (c) => Container(
+                                  margin: EdgeInsets.only(bottom: 6),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    c,
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   );
                 }
-
-                return Scrollbar(
-                  controller: _scrollController,
-                  thumbVisibility: true,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: comments.length,
-                    itemBuilder: (context, index) {
-                      final comment = comments[index];
-
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFF8F9FA),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
-                            )
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundImage: (comment.image != null &&
-                                          comment.image.isNotEmpty)
-                                      ? NetworkImage(comment.image)
-                                      : AssetImage('assets/default_avatar.png')
-                                          as ImageProvider,
-                                  radius: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        comment.name,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        comment.userType,
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  _formatDate(comment.createdAt),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            ...?comment.dicomComments?.map(
-                              (c) => Container(
-                                margin: EdgeInsets.only(bottom: 6),
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[50],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  c,
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+              },
             ),
           ),
-        ],
-      );
-    },
-  );
-}
-
-String _formatDate(DateTime dateTime) {
-  try {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-  } catch (e) {
-    return '';
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Close',
+                style:
+                    TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
-}
 
-
-
-
+  String _formatDate(DateTime dateTime) {
+    try {
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } catch (e) {
+      return '';
+    }
+  }
 
   void _addCommentDialog(RecordModel record) {
     final TextEditingController _commentController = TextEditingController();
@@ -836,10 +871,12 @@ String _formatDate(DateTime dateTime) {
                   color: Colors.blue[800],
                 ),
               ),
-              content: ConstrainedBox( // استخدام ConstrainedBox للتحكم في أبعاد المحتوى
+              content: ConstrainedBox(
+                // استخدام ConstrainedBox للتحكم في أبعاد المحتوى
                 constraints: BoxConstraints(
                   maxWidth: 500, // أقصى عرض
-                  maxHeight: MediaQuery.of(context).size.height * 0.4, // أقصى ارتفاع 40% من الشاشة
+                  maxHeight: MediaQuery.of(context).size.height *
+                      0.4, // أقصى ارتفاع 40% من الشاشة
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -888,7 +925,8 @@ String _formatDate(DateTime dateTime) {
                           final commentText = _commentController.text.trim();
                           if (commentText.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Comment cannot be empty.")),
+                              SnackBar(
+                                  content: Text("Comment cannot be empty.")),
                             );
                             return;
                           }
@@ -938,7 +976,8 @@ String _formatDate(DateTime dateTime) {
     );
   }
 
-  void _showQrCodeDialog(BuildContext context, String link, VoidCallback launchUrl) {
+  void _showQrCodeDialog(
+      BuildContext context, String link, VoidCallback launchUrl) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -978,7 +1017,6 @@ String _formatDate(DateTime dateTime) {
     );
   }
 
-
   Widget _buildRedirectButton(RecordModel record, BuildContext context) {
     return Material(
       color: Colors.transparent,
@@ -1004,8 +1042,9 @@ String _formatDate(DateTime dateTime) {
                     // Call the reassign function
                     final userId = context.read<CenterCubit>().state;
 
-                    context.read<UploadedDicomsCubit>().reassign(record.id, userId);
-
+                    context
+                        .read<UploadedDicomsCubit>()
+                        .reassign(record.id, userId);
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,

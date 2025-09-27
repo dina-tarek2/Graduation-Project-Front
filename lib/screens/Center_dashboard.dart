@@ -442,7 +442,7 @@ class _MedicalDashboardScreenState extends State<MedicalDashboardScreen> {
   void _navigateToChat(Doctor radiologist) {
 
     final mainState = MainScaffold.of(context);
-    mainState?.navigateToScreen(4);
+    mainState?.navigateToScreen(3);
 
   }
 }

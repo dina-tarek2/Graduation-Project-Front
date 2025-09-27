@@ -159,10 +159,10 @@ class SettingCubit extends Cubit<SettingState> {
           emit(
               SettingError('Failed to initiate payment - missing payment URL'));
         }
-        final req = await api.patch(
-          "https://graduation-project-mmih.vercel.app/api/payments/confirm/$orderId",
-          data: {},
-        );
+        // final req = await api.patch(
+        //   "https://graduation-project-mmih.vercel.app/api/payments/confirm/$orderId",
+        //   data: {},
+        // );
       } else {
         emit(SettingError('Invalid payment response'));
       }
