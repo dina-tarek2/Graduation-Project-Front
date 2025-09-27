@@ -615,7 +615,7 @@ class _NewDicomPageState extends State<NewDicomPage>
             Expanded(
               child: _buildGradientButton(
                 onPressed: () =>
-                    context.read<RecordsListCubit>().approveRecord(record.id),
+                    context.read<RecordsListCubit>().approveRecord(record.id, record.radiologistId),
                 icon: Icons.check_circle_outline,
                 label: "Approve",
                 colors: [const Color(0xFF081C34), const Color(0xFF0F2344)],
@@ -626,7 +626,7 @@ class _NewDicomPageState extends State<NewDicomPage>
             Expanded(
               child: _buildGradientButton(
                 onPressed: () =>
-                    context.read<RecordsListCubit>().cancelRecord(record.id),
+                    context.read<RecordsListCubit>().cancelRecord(record.id, record.radiologistId),
                 icon: Icons.cancel_outlined,
                 label: "Reject",
                 colors: [Colors.red.shade400, Colors.red.shade500],

@@ -57,7 +57,7 @@ class RecordsListCubit extends Cubit<RecordsListState> {
   }
 
   // approve api
-  Future<void> approveRecord(String id) async {
+  Future<void> approveRecord(String id, String radiologistId) async {
     emit(RecordsListLoading());
     try {
       final response = await api.post(
@@ -67,9 +67,11 @@ class RecordsListCubit extends Cubit<RecordsListState> {
       if (response.statusCode == 200) {
         print("Record approved successfully");
         emit(NewRecordSuccess());
+        fetchRecords(radiologistId);
       } else {
         print("Server error: ${response.statusCode} - ${response.data}");
-        throw Exception("Failed to approve record: ${response.statusCode} - ${response.data}");
+        throw Exception(
+            "Failed to approve record: ${response.statusCode} - ${response.data}");
       }
     } catch (e) {
       print('Error approving record: $e');
@@ -78,18 +80,20 @@ class RecordsListCubit extends Cubit<RecordsListState> {
   }
 
   // cancel api
-  Future<void> cancelRecord(String id) async {
+  Future<void> cancelRecord(String id, String radiologistId) async {
     emit(RecordsListLoading());
     try {
       final response = await api.post(
-        '${EndPoints.baseUrl}Record/cancel/$id',
+        '${EndPoints.baseUrl1}Record/cancel/$id',
       );
       if (response.statusCode == 200) {
         print("Record canceled successfully");
         emit(NewRecordSuccess());
+            fetchRecords(radiologistId);
       } else {
         print("Server error: ${response.statusCode} - ${response.data}");
-        throw Exception("Failed to cancel record: ${response.statusCode} - ${response.data}");
+        throw Exception(
+            "Failed to cancel record: ${response.statusCode} - ${response.data}");
       }
     } catch (e) {
       print('Error canceling record: $e');

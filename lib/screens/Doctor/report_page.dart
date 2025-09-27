@@ -1159,7 +1159,7 @@ class _MedicalReportPageState extends State<MedicalReportPage>
                             
                             await context
                                 .read<RecordsListCubit>()
-                                .cancelRecord(record.id);
+                                .cancelRecord(record.id, record.radiologistId);
                             
                             if (mounted) {
                               Navigator.pop(context); // Close dialog
